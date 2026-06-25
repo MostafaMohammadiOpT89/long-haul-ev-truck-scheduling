@@ -1,0 +1,4 @@
+Route_Class,Mean_Sync_Events_Full,Mean_Sync_Events_Partial,Mean_Sync_Events_Greedy,Mean_Sync_Pct_Full,Mean_Sync_Pct_Partial,Mean_Sync_Pct_Greedy,Mean_Idle_Time_Saved_Full_h,Mean_Idle_Time_Saved_Partial_h
+short,0.0,0.0,1.4,0.0,0.0,0.0,0.22811313071646308,0.0
+med,0.0,0.0,2.7333333333333334,0.0,0.0,0.0,0.41153124677192204,0.0
+long,0.0,0.0,3.466666666666667,0.0,0.0,0.0,0.8054797272523011,0.0

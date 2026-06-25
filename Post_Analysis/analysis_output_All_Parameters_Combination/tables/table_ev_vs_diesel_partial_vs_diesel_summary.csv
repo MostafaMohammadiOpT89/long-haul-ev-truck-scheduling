@@ -1,0 +1,12 @@
+Parameter,Value,Mean EV-diesel gap %,Mean EV-diesel gap min,Std,Std min,N paired feasible,N tested,Feasibility %
+Consumption rate (kWh/km),1.12,0.25,6.48,0.63,18.33,415,415,100.0
+Consumption rate (kWh/km),1.49,0.57,12.69,1.11,22.82,416,422,100.0
+Consumption rate (kWh/km),2.08,1.89,45.22,3.17,69.21,435,436,100.0
+Battery capacity (kWh),750.0,1.23,29.67,2.67,59.54,635,642,100.0
+Battery capacity (kWh),1000.0,0.61,13.94,1.29,27.55,631,631,100.0
+Charging power (kW),350.0,1.36,32.29,3.15,68.1,429,432,100.0
+Charging power (kW),500.0,0.84,20.24,1.44,35.22,422,424,100.0
+Charging power (kW),1000.0,0.54,12.63,1.0,22.73,415,417,100.0
+Distance per CS (km),60.0,0.94,19.1,1.61,29.88,16,16,100.0
+Distance per CS (km),80.0,1.21,25.26,1.74,32.18,18,19,100.0
+Distance per CS (km),100.0,1.62,34.18,1.94,34.73,18,19,100.0

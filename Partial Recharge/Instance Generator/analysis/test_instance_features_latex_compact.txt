@@ -1,0 +1,61 @@
+% Requires \usepackage{tabularx}
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabularx}{\linewidth}{l l r r l r r X r r r r}
+\hline
+Test Name & Route Class & Clusters & Total Customers & Variant & Total Route Distance (km) & Total Route Time (h) & Customers Per Cluster & Avg Cluster Distance (km) & Avg Intra-Cluster Distance (km) & Avg Inter-Cluster Distance (km) & Avg Service Time (h) \\
+\hline
+long\_cl1\_cu2 & long & 1 & 2 & - & 3670.33 & 52.4332 & [2] & 0.00 & 87.43 & 0.00 & 0.4128 \\
+long\_cl1\_cu4 & long & 1 & 4 & - & 3929.38 & 56.1340 & [4] & 0.00 & 30.00 & 0.00 & 0.2650 \\
+long\_cl2\_cu2\_Balanced & long & 2 & 2 & Balanced & 4485.46 & 64.0780 & [1,1] & 674.75 & 0.00 & 674.75 & 0.4579 \\
+long\_cl2\_cu2\_Unbalanced & long & 2 & 2 & Unbalanced & 4472.53 & 63.8932 & [1,1] & 972.92 & 0.00 & 972.92 & 0.4207 \\
+long\_cl2\_cu3\_Balanced & long & 2 & 3 & Balanced & 4400.36 & 62.8623 & [1,2] & 797.97 & 37.73 & 797.97 & 0.4761 \\
+long\_cl2\_cu4\_Balanced & long & 2 & 4 & Balanced & 4162.88 & 59.4697 & [2,2] & 459.89 & 52.93 & 459.89 & 0.2409 \\
+long\_cl2\_cu4\_Unbalanced & long & 2 & 4 & Unbalanced & 4576.22 & 65.3745 & [3,1] & 1030.26 & 103.29 & 1030.26 & 0.2304 \\
+long\_cl2\_cu5\_Balanced & long & 2 & 5 & Balanced & 5119.54 & 73.1362 & [3,2] & 988.26 & 73.77 & 988.26 & 0.2437 \\
+long\_cl3\_cu12\_Balanced & long & 3 & 12 & Balanced & 5097.76 & 72.8252 & [4,4,4] & 810.85 & 45.65 & 1081.13 & 0.1286 \\
+long\_cl3\_cu12\_Unbalanced & long & 3 & 12 & Unbalanced & 4355.65 & 62.2236 & [1,10,1] & 647.62 & 30.00 & 863.49 & 0.1340 \\
+long\_cl3\_cu14\_Balanced & long & 3 & 14 & Balanced & 5063.93 & 72.3419 & [5,5,4] & 807.74 & 30.00 & 1076.99 & 0.1190 \\
+long\_cl3\_cu3\_Balanced & long & 3 & 3 & Balanced & 5016.56 & 71.6651 & [1,1,1] & 818.32 & 0.00 & 1091.09 & 0.3899 \\
+long\_cl3\_cu4\_Balanced & long & 3 & 4 & Balanced & 4155.45 & 59.3636 & [2,1,1] & 680.25 & 62.77 & 907.00 & 0.2582 \\
+long\_cl3\_cu4\_Unbalanced & long & 3 & 4 & Unbalanced & 5020.14 & 71.7163 & [1,2,1] & 758.57 & 50.84 & 1011.43 & 0.2508 \\
+long\_cl3\_cu5\_Balanced & long & 3 & 5 & Balanced & 5518.38 & 78.8340 & [2,2,1] & 894.65 & 44.15 & 1192.87 & 0.2550 \\
+med\_cl1\_cu2 & med & 1 & 2 & - & 2710.05 & 38.7150 & [2] & 0.00 & 84.81 & 0.00 & 0.4260 \\
+med\_cl1\_cu4 & med & 1 & 4 & - & 2615.02 & 37.3575 & [4] & 0.00 & 30.00 & 0.00 & 0.2420 \\
+med\_cl2\_cu2\_Balanced & med & 2 & 2 & Balanced & 2737.17 & 39.1024 & [1,1] & 446.85 & 0.00 & 446.85 & 0.4159 \\
+med\_cl2\_cu2\_Unbalanced & med & 2 & 2 & Unbalanced & 2321.67 & 33.1667 & [1,1] & 258.77 & 0.00 & 258.77 & 0.4043 \\
+med\_cl2\_cu3\_Balanced & med & 2 & 3 & Balanced & 3074.20 & 43.9171 & [1,2] & 499.00 & 43.26 & 499.00 & 0.4393 \\
+med\_cl2\_cu4\_Balanced & med & 2 & 4 & Balanced & 2413.01 & 34.4716 & [2,2] & 436.35 & 42.90 & 436.35 & 0.2751 \\
+med\_cl2\_cu4\_Unbalanced & med & 2 & 4 & Unbalanced & 3105.84 & 44.3691 & [2,2] & 681.02 & 73.82 & 681.02 & 0.2348 \\
+med\_cl2\_cu5\_Balanced & med & 2 & 5 & Balanced & 2251.60 & 32.1658 & [3,2] & 286.03 & 47.68 & 286.03 & 0.2607 \\
+med\_cl3\_cu11\_Balanced & med & 3 & 11 & Balanced & 2534.30 & 36.2043 & [4,4,3] & 332.33 & 56.27 & 443.11 & 0.1281 \\
+med\_cl3\_cu13\_Balanced & med & 3 & 13 & Balanced & 2513.67 & 35.9096 & [5,4,4] & 369.80 & 30.00 & 493.07 & 0.1271 \\
+med\_cl3\_cu13\_Unbalanced & med & 3 & 13 & Unbalanced & 3189.23 & 45.5604 & [2,2,9] & 437.50 & 36.03 & 583.33 & 0.1135 \\
+med\_cl3\_cu3\_Balanced & med & 3 & 3 & Balanced & 3292.08 & 47.0297 & [1,1,1] & 477.29 & 0.00 & 636.38 & 0.4144 \\
+med\_cl3\_cu4\_Balanced & med & 3 & 4 & Balanced & 2265.07 & 32.3581 & [2,1,1] & 360.47 & 142.64 & 480.63 & 0.2684 \\
+med\_cl3\_cu4\_Unbalanced & med & 3 & 4 & Unbalanced & 2200.53 & 31.4361 & [2,1,1] & 399.06 & 132.66 & 532.08 & 0.2710 \\
+med\_cl3\_cu5\_Balanced & med & 3 & 5 & Balanced & 3472.59 & 49.6084 & [2,2,1] & 559.40 & 34.92 & 745.87 & 0.2871 \\
+short\_cl1\_cu2 & short & 1 & 2 & - & 1081.84 & 15.4549 & [2] & 0.00 & 39.79 & 0.00 & 0.4019 \\
+short\_cl1\_cu4 & short & 1 & 4 & - & 1265.62 & 18.0803 & [4] & 0.00 & 30.00 & 0.00 & 0.2092 \\
+short\_cl2\_cu2\_Balanced & short & 2 & 2 & Balanced & 1306.92 & 18.6703 & [1,1] & 213.84 & 0.00 & 213.84 & 0.4766 \\
+short\_cl2\_cu2\_Unbalanced & short & 2 & 2 & Unbalanced & 1512.53 & 21.6076 & [1,1] & 221.86 & 0.00 & 221.86 & 0.4272 \\
+short\_cl2\_cu3\_Balanced & short & 2 & 3 & Balanced & 1109.01 & 15.8429 & [1,2] & 108.55 & 72.96 & 108.55 & 0.3558 \\
+short\_cl2\_cu4\_Balanced & short & 2 & 4 & Balanced & 1221.36 & 17.4480 & [2,2] & 162.51 & 84.56 & 162.51 & 0.2685 \\
+short\_cl2\_cu4\_Unbalanced & short & 2 & 4 & Unbalanced & 1408.63 & 20.1233 & [1,3] & 159.19 & 93.35 & 159.19 & 0.2364 \\
+short\_cl2\_cu5\_Balanced & short & 2 & 5 & Balanced & 1249.49 & 17.8499 & [3,2] & 175.63 & 35.51 & 175.63 & 0.2610 \\
+short\_cl3\_cu10\_Balanced & short & 3 & 10 & Balanced & 1761.42 & 25.1631 & [4,3,3] & 260.70 & 30.00 & 347.60 & 0.1333 \\
+short\_cl3\_cu12\_Balanced & short & 3 & 12 & Balanced & 1941.81 & 27.7401 & [4,4,4] & 277.09 & 43.40 & 369.45 & 0.1206 \\
+short\_cl3\_cu12\_Unbalanced & short & 3 & 12 & Unbalanced & 1541.88 & 22.0269 & [8,2,2] & 215.62 & 43.30 & 287.50 & 0.1268 \\
+short\_cl3\_cu3\_Balanced & short & 3 & 3 & Balanced & 1450.69 & 20.7242 & [1,1,1] & 234.78 & 0.00 & 313.04 & 0.4172 \\
+short\_cl3\_cu4\_Balanced & short & 3 & 4 & Balanced & 1270.79 & 18.1542 & [2,1,1] & 241.75 & 106.66 & 322.33 & 0.2682 \\
+short\_cl3\_cu4\_Unbalanced & short & 3 & 4 & Unbalanced & 1324.85 & 18.9264 & [2,1,1] & 197.50 & 31.86 & 263.33 & 0.2117 \\
+short\_cl3\_cu5\_Balanced & short & 3 & 5 & Balanced & 1876.99 & 26.8142 & [2,2,1] & 259.19 & 68.40 & 345.58 & 0.2621 \\
+\hline
+\end{tabularx}
+\vspace{0.5ex}
+\footnotesize Key columns only. Distances in km; times in h.
+\par\footnotesize Abbreviations: Dist\_km=Total Route Distance (km), Time\_h=Total Route Time (h), Cust/Cl=Customers Per Cluster, AvgCl\_km=Avg Cluster Distance (km), AvgIntra\_km=Avg Intra-Cluster Distance (km), AvgInter\_km=Avg Inter-Cluster Distance (km), AvgSvc\_h=Avg Service Time (h).
+\end{table}

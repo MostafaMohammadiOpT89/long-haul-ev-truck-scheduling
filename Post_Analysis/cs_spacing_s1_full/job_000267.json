@@ -1,0 +1,12 @@
+{
+  "job_id": "000267",
+  "algorithm": "full_labeling",
+  "tag": "",
+  "instance_name": "med_cl3_cu5_Balanced",
+  "instance_path": "Full Recharge/EVTDSPalgorithmmain/instances/med_cl3_cu5_Balanced/med_cl3_cu5_Balanced.txt",
+  "consumption": 1.49,
+  "distance_per_cs": 220.0,
+  "battery_cap": 750.0,
+  "charging_power": 350.0,
+  "safety_buffer_frac": null
+}

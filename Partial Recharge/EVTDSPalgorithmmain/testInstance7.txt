@@ -1,0 +1,17 @@
+
+
+
+VehicleId,VehicleLocation,VehicleLocationId
+0,Porsgrunn,16
+
+NodeId,Location,LocationId,TimeWindowStart,TimeWindowEnd,Weight,Volume,Revenue,ServiceTime
+1,Sandefjord,19,1,6,15,18,63.62,1.5
+2,Drammen,8,1,6,15,18,63.62,1.5
+3,OsloS,1,4,20,13,4,134.77,1.3
+4,Lillestrom,9,4,28,16,15,211.94,1.6
+5,Gjovik,76,8,28,20,17,267.8,2.0
+6,Lillehammer,77,6,32,-16,-9,0.0,1.6
+7,Dombaas,86,12,45,-20,-13,0.0,2.0
+8,Rennebu,106,14,58,4,9,800.58,0.4
+9,TrondheimS,110,14,69,-16,-14,0.0,1.6
+

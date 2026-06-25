@@ -1,0 +1,1391 @@
+{
+  "metadata": {
+    "timestamp": "20260121_095318",
+    "total_scenarios": 2,
+    "parameters": {
+      "consumption_rates": [
+        2.08
+      ],
+      "distances_per_cs": [
+        40,
+        100
+      ],
+      "battery_capacities": [
+        350
+      ],
+      "charging_powers": [
+        350
+      ]
+    }
+  },
+  "results": [
+    {
+      "instance_id": "long_cl3_cu12_Balanced",
+      "test_bed_id": "TB_long_cl3_cu12_Balanced",
+      "battery_capacity_kWh": 350,
+      "charging_station_interval_km": 40,
+      "charging_power_kW": 350,
+      "energy_consumption_rate_kWh_per_km": 2.08,
+      "number_of_customer_locations": 14,
+      "synchronization_enabled": true,
+      "feasible": false,
+      "reason_if_infeasible": "No valid path found",
+      "total_route_time_hours": null,
+      "computation_time_seconds": 1801.5009618000006,
+      "number_of_labels_generated": 215067,
+      "number_of_labels_dominated": 109214,
+      "number_of_cs_stops": 0,
+      "number_of_breaks": 0,
+      "number_of_rests": 0,
+      "number_of_synchronized_events": 0,
+      "number_of_unsynchronized_charging_events": 0,
+      "number_of_unsynchronized_breaks": 0,
+      "number_of_unsynchronized_rests": 0,
+      "total_idle_charging_time_minutes": 0,
+      "activity_timeline": [],
+      "percentage_of_charging_events_synchronized": 0.0
+    },
+    {
+      "instance_id": "long_cl3_cu12_Balanced",
+      "test_bed_id": "TB_long_cl3_cu12_Balanced",
+      "battery_capacity_kWh": 350,
+      "charging_station_interval_km": 100,
+      "charging_power_kW": 350,
+      "energy_consumption_rate_kWh_per_km": 2.08,
+      "number_of_customer_locations": 14,
+      "synchronization_enabled": true,
+      "feasible": true,
+      "reason_if_infeasible": null,
+      "total_route_time_hours": 174.5315929352079,
+      "computation_time_seconds": 744.1967451,
+      "number_of_labels_generated": 288036,
+      "number_of_labels_dominated": 126477,
+      "number_of_cs_stops": 43,
+      "number_of_breaks": 8,
+      "number_of_rests": 8,
+      "number_of_synchronized_events": 43,
+      "number_of_unsynchronized_charging_events": 0,
+      "number_of_unsynchronized_breaks": 8,
+      "number_of_unsynchronized_rests": 8,
+      "total_idle_charging_time_minutes": 0.0,
+      "activity_timeline": [
+        {
+          "type": "drive",
+          "start_time": 0.0,
+          "end_time": 1.6666666666666667,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_1_2_0",
+          "start_time": 1.6666666666666667,
+          "end_time": 1.7466666666666668,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 1.7466666666666668,
+          "end_time": 1.7466666666666668,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 1.7466666666666668,
+          "end_time": 3.4133333333333336,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_1_2_1",
+          "start_time": 3.4133333333333336,
+          "end_time": 3.4933333333333336,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 3.4933333333333336,
+          "end_time": 3.4933333333333336,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 3.4933333333333336,
+          "end_time": 4.66,
+          "duration_minutes": 1.1666666666666665,
+          "distance_km": 69.99999999999999
+        },
+        {
+          "type": "break",
+          "start_time": 4.66,
+          "end_time": 5.41,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 5.41,
+          "end_time": 5.91,
+          "duration_minutes": 0.5000000000000002,
+          "distance_km": 30.000000000000014
+        },
+        {
+          "type": "service@CS_1_2_2",
+          "start_time": 5.91,
+          "end_time": 5.99,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 5.99,
+          "end_time": 5.99,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 5.99,
+          "end_time": 7.656666666666667,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_1_2_3",
+          "start_time": 7.656666666666667,
+          "end_time": 7.736666666666667,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 7.736666666666667,
+          "end_time": 7.736666666666667,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 7.736666666666667,
+          "end_time": 9.403333333333334,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_1_2_4",
+          "start_time": 9.403333333333334,
+          "end_time": 9.483333333333334,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 9.483333333333334,
+          "end_time": 9.483333333333334,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 9.483333333333334,
+          "end_time": 10.15,
+          "duration_minutes": 0.6666666666666661,
+          "distance_km": 39.999999999999964
+        },
+        {
+          "type": "rest",
+          "start_time": 10.15,
+          "end_time": 21.15,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 21.15,
+          "end_time": 22.15,
+          "duration_minutes": 1.0000000000000007,
+          "distance_km": 60.00000000000004
+        },
+        {
+          "type": "service@CS_1_2_5",
+          "start_time": 22.15,
+          "end_time": 22.229999999999997,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 22.229999999999997,
+          "end_time": 22.229999999999997,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 22.229999999999997,
+          "end_time": 23.896666666666665,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "drive",
+          "start_time": 23.896666666666665,
+          "end_time": 24.495708335340233,
+          "duration_minutes": 0.5990416686735671,
+          "distance_km": 35.942500120414024
+        },
+        {
+          "type": "service@2",
+          "start_time": 24.495708335340233,
+          "end_time": 24.629908335340232,
+          "duration_minutes": 0.1342
+        },
+        {
+          "type": "drive",
+          "start_time": 24.629908335340232,
+          "end_time": 24.879908335340232,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@CS_2_3_0",
+          "start_time": 24.879908335340232,
+          "end_time": 24.95990833534023,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 24.95990833534023,
+          "end_time": 24.95990833534023,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 24.95990833534023,
+          "end_time": 25.20990833534023,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@3",
+          "start_time": 25.20990833534023,
+          "end_time": 25.32550833534023,
+          "duration_minutes": 0.1156
+        },
+        {
+          "type": "drive",
+          "start_time": 25.32550833534023,
+          "end_time": 25.57550833534023,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "drive",
+          "start_time": 25.57550833534023,
+          "end_time": 25.82550833534023,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@4",
+          "start_time": 25.82550833534023,
+          "end_time": 25.913208335340233,
+          "duration_minutes": 0.0877
+        },
+        {
+          "type": "drive",
+          "start_time": 25.913208335340233,
+          "end_time": 26.147499999999997,
+          "duration_minutes": 0.23429166465976525,
+          "distance_km": 14.057499879585915
+        },
+        {
+          "type": "break",
+          "start_time": 26.147499999999997,
+          "end_time": 26.897499999999997,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 26.897499999999997,
+          "end_time": 26.913208335340233,
+          "duration_minutes": 0.015708335340234747,
+          "distance_km": 0.9425001204140848
+        },
+        {
+          "type": "drive",
+          "start_time": 26.913208335340233,
+          "end_time": 27.163208335340233,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@5",
+          "start_time": 27.163208335340233,
+          "end_time": 27.274008335340234,
+          "duration_minutes": 0.1108
+        },
+        {
+          "type": "drive",
+          "start_time": 27.274008335340234,
+          "end_time": 27.524008335340234,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@CS_5_6_0",
+          "start_time": 27.524008335340234,
+          "end_time": 27.604008335340232,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 27.604008335340232,
+          "end_time": 27.604008335340232,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 27.604008335340232,
+          "end_time": 27.854008335340232,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@6",
+          "start_time": 27.854008335340232,
+          "end_time": 27.95830833534023,
+          "duration_minutes": 0.1043
+        },
+        {
+          "type": "drive",
+          "start_time": 27.95830833534023,
+          "end_time": 29.6249750020069,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_6_7_0",
+          "start_time": 29.6249750020069,
+          "end_time": 29.704975002006897,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 29.704975002006897,
+          "end_time": 29.704975002006897,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 29.704975002006897,
+          "end_time": 31.371641668673565,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_6_7_1",
+          "start_time": 31.371641668673565,
+          "end_time": 31.451641668673563,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 31.451641668673563,
+          "end_time": 31.451641668673563,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 31.451641668673563,
+          "end_time": 31.852599999999995,
+          "duration_minutes": 0.4009583313264313,
+          "distance_km": 24.05749987958588
+        },
+        {
+          "type": "rest",
+          "start_time": 31.852599999999995,
+          "end_time": 42.852599999999995,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 42.852599999999995,
+          "end_time": 44.11830833534023,
+          "duration_minutes": 1.2657083353402354,
+          "distance_km": 75.94250012041412
+        },
+        {
+          "type": "service@CS_6_7_2",
+          "start_time": 44.11830833534023,
+          "end_time": 44.19830833534023,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 44.19830833534023,
+          "end_time": 44.19830833534023,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 44.19830833534023,
+          "end_time": 45.864975002006894,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_6_7_3",
+          "start_time": 45.864975002006894,
+          "end_time": 45.94497500200689,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 45.94497500200689,
+          "end_time": 45.94497500200689,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 45.94497500200689,
+          "end_time": 47.51259999999999,
+          "duration_minutes": 1.5676249979930978,
+          "distance_km": 94.05749987958588
+        },
+        {
+          "type": "break",
+          "start_time": 47.51259999999999,
+          "end_time": 48.26259999999999,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 48.26259999999999,
+          "end_time": 48.36164166867356,
+          "duration_minutes": 0.0990416686735689,
+          "distance_km": 5.942500120414134
+        },
+        {
+          "type": "service@CS_6_7_4",
+          "start_time": 48.36164166867356,
+          "end_time": 48.44164166867356,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 48.44164166867356,
+          "end_time": 48.44164166867356,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 48.44164166867356,
+          "end_time": 50.108308335340226,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_6_7_5",
+          "start_time": 50.108308335340226,
+          "end_time": 50.188308335340224,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 50.188308335340224,
+          "end_time": 50.188308335340224,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 50.188308335340224,
+          "end_time": 51.85497500200689,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "drive",
+          "start_time": 51.85497500200689,
+          "end_time": 52.06862797132734,
+          "duration_minutes": 0.21365296932045036,
+          "distance_km": 12.819178159227022
+        },
+        {
+          "type": "service@7",
+          "start_time": 52.06862797132734,
+          "end_time": 52.20222797132734,
+          "duration_minutes": 0.1336
+        },
+        {
+          "type": "drive",
+          "start_time": 52.20222797132734,
+          "end_time": 52.45222797132734,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "drive",
+          "start_time": 52.45222797132734,
+          "end_time": 52.70222797132734,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@8",
+          "start_time": 52.70222797132734,
+          "end_time": 52.840827971327336,
+          "duration_minutes": 0.1386
+        },
+        {
+          "type": "drive",
+          "start_time": 52.840827971327336,
+          "end_time": 53.090827971327336,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@CS_8_9_0",
+          "start_time": 53.090827971327336,
+          "end_time": 53.170827971327334,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 53.170827971327334,
+          "end_time": 53.170827971327334,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "rest",
+          "start_time": 53.170827971327334,
+          "end_time": 64.17082797132733,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 64.17082797132733,
+          "end_time": 64.42082797132733,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@9",
+          "start_time": 64.42082797132733,
+          "end_time": 64.55882797132733,
+          "duration_minutes": 0.138
+        },
+        {
+          "type": "drive",
+          "start_time": 64.55882797132733,
+          "end_time": 64.80882797132733,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "drive",
+          "start_time": 64.80882797132733,
+          "end_time": 65.05882797132733,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@10",
+          "start_time": 65.05882797132733,
+          "end_time": 65.20122797132733,
+          "duration_minutes": 0.1424
+        },
+        {
+          "type": "drive",
+          "start_time": 65.20122797132733,
+          "end_time": 65.45122797132733,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@CS_10_11_0",
+          "start_time": 65.45122797132733,
+          "end_time": 65.53122797132733,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 65.53122797132733,
+          "end_time": 65.53122797132733,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 65.53122797132733,
+          "end_time": 65.78122797132733,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@11",
+          "start_time": 65.78122797132733,
+          "end_time": 65.91822797132733,
+          "duration_minutes": 0.137
+        },
+        {
+          "type": "drive",
+          "start_time": 65.91822797132733,
+          "end_time": 67.584894637994,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_11_12_0",
+          "start_time": 67.584894637994,
+          "end_time": 67.664894637994,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 67.664894637994,
+          "end_time": 67.664894637994,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 67.664894637994,
+          "end_time": 69.24822797132732,
+          "duration_minutes": 1.583333333333333,
+          "distance_km": 94.99999999999999
+        },
+        {
+          "type": "break",
+          "start_time": 69.24822797132732,
+          "end_time": 69.99822797132732,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 69.99822797132732,
+          "end_time": 70.08156130466065,
+          "duration_minutes": 0.0833333333333337,
+          "distance_km": 5.000000000000022
+        },
+        {
+          "type": "service@CS_11_12_1",
+          "start_time": 70.08156130466065,
+          "end_time": 70.16156130466065,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 70.16156130466065,
+          "end_time": 70.16156130466065,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 70.16156130466065,
+          "end_time": 71.82822797132732,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_11_12_2",
+          "start_time": 71.82822797132732,
+          "end_time": 71.90822797132732,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 71.90822797132732,
+          "end_time": 71.90822797132732,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 71.90822797132732,
+          "end_time": 73.57489463799399,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_11_12_3",
+          "start_time": 73.57489463799399,
+          "end_time": 73.65489463799399,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 73.65489463799399,
+          "end_time": 73.65489463799399,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 73.65489463799399,
+          "end_time": 74.6162464676039,
+          "duration_minutes": 0.9613518296099112,
+          "distance_km": 57.68110977659467
+        },
+        {
+          "type": "service@12",
+          "start_time": 74.6162464676039,
+          "end_time": 74.75814646760391,
+          "duration_minutes": 0.1419
+        },
+        {
+          "type": "drive",
+          "start_time": 74.75814646760391,
+          "end_time": 74.88012797132733,
+          "duration_minutes": 0.1219815037234202,
+          "distance_km": 7.318890223405212
+        },
+        {
+          "type": "rest",
+          "start_time": 74.88012797132733,
+          "end_time": 85.88012797132733,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 85.88012797132733,
+          "end_time": 86.00814646760391,
+          "duration_minutes": 0.1280184962765798,
+          "distance_km": 7.681109776594788
+        },
+        {
+          "type": "service@CS_12_13_0",
+          "start_time": 86.00814646760391,
+          "end_time": 86.0881464676039,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 86.0881464676039,
+          "end_time": 86.0881464676039,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 86.0881464676039,
+          "end_time": 86.3381464676039,
+          "duration_minutes": 0.25,
+          "distance_km": 15.0
+        },
+        {
+          "type": "service@13",
+          "start_time": 86.3381464676039,
+          "end_time": 86.49754646760391,
+          "duration_minutes": 0.1594
+        },
+        {
+          "type": "drive",
+          "start_time": 86.49754646760391,
+          "end_time": 88.16421313427058,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_0",
+          "start_time": 88.16421313427058,
+          "end_time": 88.24421313427058,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 88.24421313427058,
+          "end_time": 88.24421313427058,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 88.24421313427058,
+          "end_time": 89.91087980093725,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_1",
+          "start_time": 89.91087980093725,
+          "end_time": 89.99087980093725,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 89.99087980093725,
+          "end_time": 89.99087980093725,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 89.99087980093725,
+          "end_time": 90.77952797132734,
+          "duration_minutes": 0.7886481703900863,
+          "distance_km": 47.31889022340518
+        },
+        {
+          "type": "break",
+          "start_time": 90.77952797132734,
+          "end_time": 91.52952797132734,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 91.52952797132734,
+          "end_time": 92.40754646760392,
+          "duration_minutes": 0.8780184962765805,
+          "distance_km": 52.68110977659483
+        },
+        {
+          "type": "service@CS_13_14_2",
+          "start_time": 92.40754646760392,
+          "end_time": 92.48754646760392,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 92.48754646760392,
+          "end_time": 92.48754646760392,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 92.48754646760392,
+          "end_time": 94.15421313427059,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_3",
+          "start_time": 94.15421313427059,
+          "end_time": 94.23421313427059,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 94.23421313427059,
+          "end_time": 94.23421313427059,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 94.23421313427059,
+          "end_time": 95.90087980093726,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_4",
+          "start_time": 95.90087980093726,
+          "end_time": 95.98087980093726,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 95.98087980093726,
+          "end_time": 95.98087980093726,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 95.98087980093726,
+          "end_time": 96.26952797132735,
+          "duration_minutes": 0.2886481703900863,
+          "distance_km": 17.318890223405177
+        },
+        {
+          "type": "rest",
+          "start_time": 96.26952797132735,
+          "end_time": 107.26952797132735,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 107.26952797132735,
+          "end_time": 108.64754646760393,
+          "duration_minutes": 1.3780184962765805,
+          "distance_km": 82.68110977659482
+        },
+        {
+          "type": "service@CS_13_14_5",
+          "start_time": 108.64754646760393,
+          "end_time": 108.72754646760393,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 108.72754646760393,
+          "end_time": 108.72754646760393,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 108.72754646760393,
+          "end_time": 110.3942131342706,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_6",
+          "start_time": 110.3942131342706,
+          "end_time": 110.4742131342706,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 110.4742131342706,
+          "end_time": 110.4742131342706,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 110.4742131342706,
+          "end_time": 111.92952797132735,
+          "duration_minutes": 1.4553148370567528,
+          "distance_km": 87.31889022340516
+        },
+        {
+          "type": "break",
+          "start_time": 111.92952797132735,
+          "end_time": 112.67952797132735,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 112.67952797132735,
+          "end_time": 112.89087980093726,
+          "duration_minutes": 0.21135182960991394,
+          "distance_km": 12.681109776594838
+        },
+        {
+          "type": "service@CS_13_14_7",
+          "start_time": 112.89087980093726,
+          "end_time": 112.97087980093725,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 112.97087980093725,
+          "end_time": 112.97087980093725,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 112.97087980093725,
+          "end_time": 114.63754646760393,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_8",
+          "start_time": 114.63754646760393,
+          "end_time": 114.71754646760392,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 114.71754646760392,
+          "end_time": 114.71754646760392,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 114.71754646760392,
+          "end_time": 116.3842131342706,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_9",
+          "start_time": 116.3842131342706,
+          "end_time": 116.4642131342706,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 116.4642131342706,
+          "end_time": 116.4642131342706,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 116.4642131342706,
+          "end_time": 117.41952797132734,
+          "duration_minutes": 0.9553148370567524,
+          "distance_km": 57.31889022340514
+        },
+        {
+          "type": "rest",
+          "start_time": 117.41952797132734,
+          "end_time": 128.41952797132734,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 128.41952797132734,
+          "end_time": 129.13087980093727,
+          "duration_minutes": 0.7113518296099144,
+          "distance_km": 42.681109776594866
+        },
+        {
+          "type": "service@CS_13_14_10",
+          "start_time": 129.13087980093727,
+          "end_time": 129.21087980093728,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 129.21087980093728,
+          "end_time": 129.21087980093728,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 129.21087980093728,
+          "end_time": 130.87754646760393,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_11",
+          "start_time": 130.87754646760393,
+          "end_time": 130.95754646760395,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 130.95754646760395,
+          "end_time": 130.95754646760395,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 130.95754646760395,
+          "end_time": 132.6242131342706,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_12",
+          "start_time": 132.6242131342706,
+          "end_time": 132.70421313427062,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 132.70421313427062,
+          "end_time": 132.70421313427062,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "break",
+          "start_time": 132.70421313427062,
+          "end_time": 133.45421313427062,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 133.45421313427062,
+          "end_time": 135.12087980093727,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_13",
+          "start_time": 135.12087980093727,
+          "end_time": 135.2008798009373,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 135.2008798009373,
+          "end_time": 135.2008798009373,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 135.2008798009373,
+          "end_time": 136.86754646760394,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_14",
+          "start_time": 136.86754646760394,
+          "end_time": 136.94754646760396,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 136.94754646760396,
+          "end_time": 136.94754646760396,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 136.94754646760396,
+          "end_time": 138.1142131342706,
+          "duration_minutes": 1.1666666666666665,
+          "distance_km": 69.99999999999999
+        },
+        {
+          "type": "rest",
+          "start_time": 138.1142131342706,
+          "end_time": 149.1142131342706,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 149.1142131342706,
+          "end_time": 149.6142131342706,
+          "duration_minutes": 0.5000000000000002,
+          "distance_km": 30.000000000000014
+        },
+        {
+          "type": "service@CS_13_14_15",
+          "start_time": 149.6142131342706,
+          "end_time": 149.69421313427063,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 149.69421313427063,
+          "end_time": 149.69421313427063,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 149.69421313427063,
+          "end_time": 151.36087980093728,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_16",
+          "start_time": 151.36087980093728,
+          "end_time": 151.4408798009373,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 151.4408798009373,
+          "end_time": 151.4408798009373,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 151.4408798009373,
+          "end_time": 153.10754646760395,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_17",
+          "start_time": 153.10754646760395,
+          "end_time": 153.18754646760397,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 153.18754646760397,
+          "end_time": 153.18754646760397,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 153.18754646760397,
+          "end_time": 153.85421313427062,
+          "duration_minutes": 0.6666666666666661,
+          "distance_km": 39.999999999999964
+        },
+        {
+          "type": "break",
+          "start_time": 153.85421313427062,
+          "end_time": 154.60421313427062,
+          "duration_minutes": 0.75
+        },
+        {
+          "type": "drive",
+          "start_time": 154.60421313427062,
+          "end_time": 155.60421313427062,
+          "duration_minutes": 1.0000000000000007,
+          "distance_km": 60.00000000000004
+        },
+        {
+          "type": "service@CS_13_14_18",
+          "start_time": 155.60421313427062,
+          "end_time": 155.68421313427064,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 155.68421313427064,
+          "end_time": 155.68421313427064,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 155.68421313427064,
+          "end_time": 157.3508798009373,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_19",
+          "start_time": 157.3508798009373,
+          "end_time": 157.4308798009373,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 157.4308798009373,
+          "end_time": 157.4308798009373,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 157.4308798009373,
+          "end_time": 159.09754646760396,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "service@CS_13_14_20",
+          "start_time": 159.09754646760396,
+          "end_time": 159.17754646760397,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 159.17754646760397,
+          "end_time": 159.17754646760397,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 159.17754646760397,
+          "end_time": 159.34421313427063,
+          "duration_minutes": 0.16666666666666607,
+          "distance_km": 9.999999999999964
+        },
+        {
+          "type": "rest",
+          "start_time": 159.34421313427063,
+          "end_time": 170.34421313427063,
+          "duration_minutes": 11.0
+        },
+        {
+          "type": "drive",
+          "start_time": 170.34421313427063,
+          "end_time": 171.84421313427063,
+          "duration_minutes": 1.5000000000000007,
+          "distance_km": 90.00000000000004
+        },
+        {
+          "type": "service@CS_13_14_21",
+          "start_time": 171.84421313427063,
+          "end_time": 171.92421313427064,
+          "duration_minutes": 0.08
+        },
+        {
+          "type": "charge",
+          "start_time": 171.92421313427064,
+          "end_time": 171.92421313427064,
+          "duration_minutes": 0.0,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 171.92421313427064,
+          "end_time": 173.5908798009373,
+          "duration_minutes": 1.6666666666666667,
+          "distance_km": 100.0
+        },
+        {
+          "type": "drive",
+          "start_time": 173.5908798009373,
+          "end_time": 174.5315929352079,
+          "duration_minutes": 0.9407131342705952,
+          "distance_km": 56.44278805623571
+        },
+        {
+          "type": "service@14",
+          "start_time": 174.5315929352079,
+          "end_time": 174.5315929352079,
+          "duration_minutes": 0.0
+        }
+      ],
+      "percentage_of_charging_events_synchronized": 100.0
+    }
+  ]
+}

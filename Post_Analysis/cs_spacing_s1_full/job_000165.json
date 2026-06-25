@@ -1,0 +1,12 @@
+{
+  "job_id": "000165",
+  "algorithm": "full_labeling",
+  "tag": "",
+  "instance_name": "med_cl2_cu2_Unbalanced",
+  "instance_path": "Full Recharge/EVTDSPalgorithmmain/instances/med_cl2_cu2_Unbalanced/med_cl2_cu2_Unbalanced.txt",
+  "consumption": 1.49,
+  "distance_per_cs": 160.0,
+  "battery_cap": 750.0,
+  "charging_power": 350.0,
+  "safety_buffer_frac": null
+}

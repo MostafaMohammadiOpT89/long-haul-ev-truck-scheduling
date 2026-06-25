@@ -1,0 +1,2 @@
+instance_id,distance_per_cs,battery_capacity,charging_power,consumption_rate,total_time,num_charges,num_breaks,num_rests,num_synchronized_events,num_unsynchronized_charging_events,num_unsynchronized_breaks,num_unsynchronized_rests,total_idle_charging_time_minutes,percentage_of_charging_events_synchronized,feasible,computation_time,safety_buffer_frac,synchronization_enabled
+short_cl1_cu2,60,750,350,1.49,47.1147792088628,2,6,2,2,2,4,2,245.2140331486147,0.0,True,0.0001361370086669,0.1,True

@@ -1,0 +1,5 @@
+;EV-Partial Recharg Strategy;;EV-Full Recharg Strategy;;LB-Disel;;total_route_time Comparision;
+instance_id;total_route_time_hours;computation_time_seconds;total_route_time_hours;computation_time_seconds;total_route_time_hours;computation_time_seconds;PCT-Partil vs LB;PCT-Partil vs LB
+short_cl1_cu2;31,05997866;7,4631215;31,73165754;8,5304158;30,89997866;2,7162411;0,52 %;2,69 %
+short_cl2_cu3_Balanced;27,27030295;3,4552746;27,27030295;3,2893895;27,19030295;2,9834698;0,29 %;0,29 %
+long_cl3_cu14_Balanced;127,8631772;7358,721289;128,6131772;15758,11495;127,3831772;11058,26178;0,38 %;0,97 %

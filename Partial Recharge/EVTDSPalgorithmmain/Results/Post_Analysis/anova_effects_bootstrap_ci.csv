@@ -1,0 +1,12 @@
+effect,partial_eta_sq_ci_lo,partial_eta_sq_ci_hi,n_boot
+C(instance_id),0.9891938340143988,0.9891938340143992,117
+C(battery_capacity_kWh),0.664090866884857,0.6640908668848726,117
+C(charging_station_interval_km),0.1647678160464584,0.16476781604646468,117
+C(charging_power_kW),0.2356242457952247,0.23562424579524327,117
+C(energy_consumption_rate_kWh_per_km),0.6864614776398075,0.6864614776398352,117
+C(battery_capacity_kWh):C(charging_station_interval_km),0.052032146340333624,0.05203214634033479,117
+C(battery_capacity_kWh):C(charging_power_kW),0.042380911716578505,0.04238091171658486,117
+C(battery_capacity_kWh):C(energy_consumption_rate_kWh_per_km),0.18030948430373914,0.18030948430374918,117
+C(charging_station_interval_km):C(charging_power_kW),0.004426325934787529,0.004426325934787689,117
+C(charging_station_interval_km):C(energy_consumption_rate_kWh_per_km),0.04991487975847415,0.049914879758476874,117
+C(charging_power_kW):C(energy_consumption_rate_kWh_per_km),0.13460628549423873,0.13460628549423875,117

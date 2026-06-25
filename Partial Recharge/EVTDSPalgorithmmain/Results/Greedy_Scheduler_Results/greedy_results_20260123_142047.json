@@ -1,0 +1,145 @@
+{
+  "metadata": {
+    "timestamp": "20260123_142047",
+    "algorithm": "greedy_scheduler",
+    "total_scenarios": 1,
+    "parameters": {
+      "consumption_rates": [
+        1.49
+      ],
+      "distances_per_cs": [
+        60
+      ],
+      "battery_capacities": [
+        750
+      ],
+      "charging_powers": [
+        350
+      ]
+    }
+  },
+  "results": [
+    {
+      "instance_id": "short_cl1_cu2",
+      "distance_per_cs": 60,
+      "battery_capacity": 750,
+      "charging_power": 350,
+      "consumption_rate": 1.49,
+      "total_time": 47.1147792088628,
+      "num_charges": 2,
+      "num_breaks": 6,
+      "num_rests": 2,
+      "num_synchronized_events": 2,
+      "num_unsynchronized_charging_events": 2,
+      "num_unsynchronized_breaks": 4,
+      "num_unsynchronized_rests": 2,
+      "total_idle_charging_time_minutes": 245.2140331486147,
+      "percentage_of_charging_events_synchronized": 0.0,
+      "feasible": true,
+      "computation_time": 9.250640869140625e-05,
+      "safety_buffer_frac": 0.1,
+      "synchronization_enabled": true,
+      "activity_timeline": [
+        {
+          "type": "break",
+          "start_time": 0.0,
+          "end_time": 0.75,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 0.75,
+          "end_time": 1.5,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 1.5,
+          "end_time": 9.5,
+          "duration_minutes": 480.0,
+          "distance_km": 480.0
+        },
+        {
+          "type": "charge",
+          "start_time": 9.5,
+          "end_time": 11.54342857142857,
+          "duration_minutes": 122.6057142857143,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 11.54342857142857,
+          "end_time": 11.910766078570395,
+          "duration_minutes": 22.040250428509466,
+          "distance_km": 22.040250428509466
+        },
+        {
+          "type": "service",
+          "start_time": 11.910766078570395,
+          "end_time": 12.342466078570395,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "rest",
+          "start_time": 12.342466078570395,
+          "end_time": 23.342466078570396,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 23.342466078570396,
+          "end_time": 23.9752985196044,
+          "duration_minutes": 37.9699464620403,
+          "distance_km": 37.9699464620403
+        },
+        {
+          "type": "break",
+          "start_time": 23.9752985196044,
+          "end_time": 24.7252985196044,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 24.7252985196044,
+          "end_time": 35.7252985196044,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 35.7252985196044,
+          "end_time": 36.4752985196044,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 36.4752985196044,
+          "end_time": 43.4752985196044,
+          "duration_minutes": 420.0,
+          "distance_km": 420.0
+        },
+        {
+          "type": "charge",
+          "start_time": 43.4752985196044,
+          "end_time": 45.51877050065274,
+          "duration_minutes": 122.6083188629004,
+          "power_kW": 350,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 45.51877050065274,
+          "end_time": 47.1147792088628,
+          "duration_minutes": 95.76052249260363,
+          "distance_km": 95.76052249260363
+        }
+      ]
+    }
+  ]
+}

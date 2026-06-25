@@ -1,0 +1,35 @@
+# TDSPEVRP Project - Requirements File
+# =====================================
+# This file contains all Python packages needed to run the three main experiments:
+# 1. Partial Recharge - Main Algorithm (enhanced_main.py)
+# 2. Partial Recharge - Greedy Scheduler (greedy_scheduler.py)
+# 3. Full Recharge - Main Algorithm (enhanced_main.py)
+#
+# Installation:
+#   pip install --upgrade pip
+#   pip install -r requirements.txt
+
+# Core data processing and analysis
+pandas>=1.3.0
+numpy>=1.21.0
+
+# Plotting and visualization (used by greedy_scheduler.py)
+matplotlib>=3.5.0
+seaborn>=0.11.0
+
+# Optional: For map generation and geocoding (if using TestInstance_Map scripts)
+folium>=0.14.0
+geopy>=2.4.1
+
+# Optional: For web scraping/map screenshots (if using selenium-based scripts)
+selenium>=4.22.0
+webdriver-manager>=4.0.2
+
+# Image processing (if needed for map screenshots)
+Pillow>=10.0.0
+
+# Note: The following are Python standard library modules and don't need installation:
+# - os, sys, json, csv, datetime, logging, time, subprocess
+# - pstats, cProfile (part of Python standard library)
+# - heapq, math (part of Python standard library)
+

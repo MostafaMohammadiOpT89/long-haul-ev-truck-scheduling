@@ -1,0 +1,17 @@
+
+
+
+VehicleId,VehicleLocation,VehicleLocationId
+0,Aalesund,92
+
+NodeId,Location,LocationId,TimeWindowStart,TimeWindowEnd,Weight,Volume,Revenue,ServiceTime
+1,Molde,94,0,10,-16,-13,0.0,1.6
+2,Kristiansund,97,1,14,12,11,168.55,1.2
+3,Orkanger,99,3,25,-17,-23,0.0,1.7
+4,TrondheimV,109,6,40,12,7,778.14,1.2
+5,Hommelvik,116,6,66,-15,-11,0.0,1.5
+6,Selbu,115,8,67,15,18,558.28,1.5
+7,Levanger,122,5,88,20,15,1468.2,2.0
+8,Steinkjer,124,10,89,-18,-14,0.0,1.8
+
+

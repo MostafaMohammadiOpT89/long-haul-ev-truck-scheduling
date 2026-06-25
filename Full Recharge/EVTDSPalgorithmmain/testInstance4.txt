@@ -1,0 +1,15 @@
+
+
+VehicleId,VehicleLocation,VehicleLocationId
+0,Sarpsborg,7
+
+NodeId,Location,LocationId,TimeWindowStart,TimeWindowEnd,Weight,Volume,Revenue,ServiceTime
+1,Fredrikstad,6,0,5,5,9,124.19,0.5
+2,Moss,5,1,8,2,6,123.37,0.6
+3,OsloO,0,3,14,17,24,739.15,1.7
+4,Lillestrom,9,7,29,-14,-21,0.0,1.4
+5,Lillehammer,77,10,45,-16,-9,0.0,1.6
+6,Oppdal,104,13,49,20,16,757.95,2.0
+7,TrondheimO,112,17,68,12,7,34.36,1.2
+8,Steinkjer,124,22,85,10,19,765.64,1.0
+

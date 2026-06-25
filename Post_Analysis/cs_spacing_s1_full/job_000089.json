@@ -1,0 +1,12 @@
+{
+  "job_id": "000089",
+  "algorithm": "full_labeling",
+  "tag": "",
+  "instance_name": "long_cl3_cu12_Unbalanced",
+  "instance_path": "Full Recharge/EVTDSPalgorithmmain/instances/long_cl3_cu12_Unbalanced/long_cl3_cu12_Unbalanced.txt",
+  "consumption": 1.49,
+  "distance_per_cs": 260.0,
+  "battery_cap": 750.0,
+  "charging_power": 350.0,
+  "safety_buffer_frac": null
+}

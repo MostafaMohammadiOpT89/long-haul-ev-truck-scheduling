@@ -1,0 +1,1009 @@
+{
+  "metadata": {
+    "timestamp": "20260208_131459",
+    "total_scenarios": 5,
+    "preset": "base",
+    "grid": {
+      "consumption_rates": [
+        1.49
+      ],
+      "distances_per_cs": [
+        60
+      ],
+      "battery_caps": [
+        750
+      ],
+      "charging_powers": [
+        350
+      ],
+      "safety_buffer_fracs": [
+        0.1
+      ]
+    },
+    "diesel_lower_bound": {
+      "enabled": true,
+      "battery_cap": 100000000,
+      "greedy_safety_buffer_frac": 0.0
+    },
+    "specific_instances_to_run": [
+      "short_cl1_cu2"
+    ]
+  },
+  "results": [
+    {
+      "instance_id": "short_cl1_cu2",
+      "test_bed_id": "TB_short_cl1_cu2",
+      "battery_capacity_kWh": 750.0,
+      "charging_station_interval_km": 60.0,
+      "charging_power_kW": 350.0,
+      "energy_consumption_rate_kWh_per_km": 1.49,
+      "number_of_customer_locations": 4,
+      "synchronization_enabled": true,
+      "feasible": true,
+      "reason_if_infeasible": null,
+      "total_route_time_hours": 31.05997865638589,
+      "computation_time_seconds": 5.496754700000002,
+      "number_of_labels_generated": 30524,
+      "number_of_labels_dominated": 14701,
+      "number_of_cs_stops": 2,
+      "number_of_breaks": 2,
+      "number_of_rests": 1,
+      "number_of_synchronized_events": 0,
+      "number_of_unsynchronized_charging_events": 2,
+      "number_of_unsynchronized_breaks": 2,
+      "number_of_unsynchronized_rests": 1,
+      "total_idle_charging_time_minutes": 0.0,
+      "activity_timeline": [
+        {
+          "type": "drive",
+          "start_time": 0.0,
+          "end_time": 1.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 1.0,
+          "end_time": 2.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 2.0,
+          "end_time": 3.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 3.0,
+          "end_time": 4.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 4.0,
+          "end_time": 4.5,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "break",
+          "start_time": 4.5,
+          "end_time": 5.25,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 5.25,
+          "end_time": 5.75,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "drive",
+          "start_time": 5.75,
+          "end_time": 6.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 6.75,
+          "end_time": 7.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 7.75,
+          "end_time": 8.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "service@CS_1_2_7",
+          "start_time": 8.75,
+          "end_time": 8.83,
+          "duration_minutes": 4.8
+        },
+        {
+          "type": "charge",
+          "start_time": 8.83,
+          "end_time": 8.83,
+          "duration_minutes": 0.0,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 8.83,
+          "end_time": 9.197337507141825,
+          "duration_minutes": 22.040250428509466,
+          "distance_km": 22.040250428509466
+        },
+        {
+          "type": "service@2",
+          "start_time": 9.197337507141825,
+          "end_time": 9.629037507141824,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "drive",
+          "start_time": 9.629037507141824,
+          "end_time": 9.945453727658826,
+          "duration_minutes": 18.98497323102015,
+          "distance_km": 18.98497323102015
+        },
+        {
+          "type": "drive",
+          "start_time": 9.945453727658826,
+          "end_time": 10.2617,
+          "duration_minutes": 18.97477634047039,
+          "distance_km": 18.97477634047039
+        },
+        {
+          "type": "rest",
+          "start_time": 10.2617,
+          "end_time": 21.261699999999998,
+          "duration_minutes": 660.0
+        },
+        {
+          "type": "drive",
+          "start_time": 21.261699999999998,
+          "end_time": 21.26186994817583,
+          "duration_minutes": 0.010196890549756255,
+          "distance_km": 0.010196890549756255
+        },
+        {
+          "type": "service@3",
+          "start_time": 21.26186994817583,
+          "end_time": 21.633969948175828,
+          "duration_minutes": 22.326
+        },
+        {
+          "type": "drive",
+          "start_time": 21.633969948175828,
+          "end_time": 22.633969948175828,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 22.633969948175828,
+          "end_time": 23.633969948175828,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 23.633969948175828,
+          "end_time": 24.633969948175828,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 24.633969948175828,
+          "end_time": 25.633969948175828,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "service@CS_3_4_3",
+          "start_time": 25.633969948175828,
+          "end_time": 25.713969948175826,
+          "duration_minutes": 4.8
+        },
+        {
+          "type": "charge",
+          "start_time": 25.713969948175826,
+          "end_time": 25.713969948175826,
+          "duration_minutes": 0.0,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 25.713969948175826,
+          "end_time": 26.2138,
+          "duration_minutes": 29.989803109450257,
+          "distance_km": 29.989803109450257
+        },
+        {
+          "type": "break",
+          "start_time": 26.2138,
+          "end_time": 26.9638,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 26.9638,
+          "end_time": 27.46396994817583,
+          "duration_minutes": 30.010196890549743,
+          "distance_km": 30.010196890549743
+        },
+        {
+          "type": "drive",
+          "start_time": 27.46396994817583,
+          "end_time": 28.46396994817583,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 28.46396994817583,
+          "end_time": 29.46396994817583,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 29.46396994817583,
+          "end_time": 30.46396994817583,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 30.46396994817583,
+          "end_time": 31.05997865638589,
+          "duration_minutes": 35.76052249260363,
+          "distance_km": 35.76052249260363
+        },
+        {
+          "type": "service@4",
+          "start_time": 31.05997865638589,
+          "end_time": 31.05997865638589,
+          "duration_minutes": 0.0
+        }
+      ],
+      "percentage_of_charging_events_synchronized": 0.0,
+      "_runner_timestamp": "20260208_131459",
+      "_runner_algorithm": "partial_labeling",
+      "_runner_tag": "",
+      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
+    },
+    {
+      "instance_id": "short_cl1_cu2",
+      "test_bed_id": "TB_short_cl1_cu2",
+      "battery_capacity_kWh": 750.0,
+      "charging_station_interval_km": 60.0,
+      "charging_power_kW": 350.0,
+      "energy_consumption_rate_kWh_per_km": 1.49,
+      "number_of_customer_locations": 4,
+      "synchronization_enabled": true,
+      "feasible": true,
+      "reason_if_infeasible": null,
+      "total_route_time_hours": 31.731657542426515,
+      "computation_time_seconds": 6.042734599999998,
+      "number_of_labels_generated": 13015,
+      "number_of_labels_dominated": 6491,
+      "number_of_cs_stops": 3,
+      "number_of_breaks": 2,
+      "number_of_rests": 1,
+      "number_of_synchronized_events": 0,
+      "number_of_unsynchronized_charging_events": 3,
+      "number_of_unsynchronized_breaks": 2,
+      "number_of_unsynchronized_rests": 1,
+      "total_idle_charging_time_minutes": 35.50073316243781,
+      "activity_timeline": [
+        {
+          "type": "drive",
+          "start_time": 0.0,
+          "end_time": 1.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "service",
+          "start_time": 1.0,
+          "end_time": 1.08,
+          "duration_minutes": 4.8
+        },
+        {
+          "type": "charge",
+          "start_time": 1.08,
+          "end_time": 1.3354285714285714,
+          "duration_minutes": 15.32571428571428,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 1.3354285714285714,
+          "end_time": 2.3354285714285714,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 2.3354285714285714,
+          "end_time": 3.3354285714285714,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 3.3354285714285714,
+          "end_time": 4.335428571428571,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 4.335428571428571,
+          "end_time": 4.835428571428571,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "break",
+          "start_time": 4.835428571428571,
+          "end_time": 5.585428571428571,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 5.585428571428571,
+          "end_time": 6.085428571428571,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "drive",
+          "start_time": 6.085428571428571,
+          "end_time": 7.085428571428571,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 7.085428571428571,
+          "end_time": 8.085428571428572,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 8.085428571428572,
+          "end_time": 9.085428571428572,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 9.085428571428572,
+          "end_time": 9.452766078570397,
+          "duration_minutes": 22.040250428509466,
+          "distance_km": 22.040250428509466
+        },
+        {
+          "type": "service",
+          "start_time": 9.452766078570397,
+          "end_time": 9.884466078570396,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "drive",
+          "start_time": 9.884466078570396,
+          "end_time": 10.200882299087398,
+          "duration_minutes": 18.98497323102015,
+          "distance_km": 18.98497323102015
+        },
+        {
+          "type": "rest",
+          "start_time": 10.200882299087398,
+          "end_time": 21.200882299087397,
+          "duration_minutes": 660.0
+        },
+        {
+          "type": "service",
+          "start_time": 21.200882299087397,
+          "end_time": 21.280882299087395,
+          "duration_minutes": 4.8
+        },
+        {
+          "type": "charge",
+          "start_time": 21.280882299087395,
+          "end_time": 21.280882299087395,
+          "duration_minutes": 0.0,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 21.280882299087395,
+          "end_time": 21.597298519604397,
+          "duration_minutes": 18.98497323102015,
+          "distance_km": 18.98497323102015
+        },
+        {
+          "type": "service",
+          "start_time": 21.597298519604397,
+          "end_time": 21.969398519604397,
+          "duration_minutes": 22.326
+        },
+        {
+          "type": "drive",
+          "start_time": 21.969398519604397,
+          "end_time": 22.969398519604397,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "service",
+          "start_time": 22.969398519604397,
+          "end_time": 23.049398519604395,
+          "duration_minutes": 4.8
+        },
+        {
+          "type": "charge",
+          "start_time": 23.049398519604395,
+          "end_time": 23.385648834216454,
+          "duration_minutes": 20.175018876723527,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 23.385648834216454,
+          "end_time": 24.385648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 24.385648834216454,
+          "end_time": 25.385648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 25.385648834216454,
+          "end_time": 26.385648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 26.385648834216454,
+          "end_time": 26.56923261369945,
+          "duration_minutes": 11.015026768979865,
+          "distance_km": 11.015026768979865
+        },
+        {
+          "type": "break",
+          "start_time": 26.56923261369945,
+          "end_time": 27.31923261369945,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 27.31923261369945,
+          "end_time": 28.135648834216454,
+          "duration_minutes": 48.984973231020135,
+          "distance_km": 48.984973231020135
+        },
+        {
+          "type": "drive",
+          "start_time": 28.135648834216454,
+          "end_time": 29.135648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 29.135648834216454,
+          "end_time": 30.135648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 30.135648834216454,
+          "end_time": 31.135648834216454,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 31.135648834216454,
+          "end_time": 31.731657542426515,
+          "duration_minutes": 35.76052249260363,
+          "distance_km": 35.76052249260363
+        },
+        {
+          "type": "service",
+          "start_time": 31.731657542426515,
+          "end_time": 31.731657542426515,
+          "duration_minutes": 0.0
+        }
+      ],
+      "percentage_of_charging_events_synchronized": 0.0,
+      "_runner_timestamp": "20260208_131459",
+      "_runner_algorithm": "full_labeling",
+      "_runner_tag": "",
+      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Full Recharge\\EVTDSPalgorithmmain"
+    },
+    {
+      "instance_id": "short_cl1_cu2",
+      "distance_per_cs": 60.0,
+      "battery_capacity": 750.0,
+      "charging_power": 350.0,
+      "consumption_rate": 1.49,
+      "total_time": 47.1147792088628,
+      "num_charges": 2,
+      "num_breaks": 6,
+      "num_rests": 2,
+      "num_synchronized_events": 2,
+      "num_unsynchronized_charging_events": 2,
+      "num_unsynchronized_breaks": 4,
+      "num_unsynchronized_rests": 2,
+      "total_idle_charging_time_minutes": 245.2140331486147,
+      "percentage_of_charging_events_synchronized": 0.0,
+      "feasible": true,
+      "computation_time": 9.72747802734375e-05,
+      "safety_buffer_frac": 0.1,
+      "synchronization_enabled": true,
+      "activity_timeline": [
+        {
+          "type": "break",
+          "start_time": 0.0,
+          "end_time": 0.75,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 0.75,
+          "end_time": 1.5,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 1.5,
+          "end_time": 9.5,
+          "duration_minutes": 480.0,
+          "distance_km": 480.0
+        },
+        {
+          "type": "charge",
+          "start_time": 9.5,
+          "end_time": 11.54342857142857,
+          "duration_minutes": 122.6057142857143,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 11.54342857142857,
+          "end_time": 11.910766078570395,
+          "duration_minutes": 22.040250428509466,
+          "distance_km": 22.040250428509466
+        },
+        {
+          "type": "service",
+          "start_time": 11.910766078570395,
+          "end_time": 12.342466078570395,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "rest",
+          "start_time": 12.342466078570395,
+          "end_time": 23.342466078570396,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 23.342466078570396,
+          "end_time": 23.9752985196044,
+          "duration_minutes": 37.9699464620403,
+          "distance_km": 37.9699464620403
+        },
+        {
+          "type": "break",
+          "start_time": 23.9752985196044,
+          "end_time": 24.7252985196044,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 24.7252985196044,
+          "end_time": 35.7252985196044,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 35.7252985196044,
+          "end_time": 36.4752985196044,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 36.4752985196044,
+          "end_time": 43.4752985196044,
+          "duration_minutes": 420.0,
+          "distance_km": 420.0
+        },
+        {
+          "type": "charge",
+          "start_time": 43.4752985196044,
+          "end_time": 45.51877050065274,
+          "duration_minutes": 122.6083188629004,
+          "power_kW": 350.0,
+          "location": "CS"
+        },
+        {
+          "type": "drive",
+          "start_time": 45.51877050065274,
+          "end_time": 47.1147792088628,
+          "duration_minutes": 95.76052249260363,
+          "distance_km": 95.76052249260363
+        }
+      ],
+      "_runner_timestamp": "20260208_131459",
+      "_runner_algorithm": "greedy",
+      "_runner_tag": "",
+      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
+    },
+    {
+      "instance_id": "short_cl1_cu2",
+      "test_bed_id": "TB_short_cl1_cu2",
+      "battery_capacity_kWh": 100000000.0,
+      "charging_station_interval_km": 60.0,
+      "charging_power_kW": 350.0,
+      "energy_consumption_rate_kWh_per_km": 1.49,
+      "number_of_customer_locations": 4,
+      "synchronization_enabled": true,
+      "feasible": true,
+      "reason_if_infeasible": null,
+      "total_route_time_hours": 30.899978656385887,
+      "computation_time_seconds": 2.9209947000000014,
+      "number_of_labels_generated": 17974,
+      "number_of_labels_dominated": 8672,
+      "number_of_cs_stops": 0,
+      "number_of_breaks": 2,
+      "number_of_rests": 1,
+      "number_of_synchronized_events": 0,
+      "number_of_unsynchronized_charging_events": 0,
+      "number_of_unsynchronized_breaks": 2,
+      "number_of_unsynchronized_rests": 1,
+      "total_idle_charging_time_minutes": 0,
+      "activity_timeline": [
+        {
+          "type": "drive",
+          "start_time": 0.0,
+          "end_time": 1.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 1.0,
+          "end_time": 2.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 2.0,
+          "end_time": 3.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 3.0,
+          "end_time": 4.0,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 4.0,
+          "end_time": 4.5,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "break",
+          "start_time": 4.5,
+          "end_time": 5.25,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 5.25,
+          "end_time": 5.75,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "drive",
+          "start_time": 5.75,
+          "end_time": 6.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 6.75,
+          "end_time": 7.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 7.75,
+          "end_time": 8.75,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 8.75,
+          "end_time": 9.117337507141825,
+          "duration_minutes": 22.040250428509466,
+          "distance_km": 22.040250428509466
+        },
+        {
+          "type": "service@2",
+          "start_time": 9.117337507141825,
+          "end_time": 9.549037507141824,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "drive",
+          "start_time": 9.549037507141824,
+          "end_time": 9.865453727658826,
+          "duration_minutes": 18.98497323102015,
+          "distance_km": 18.98497323102015
+        },
+        {
+          "type": "rest",
+          "start_time": 9.865453727658826,
+          "end_time": 20.865453727658824,
+          "duration_minutes": 660.0
+        },
+        {
+          "type": "drive",
+          "start_time": 20.865453727658824,
+          "end_time": 21.181869948175827,
+          "duration_minutes": 18.98497323102015,
+          "distance_km": 18.98497323102015
+        },
+        {
+          "type": "service@3",
+          "start_time": 21.181869948175827,
+          "end_time": 21.553969948175826,
+          "duration_minutes": 22.326
+        },
+        {
+          "type": "drive",
+          "start_time": 21.553969948175826,
+          "end_time": 22.553969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 22.553969948175826,
+          "end_time": 23.553969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 23.553969948175826,
+          "end_time": 24.553969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 24.553969948175826,
+          "end_time": 25.553969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 25.553969948175826,
+          "end_time": 25.737553727658824,
+          "duration_minutes": 11.015026768979865,
+          "distance_km": 11.015026768979865
+        },
+        {
+          "type": "break",
+          "start_time": 25.737553727658824,
+          "end_time": 26.487553727658824,
+          "duration_minutes": 45.0
+        },
+        {
+          "type": "drive",
+          "start_time": 26.487553727658824,
+          "end_time": 27.303969948175826,
+          "duration_minutes": 48.984973231020135,
+          "distance_km": 48.984973231020135
+        },
+        {
+          "type": "drive",
+          "start_time": 27.303969948175826,
+          "end_time": 28.303969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 28.303969948175826,
+          "end_time": 29.303969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 29.303969948175826,
+          "end_time": 30.303969948175826,
+          "duration_minutes": 60.0,
+          "distance_km": 60.0
+        },
+        {
+          "type": "drive",
+          "start_time": 30.303969948175826,
+          "end_time": 30.899978656385887,
+          "duration_minutes": 35.76052249260363,
+          "distance_km": 35.76052249260363
+        },
+        {
+          "type": "service@4",
+          "start_time": 30.899978656385887,
+          "end_time": 30.899978656385887,
+          "duration_minutes": 0.0
+        }
+      ],
+      "percentage_of_charging_events_synchronized": 0.0,
+      "_runner_timestamp": "20260208_131459",
+      "_runner_algorithm": "partial_labeling",
+      "_runner_tag": "diesel_lb",
+      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
+    },
+    {
+      "instance_id": "short_cl1_cu2",
+      "distance_per_cs": 60.0,
+      "battery_capacity": 100000000.0,
+      "charging_power": 350.0,
+      "consumption_rate": 1.49,
+      "total_time": 44.1499786563859,
+      "num_charges": 0,
+      "num_breaks": 5,
+      "num_rests": 2,
+      "num_synchronized_events": 0,
+      "num_unsynchronized_charging_events": 0,
+      "num_unsynchronized_breaks": 5,
+      "num_unsynchronized_rests": 2,
+      "total_idle_charging_time_minutes": 0.0,
+      "percentage_of_charging_events_synchronized": 0.0,
+      "feasible": true,
+      "computation_time": 7.748603820800781e-05,
+      "safety_buffer_frac": 0.0,
+      "synchronization_enabled": false,
+      "activity_timeline": [
+        {
+          "type": "break",
+          "start_time": 0.0,
+          "end_time": 0.75,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 0.75,
+          "end_time": 1.5,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 1.5,
+          "end_time": 9.867337507141825,
+          "duration_minutes": 502.04025042850947,
+          "distance_km": 502.04025042850947
+        },
+        {
+          "type": "service",
+          "start_time": 9.867337507141825,
+          "end_time": 10.299037507141824,
+          "duration_minutes": 25.901999999999997
+        },
+        {
+          "type": "break",
+          "start_time": 10.299037507141824,
+          "end_time": 11.049037507141824,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 11.049037507141824,
+          "end_time": 22.049037507141826,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 22.049037507141826,
+          "end_time": 22.68186994817583,
+          "duration_minutes": 37.9699464620403,
+          "distance_km": 37.9699464620403
+        },
+        {
+          "type": "service",
+          "start_time": 22.68186994817583,
+          "end_time": 23.05396994817583,
+          "duration_minutes": 22.326
+        },
+        {
+          "type": "break",
+          "start_time": 23.05396994817583,
+          "end_time": 23.80396994817583,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 23.80396994817583,
+          "end_time": 34.80396994817583,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 34.80396994817583,
+          "end_time": 35.55396994817583,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 35.55396994817583,
+          "end_time": 44.1499786563859,
+          "duration_minutes": 515.7605224926036,
+          "distance_km": 515.7605224926036
+        }
+      ],
+      "_runner_timestamp": "20260208_131459",
+      "_runner_algorithm": "greedy",
+      "_runner_tag": "diesel_lb",
+      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
+    }
+  ]
+}

@@ -1,0 +1,389 @@
+{
+  "metadata": {
+    "timestamp": "20260127_221048",
+    "algorithm": "greedy_scheduler",
+    "total_scenarios": 1,
+    "parameters": {
+      "consumption_rates": [
+        1.49
+      ],
+      "distances_per_cs": [
+        60
+      ],
+      "battery_capacities": [
+        100000
+      ],
+      "charging_powers": [
+        350
+      ]
+    }
+  },
+  "results": [
+    {
+      "instance_id": "long_cl3_cu14_Balanced",
+      "distance_per_cs": 60,
+      "battery_capacity": 100000,
+      "charging_power": 350,
+      "consumption_rate": 1.49,
+      "total_time": 186.13317717795562,
+      "num_charges": 0,
+      "num_breaks": 11,
+      "num_rests": 11,
+      "num_synchronized_events": 0,
+      "num_unsynchronized_charging_events": 0,
+      "num_unsynchronized_breaks": 11,
+      "num_unsynchronized_rests": 11,
+      "total_idle_charging_time_minutes": 0.0,
+      "percentage_of_charging_events_synchronized": 0.0,
+      "feasible": true,
+      "computation_time": 0.0007715225219726562,
+      "safety_buffer_frac": 0.1,
+      "synchronization_enabled": false,
+      "activity_timeline": [
+        {
+          "type": "break",
+          "start_time": 0.0,
+          "end_time": 0.75,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 0.75,
+          "end_time": 11.75,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 11.75,
+          "end_time": 12.5,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 12.5,
+          "end_time": 23.5,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 23.5,
+          "end_time": 37.02472409426197,
+          "duration_minutes": 811.4834456557182,
+          "distance_km": 811.4834456557182
+        },
+        {
+          "type": "service",
+          "start_time": 37.02472409426197,
+          "end_time": 37.15232409426197,
+          "duration_minutes": 7.656
+        },
+        {
+          "type": "break",
+          "start_time": 37.15232409426197,
+          "end_time": 37.90232409426197,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 37.90232409426197,
+          "end_time": 48.90232409426197,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 48.90232409426197,
+          "end_time": 49.40232409426197,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 49.40232409426197,
+          "end_time": 49.51492409426197,
+          "duration_minutes": 6.756
+        },
+        {
+          "type": "drive",
+          "start_time": 49.51492409426197,
+          "end_time": 50.01492409426197,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 50.01492409426197,
+          "end_time": 50.11052409426197,
+          "duration_minutes": 5.736000000000001
+        },
+        {
+          "type": "drive",
+          "start_time": 50.11052409426197,
+          "end_time": 50.61052409426197,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 50.61052409426197,
+          "end_time": 50.70832409426197,
+          "duration_minutes": 5.868
+        },
+        {
+          "type": "drive",
+          "start_time": 50.70832409426197,
+          "end_time": 51.20832409426197,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 51.20832409426197,
+          "end_time": 51.297924094261965,
+          "duration_minutes": 5.376
+        },
+        {
+          "type": "break",
+          "start_time": 51.297924094261965,
+          "end_time": 52.047924094261965,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 52.047924094261965,
+          "end_time": 63.047924094261965,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 63.047924094261965,
+          "end_time": 63.797924094261965,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 63.797924094261965,
+          "end_time": 74.79792409426196,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 74.79792409426196,
+          "end_time": 86.78884738654428,
+          "duration_minutes": 719.4553975369388,
+          "distance_km": 719.4553975369388
+        },
+        {
+          "type": "service",
+          "start_time": 86.78884738654428,
+          "end_time": 86.91084738654428,
+          "duration_minutes": 7.32
+        },
+        {
+          "type": "break",
+          "start_time": 86.91084738654428,
+          "end_time": 87.66084738654428,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 87.66084738654428,
+          "end_time": 98.66084738654428,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 98.66084738654428,
+          "end_time": 99.16084738654428,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 99.16084738654428,
+          "end_time": 99.30094738654428,
+          "duration_minutes": 8.406
+        },
+        {
+          "type": "drive",
+          "start_time": 99.30094738654428,
+          "end_time": 99.80094738654428,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 99.80094738654428,
+          "end_time": 99.96644738654427,
+          "duration_minutes": 9.93
+        },
+        {
+          "type": "drive",
+          "start_time": 99.96644738654427,
+          "end_time": 100.46644738654427,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 100.46644738654427,
+          "end_time": 100.57614738654428,
+          "duration_minutes": 6.582000000000001
+        },
+        {
+          "type": "drive",
+          "start_time": 100.57614738654428,
+          "end_time": 101.07614738654428,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 101.07614738654428,
+          "end_time": 101.21204738654428,
+          "duration_minutes": 8.154
+        },
+        {
+          "type": "break",
+          "start_time": 101.21204738654428,
+          "end_time": 101.96204738654428,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 101.96204738654428,
+          "end_time": 112.96204738654428,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 112.96204738654428,
+          "end_time": 113.71204738654428,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 113.71204738654428,
+          "end_time": 124.71204738654428,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 124.71204738654428,
+          "end_time": 135.89582938764747,
+          "duration_minutes": 671.0269200661903,
+          "distance_km": 671.0269200661903
+        },
+        {
+          "type": "service",
+          "start_time": 135.89582938764747,
+          "end_time": 136.00852938764746,
+          "duration_minutes": 6.762
+        },
+        {
+          "type": "break",
+          "start_time": 136.00852938764746,
+          "end_time": 136.75852938764746,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 136.75852938764746,
+          "end_time": 147.75852938764746,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 147.75852938764746,
+          "end_time": 148.25852938764746,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 148.25852938764746,
+          "end_time": 148.34502938764746,
+          "duration_minutes": 5.1899999999999995
+        },
+        {
+          "type": "drive",
+          "start_time": 148.34502938764746,
+          "end_time": 148.84502938764746,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 148.84502938764746,
+          "end_time": 148.98212938764746,
+          "duration_minutes": 8.225999999999999
+        },
+        {
+          "type": "drive",
+          "start_time": 148.98212938764746,
+          "end_time": 149.48212938764746,
+          "duration_minutes": 30.0,
+          "distance_km": 30.0
+        },
+        {
+          "type": "service",
+          "start_time": 149.48212938764746,
+          "end_time": 149.61492938764746,
+          "duration_minutes": 7.968
+        },
+        {
+          "type": "break",
+          "start_time": 149.61492938764746,
+          "end_time": 150.36492938764746,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 150.36492938764746,
+          "end_time": 161.36492938764746,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "break",
+          "start_time": 161.36492938764746,
+          "end_time": 162.11492938764746,
+          "duration_minutes": 45.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "rest",
+          "start_time": 162.11492938764746,
+          "end_time": 173.11492938764746,
+          "duration_minutes": 660.0,
+          "location": "Rest Area"
+        },
+        {
+          "type": "drive",
+          "start_time": 173.11492938764746,
+          "end_time": 186.13317717795562,
+          "duration_minutes": 781.0948674184888,
+          "distance_km": 781.0948674184888
+        }
+      ]
+    }
+  ]
+}

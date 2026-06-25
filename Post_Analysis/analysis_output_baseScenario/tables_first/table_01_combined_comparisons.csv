@@ -1,0 +1,17 @@
+Comparison,Metric,Value
+Full vs Partial,N instances,41
+Full vs Partial,Partial better,33
+Full vs Partial,Full better,0
+Full vs Partial,Mean Partial (hrs),74.79
+Full vs Partial,Mean Full (hrs),75.55
+Full vs Partial,Avg improvement %,1.09
+Partial vs Greedy,N instances,41
+Partial vs Greedy,Partial better,41
+Partial vs Greedy,Greedy better,0
+Partial vs Greedy,Mean Partial (hrs),74.79
+Partial vs Greedy,Mean Greedy (hrs),100.89
+Partial vs Greedy,Avg improvement %,25.00
+Partial vs Diesel LB,N instances,41
+Partial vs Diesel LB,Mean Partial (hrs),74.79
+Partial vs Diesel LB,Mean Diesel LB (hrs),74.48
+Partial vs Diesel LB,Avg EV gap %,0.42

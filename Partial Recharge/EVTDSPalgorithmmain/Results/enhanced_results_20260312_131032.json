@@ -1,0 +1,54 @@
+{
+  "metadata": {
+    "timestamp": "20260312_131032",
+    "total_scenarios": 1,
+    "parameters": {
+      "consumption_rates": [
+        2.08
+      ],
+      "distances_per_cs": [
+        100
+      ],
+      "battery_capacities": [
+        225
+      ],
+      "charging_powers": [
+        75
+      ]
+    }
+  },
+  "results": [
+    {
+      "instance_id": "short_cl1_cu2",
+      "test_bed_id": "TB_short_cl1_cu2",
+      "battery_capacity_kWh": 225,
+      "charging_station_interval_km": 100,
+      "charging_power_kW": 75,
+      "energy_consumption_rate_kWh_per_km": 2.08,
+      "number_of_customer_locations": 4,
+      "synchronization_enabled": true,
+      "feasible": false,
+      "reason_if_infeasible": "No valid path found",
+      "total_route_time_hours": null,
+      "computation_time_seconds": 0.058814099999999994,
+      "number_of_labels_generated": 1063,
+      "number_of_labels_dominated": 464,
+      "number_of_cs_stops": 0,
+      "number_of_breaks": 0,
+      "number_of_rests": 0,
+      "number_of_synchronized_events": 0,
+      "number_of_unsynchronized_charging_events": 0,
+      "number_of_rest_synchronized_charging_events": 0,
+      "number_of_break_fully_synchronized_charging_events": 0,
+      "number_of_break_partial_synchronized_charging_events": 0,
+      "number_of_break_synchronized_charging_events": 0,
+      "number_of_unsynchronized_breaks": 0,
+      "number_of_unsynchronized_rests": 0,
+      "total_idle_charging_time_minutes": 0,
+      "activity_timeline": [],
+      "percentage_of_charging_events_synchronized": 0.0,
+      "final_battery_energy_min_kWh": null,
+      "final_battery_energy_max_kWh": null
+    }
+  ]
+}

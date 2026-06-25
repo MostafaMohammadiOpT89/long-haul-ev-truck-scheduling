@@ -1,0 +1,12 @@
+{
+  "job_id": "000356",
+  "algorithm": "full_labeling",
+  "tag": "",
+  "instance_name": "short_cl3_cu12_Balanced",
+  "instance_path": "Full Recharge/EVTDSPalgorithmmain/instances/short_cl3_cu12_Balanced/short_cl3_cu12_Balanced.txt",
+  "consumption": 1.49,
+  "distance_per_cs": 200.0,
+  "battery_cap": 750.0,
+  "charging_power": 350.0,
+  "safety_buffer_frac": null
+}

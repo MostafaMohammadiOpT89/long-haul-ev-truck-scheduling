@@ -1,0 +1,13 @@
+instance,depot,num_customers,service_time_min,service_time_max,num_cs,num_virtual_nodes,real_nodes,virtual_nodes_total,virtual_links_total,cs_interval_km,battery_kWh,consumption_kWh_per_km,cp_kW
+1,Origin,3,0.0,0.3971,96,198,4,298,981,40,350,1.12,350
+2,OsloO,10,1.0,2.0,0,0,11,11,0,40,350,1.12,350
+3,TrondheimN,7,1.1,2.0,0,0,8,8,0,40,350,1.12,350
+4,Sarpsborg,8,0.5,2.0,0,0,9,9,0,40,350,1.12,350
+5,Fredrikstad,9,1.0,1.7,0,0,10,10,0,40,350,1.12,350
+6,StavangerS,8,0.6,1.9,0,0,9,9,0,40,350,1.12,350
+7,Porsgrunn,9,0.4,2.0,0,0,10,10,0,40,350,1.12,350
+8,BergenS,8,0.6,1.7,0,0,9,9,0,40,350,1.12,350
+9,Aalesund,8,1.2,2.0,0,0,9,9,0,40,350,1.12,350
+10,OsloV,7,0.6,1.9,0,0,8,8,0,40,350,1.12,350
+11,KristiansandS,16,0.6,1.8,0,0,17,17,0,40,350,1.12,350
+12,KristiansandS,18,0.6,1.8,0,0,19,19,0,40,350,1.12,350

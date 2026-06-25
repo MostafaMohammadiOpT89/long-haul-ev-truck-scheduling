@@ -1,0 +1,12 @@
+{
+  "runid": "_localtest_jobs",
+  "created_at": "2026-02-08T14:51:47",
+  "preset": "base",
+  "include_diesel_lb": false,
+  "instance_filter": [
+    "short_cl1_cu2"
+  ],
+  "num_jobs": 3,
+  "jobs_dir": "cluster\\jobs\\_localtest_jobs",
+  "project_root": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios"
+}

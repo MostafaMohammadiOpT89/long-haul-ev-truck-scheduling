@@ -1,0 +1,13 @@
+Parameter,Value,Mean improvement %,Std,N
+Consumption rate (kWh/km),1.12,,,0
+Consumption rate (kWh/km),1.49,0.67,1.39,32
+Consumption rate (kWh/km),2.08,,,0
+Distance per CS (km),40.0,,,0
+Distance per CS (km),60.0,0.67,1.39,32
+Distance per CS (km),80.0,,,0
+Distance per CS (km),100.0,,,0
+Battery capacity (kWh),750.0,0.94,1.61,16
+Battery capacity (kWh),1000.0,0.41,1.11,16
+Charging power (kW),350.0,0.67,1.39,32
+Charging power (kW),500.0,,,0
+Charging power (kW),1000.0,,,0

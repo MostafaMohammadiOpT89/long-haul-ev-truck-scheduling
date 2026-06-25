@@ -1,0 +1,2 @@
+instance_id,test_bed_id,battery_capacity_kWh,charging_station_interval_km,charging_power_kW,energy_consumption_rate_kWh_per_km,number_of_customer_locations,synchronization_enabled,feasible,total_route_time_hours,total_wait_time_minutes,visits_with_wait,total_visits,share_visits_with_wait,avg_wait_minutes_if_wait,max_wait_minutes,wait_nodes
+1,TB1,350,40,350,1.12,12,True,True,49.48444444399999,0.3450000000000012,2,13,0.15384615384615385,0.1725000000000006,0.269166667,"[""1"", ""2""]"

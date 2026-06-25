@@ -1,0 +1,6 @@
+Node,PositionKm,ClusterIdx,ClusterCenterKm,IntraPrevGapKm,IntraNextGapKm
+Origin,0.0,-1,,,
+Cust1,952.789,0,1012.3,,
+Cust2,1938.401,1,1895.398,,
+Cust3,2508.278,2,2648.932,,
+Destination,0.0,-1,,,

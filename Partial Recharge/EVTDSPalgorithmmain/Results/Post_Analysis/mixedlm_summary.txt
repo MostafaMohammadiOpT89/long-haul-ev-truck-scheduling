@@ -1,0 +1,63 @@
+                                            Mixed Linear Model Regression Results
+==============================================================================================================================
+Model:                                    MixedLM                         Dependent Variable:                         rt      
+No. Observations:                         252                             Method:                                     REML    
+No. Groups:                               2                               Scale:                                      0.0406  
+Min. group size:                          126                             Log-Likelihood:                             -24.7191
+Max. group size:                          126                             Converged:                                  Yes     
+Mean group size:                          126.0                                                                               
+------------------------------------------------------------------------------------------------------------------------------
+                                                                                    Coef.  Std.Err.   z    P>|z| [0.025 0.975]
+------------------------------------------------------------------------------------------------------------------------------
+Intercept                                                                           51.376    1.707 30.096 0.000 48.030 54.721
+C(battery_capacity_kWh)[T.500]                                                      -0.168    0.098 -1.710 0.087 -0.361  0.025
+C(battery_capacity_kWh)[T.750]                                                      -0.589    0.098 -5.990 0.000 -0.782 -0.396
+C(charging_station_interval_km)[T.40]                                               -0.248    0.116 -2.133 0.033 -0.476 -0.020
+C(charging_station_interval_km)[T.50]                                               -0.083    0.116 -0.710 0.478 -0.311  0.145
+C(charging_station_interval_km)[T.60]                                               -0.096    0.116 -0.826 0.409 -0.324  0.132
+C(charging_station_interval_km)[T.70]                                               -0.133    0.116 -1.140 0.254 -0.361  0.095
+C(charging_station_interval_km)[T.80]                                               -0.107    0.116 -0.917 0.359 -0.335  0.121
+C(charging_station_interval_km)[T.90]                                                0.000    0.116  0.000 1.000 -0.228  0.228
+C(charging_power_kW)[T.350]                                                          0.179    0.084  2.129 0.033  0.014  0.344
+C(energy_consumption_rate_kWh_per_km)[T.1.49]                                        0.247    0.098  2.512 0.012  0.054  0.440
+C(energy_consumption_rate_kWh_per_km)[T.2.08]                                        0.820    0.098  8.336 0.000  0.627  1.012
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.40]                 0.132    0.116  1.135 0.256 -0.096  0.360
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.40]                 0.298    0.116  2.562 0.010  0.070  0.526
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.50]                 0.120    0.116  1.031 0.302 -0.108  0.348
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.50]                 0.224    0.116  1.928 0.054 -0.004  0.452
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.60]                 0.097    0.116  0.832 0.405 -0.131  0.325
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.60]                 0.148    0.116  1.273 0.203 -0.080  0.376
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.70]                 0.105    0.116  0.904 0.366 -0.123  0.333
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.70]                 0.177    0.116  1.518 0.129 -0.051  0.405
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.80]                 0.049    0.116  0.417 0.677 -0.179  0.277
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.80]                 0.126    0.116  1.084 0.278 -0.102  0.354
+C(battery_capacity_kWh)[T.500]:C(charging_station_interval_km)[T.90]                -0.000    0.116 -0.000 1.000 -0.228  0.228
+C(battery_capacity_kWh)[T.750]:C(charging_station_interval_km)[T.90]                -0.000    0.116 -0.000 1.000 -0.228  0.228
+C(battery_capacity_kWh)[T.500]:C(charging_power_kW)[T.350]                          -0.112    0.062 -1.798 0.072 -0.234  0.010
+C(battery_capacity_kWh)[T.750]:C(charging_power_kW)[T.350]                          -0.184    0.062 -2.960 0.003 -0.306 -0.062
+C(battery_capacity_kWh)[T.500]:C(energy_consumption_rate_kWh_per_km)[T.1.49]        -0.023    0.076 -0.303 0.762 -0.172  0.126
+C(battery_capacity_kWh)[T.750]:C(energy_consumption_rate_kWh_per_km)[T.1.49]         0.094    0.076  1.230 0.219 -0.056  0.243
+C(battery_capacity_kWh)[T.500]:C(energy_consumption_rate_kWh_per_km)[T.2.08]        -0.376    0.076 -4.937 0.000 -0.525 -0.227
+C(battery_capacity_kWh)[T.750]:C(energy_consumption_rate_kWh_per_km)[T.2.08]        -0.325    0.076 -4.269 0.000 -0.474 -0.176
+C(charging_station_interval_km)[T.40]:C(charging_power_kW)[T.350]                   -0.069    0.095 -0.730 0.465 -0.256  0.117
+C(charging_station_interval_km)[T.50]:C(charging_power_kW)[T.350]                   -0.013    0.095 -0.142 0.887 -0.200  0.173
+C(charging_station_interval_km)[T.60]:C(charging_power_kW)[T.350]                   -0.002    0.095 -0.019 0.985 -0.188  0.184
+C(charging_station_interval_km)[T.70]:C(charging_power_kW)[T.350]                   -0.004    0.095 -0.041 0.967 -0.190  0.182
+C(charging_station_interval_km)[T.80]:C(charging_power_kW)[T.350]                    0.005    0.095  0.051 0.959 -0.181  0.191
+C(charging_station_interval_km)[T.90]:C(charging_power_kW)[T.350]                   -0.000    0.095 -0.000 1.000 -0.186  0.186
+C(charging_station_interval_km)[T.40]:C(energy_consumption_rate_kWh_per_km)[T.1.49] -0.100    0.116 -0.859 0.390 -0.328  0.128
+C(charging_station_interval_km)[T.50]:C(energy_consumption_rate_kWh_per_km)[T.1.49] -0.119    0.116 -1.024 0.306 -0.347  0.109
+C(charging_station_interval_km)[T.60]:C(energy_consumption_rate_kWh_per_km)[T.1.49] -0.044    0.116 -0.381 0.704 -0.272  0.184
+C(charging_station_interval_km)[T.70]:C(energy_consumption_rate_kWh_per_km)[T.1.49] -0.036    0.116 -0.306 0.759 -0.264  0.192
+C(charging_station_interval_km)[T.80]:C(energy_consumption_rate_kWh_per_km)[T.1.49] -0.040    0.116 -0.346 0.729 -0.268  0.188
+C(charging_station_interval_km)[T.90]:C(energy_consumption_rate_kWh_per_km)[T.1.49]  0.000    0.116  0.000 1.000 -0.228  0.228
+C(charging_station_interval_km)[T.40]:C(energy_consumption_rate_kWh_per_km)[T.2.08] -0.253    0.116 -2.176 0.030 -0.481 -0.025
+C(charging_station_interval_km)[T.50]:C(energy_consumption_rate_kWh_per_km)[T.2.08] -0.242    0.116 -2.079 0.038 -0.470 -0.014
+C(charging_station_interval_km)[T.60]:C(energy_consumption_rate_kWh_per_km)[T.2.08] -0.109    0.116 -0.936 0.349 -0.337  0.119
+C(charging_station_interval_km)[T.70]:C(energy_consumption_rate_kWh_per_km)[T.2.08] -0.090    0.116 -0.776 0.438 -0.318  0.138
+C(charging_station_interval_km)[T.80]:C(energy_consumption_rate_kWh_per_km)[T.2.08] -0.025    0.116 -0.217 0.828 -0.253  0.203
+C(charging_station_interval_km)[T.90]:C(energy_consumption_rate_kWh_per_km)[T.2.08]  0.000    0.116  0.000 1.000 -0.228  0.228
+C(charging_power_kW)[T.350]:C(energy_consumption_rate_kWh_per_km)[T.1.49]            0.065    0.062  1.048 0.295 -0.057  0.187
+C(charging_power_kW)[T.350]:C(energy_consumption_rate_kWh_per_km)[T.2.08]            0.328    0.062  5.280 0.000  0.206  0.450
+Group Var                                                                            5.812   40.099                           
+==============================================================================================================================

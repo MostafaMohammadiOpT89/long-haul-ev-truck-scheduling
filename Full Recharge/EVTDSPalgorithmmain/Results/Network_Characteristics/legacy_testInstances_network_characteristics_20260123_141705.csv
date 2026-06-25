@@ -1,0 +1,13 @@
+instance_name,instance_path,num_customers,num_origin_destination,total_route_nodes,total_route_distance_km,city_nodes,cs_nodes,intermediate_nodes,total_nodes,charging_station_pairs,arcs_total,para_arcs_total,total_arcs,arcs_city_to_cs,arcs_cs_to_city,arcs_cs_to_cs,arcs_city_to_city,arcs_other,para_arcs_start,para_arcs_drive,para_arcs_break,para_arcs_rest,para_arcs_visit,para_arcs_passingCS,para_arcs_other,build_time_seconds
+testInstance1,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance1.txt,0,2,2,0.0,12,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000212
+testInstance2,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance2.txt,0,2,2,0.0,11,0,0,11,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000158
+testInstance3,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance3.txt,0,2,2,0.0,8,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.00031
+testInstance4,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance4.txt,0,2,2,0.0,9,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.00018
+testInstance5,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance5.txt,0,2,2,0.0,10,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.00018
+testInstance6,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance6.txt,0,2,2,0.0,9,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.00014
+testInstance7,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance7.txt,0,2,2,0.0,10,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000135
+testInstance8,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance8.txt,0,2,2,0.0,9,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000135
+testInstance9,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance9.txt,0,2,2,0.0,9,0,0,9,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000143
+testInstance10,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance10.txt,0,2,2,0.0,8,0,0,8,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000153
+testInstance11,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance11.txt,0,2,2,0.0,17,0,0,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000237
+testInstance12,c:\Users\mostafm\OneDrive - NTNU\Desktop\MyFiles\TDSPEVRP\Code_Final\Full Recharge\EVTDSPalgorithmmain\testInstance12.txt,0,2,2,0.0,19,0,0,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.00023
