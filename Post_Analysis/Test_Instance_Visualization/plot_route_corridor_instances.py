@@ -19,14 +19,12 @@ from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import numpy as np
 from matplotlib.patches import FancyArrowPatch, Rectangle
 
 ROOT = Path(__file__).resolve().parent
 OUT_DIR = ROOT / "figures_route_corridor"
 
 CS_INTERVAL_KM = 60.0
-MAX_STATIONS_PER_LEG = 8
 
 
 class NodeKind(Enum):
@@ -128,12 +126,12 @@ def setup_pub_style() -> None:
             "font.family": "serif",
             "font.serif": ["Times New Roman", "DejaVu Serif", "Times", "Nimbus Roman"],
             "mathtext.fontset": "dejavuserif",
-            "font.size": 10,
-            "axes.labelsize": 11,
-            "axes.titlesize": 12,
-            "xtick.labelsize": 9,
-            "ytick.labelsize": 9,
-            "legend.fontsize": 8,
+            "font.size": 14,
+            "axes.labelsize": 15,
+            "axes.titlesize": 15,
+            "xtick.labelsize": 13,
+            "ytick.labelsize": 13,
+            "legend.fontsize": 13,
             "axes.linewidth": 0.8,
             "grid.linewidth": 0.4,
             "lines.linewidth": 1.2,
@@ -201,15 +199,6 @@ def leg_distance(dist: dict[tuple[str, str], float], a: str, b: str) -> float:
     raise KeyError(f"No distance between {a!r} and {b!r}")
 
 
-def station_offsets_on_leg(leg_km: float, *, cs_interval: float = CS_INTERVAL_KM) -> list[float]:
-    if leg_km <= cs_interval:
-        return []
-    raw = [k * cs_interval for k in range(1, int(leg_km // cs_interval) + 1) if k * cs_interval < leg_km]
-    if len(raw) <= MAX_STATIONS_PER_LEG:
-        return raw
-    return [float(x) for x in np.linspace(cs_interval, leg_km - cs_interval * 0.25, MAX_STATIONS_PER_LEG)]
-
-
 def build_sequence(rows: list[Row], dist: dict[tuple[str, str], float]) -> tuple[list[SeqNode], list[float]]:
     customers = [
         r
@@ -222,6 +211,8 @@ def build_sequence(rows: list[Row], dist: dict[tuple[str, str], float]) -> tuple
     sequence: list[SeqNode] = [SeqNode(NodeKind.ORIGIN, "Origin")]
     leg_lengths: list[float] = []
     station_counter = 1
+    distance_travelled = 0.0
+    next_station_km = CS_INTERVAL_KM
 
     major_nodes = ["Origin"] + [r.node for r in customers] + ["Destination"]
     for i in range(len(major_nodes) - 1):
@@ -229,10 +220,14 @@ def build_sequence(rows: list[Row], dist: dict[tuple[str, str], float]) -> tuple
         b_name = major_nodes[i + 1]
         leg_km = leg_distance(dist, a_name, b_name)
 
-        offsets = station_offsets_on_leg(leg_km)
-        if offsets:
-            step = leg_km / (len(offsets) + 1)
-            offsets = [step * (k + 1) for k in range(len(offsets))]
+        leg_end_km = distance_travelled + leg_km
+        # Charging stations follow one continuous corridor grid.  Do not restart
+        # or redistribute the spacing at customer boundaries.
+        offsets: list[float] = []
+        while next_station_km < leg_end_km - 1e-9:
+            if next_station_km > distance_travelled + 1e-9:
+                offsets.append(next_station_km - distance_travelled)
+            next_station_km += CS_INTERVAL_KM
 
         consumed = 0.0
         for off in offsets:
@@ -241,6 +236,7 @@ def build_sequence(rows: list[Row], dist: dict[tuple[str, str], float]) -> tuple
             station_counter += 1
             consumed = off
         leg_lengths.append(leg_km - consumed)
+        distance_travelled = leg_end_km
 
         if b_name == "Destination":
             sequence.append(SeqNode(NodeKind.DESTINATION, "Destination"))
@@ -306,34 +302,42 @@ def linear_x_positions(leg_lengths: list[float]) -> list[float]:
 
 def figure_size(*, overview: bool = False) -> tuple[float, float]:
     if overview:
-        return (12.0, 5.2)
-    return (11.0, 2.45)
+        return (12.0, 4.6)
+    return (11.0, 1.9)
 
 
 def save_figure(fig: plt.Figure, path: Path) -> None:
-    fig.savefig(path, bbox_inches="tight", pad_inches=0.02)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    suffix = path.suffix
+    format_name = suffix.lstrip(".") or None
+    temp_path = path.with_suffix(suffix + ".tmp")
+    fig.savefig(temp_path, format=format_name, bbox_inches="tight", pad_inches=0.02)
+    try:
+        temp_path.replace(path)
+    except PermissionError as exc:
+        temp_path.unlink(missing_ok=True)
+        raise PermissionError(
+            f"Unable to write {path}. Close any open PDF/image viewer or editor that may be locking the file, then rerun."
+        ) from exc
 
 
 def cluster_spans(sequence: list[SeqNode], xs: list[float]) -> list[tuple[int, int, int, float, float]]:
-    """Return (cluster, i_start, i_end, x_min, x_max) for consecutive customer runs."""
-    spans: list[tuple[int, int, int, float, float]] = []
-    i = 0
-    while i < len(sequence):
-        node = sequence[i]
+    """Return one span per cluster, from its first to its last customer.
+
+    Charging stations between customers belong visually inside the cluster band;
+    they must not split one cluster into several small boxes.
+    """
+    indices_by_cluster: dict[int, list[int]] = {}
+    for i, node in enumerate(sequence):
         if node.kind != NodeKind.CUSTOMER:
-            i += 1
             continue
         cluster = node.cluster_idx if node.cluster_idx is not None else 0
-        j = i
-        while (
-            j + 1 < len(sequence)
-            and sequence[j + 1].kind == NodeKind.CUSTOMER
-            and sequence[j + 1].cluster_idx == cluster
-        ):
-            j += 1
-        span_xs = xs[i : j + 1]
-        spans.append((cluster, i, j, min(span_xs), max(span_xs)))
-        i = j + 1
+        indices_by_cluster.setdefault(cluster, []).append(i)
+
+    spans: list[tuple[int, int, int, float, float]] = []
+    for cluster, indices in sorted(indices_by_cluster.items(), key=lambda item: item[1][0]):
+        i_start, i_end = min(indices), max(indices)
+        spans.append((cluster, i_start, i_end, xs[i_start], xs[i_end]))
     return spans
 
 
@@ -451,10 +455,8 @@ def plot_one_instance(
     customers = [n for n in sequence if n.kind == NodeKind.CUSTOMER]
     n_cust = len(customers)
     n_nodes = len(sequence)
-    ms_cust = marker_size if marker_size is not None else max(55.0, min(130.0, 700.0 / max(n_cust, 1)))
-    ms_od = ms_cust * 0.95
-    ms_station = max(16.0, ms_cust * 0.22)
-    label_offsets = customer_label_offsets(sequence, xs, total_km) if annotate_customers else {}
+    ms_cust = marker_size if marker_size is not None else max(100.0, min(220.0, 1200.0 / max(n_cust, 1)))
+    ms_station = max(30.0, ms_cust * 0.30)
 
     for cluster, _i0, _i1, x_min, x_max in cluster_spans(sequence, xs):
         pad = max(0.01 * total_km, 8.0)
@@ -469,18 +471,6 @@ def plot_one_instance(
                 zorder=0,
             )
         )
-        if annotate_customers:
-            ax.text(
-                0.5 * (x_min + x_max),
-                CLUSTER_LABEL_Y,
-                f"cluster {cluster + 1}",
-                ha="center",
-                va="bottom",
-                fontsize=6.5,
-                color=cluster_color(cluster),
-                zorder=1,
-            )
-
     for i in range(len(sequence) - 1):
         style_key = classify_leg(sequence, i)
         draw_route_segment(ax, xs[i], xs[i + 1], style_key, arrow=(i == len(sequence) - 2))
@@ -488,20 +478,16 @@ def plot_one_instance(
     for i, (node, x) in enumerate(zip(sequence, xs)):
         y = ROUTE_Y
         if node.kind in (NodeKind.ORIGIN, NodeKind.DESTINATION):
-            ax.scatter(
-                [x],
-                [y],
-                s=ms_od,
-                marker="s",
-                facecolor=ORIGIN_DEST_FACE,
-                edgecolors=ORIGIN_DEST_EDGE,
-                linewidths=1.0,
-                zorder=5,
+            # A text-sized box keeps the endpoint symbol fully inside.
+            ax.text(
+                x, y, node_label(node), ha="center", va="center", fontsize=12, zorder=6,
+                bbox=dict(
+                    boxstyle="square,pad=0.28",
+                    facecolor=ORIGIN_DEST_FACE,
+                    edgecolor=ORIGIN_DEST_EDGE,
+                    linewidth=1.0,
+                ),
             )
-            ax.text(x, y, node_label(node), ha="center", va="center", fontsize=9, zorder=6)
-            cap = node_caption(node)
-            if cap and annotate_customers:
-                ax.text(x, CAPTION_Y, cap, ha="center", va="top", fontsize=6.5, color="0.25", zorder=6)
         elif node.kind == NodeKind.CUSTOMER:
             k = node.cluster_idx if node.cluster_idx is not None else 0
             ax.scatter(
@@ -515,20 +501,6 @@ def plot_one_instance(
                 alpha=0.95,
                 zorder=5,
             )
-            if annotate_customers:
-                dx, dy = label_offsets.get(i, (0.0, LABEL_Y_OFFSET_PT))
-                ax.annotate(
-                    node_label(node),
-                    (x, y),
-                    xytext=(dx, dy),
-                    textcoords="offset points",
-                    ha="center",
-                    va="center",
-                    fontsize=8,
-                    color="0.15",
-                    arrowprops=dict(arrowstyle="-", color="0.55", lw=0.6, shrinkA=4, shrinkB=2),
-                    zorder=6,
-                )
         else:
             ax.scatter(
                 [x],
@@ -541,17 +513,27 @@ def plot_one_instance(
                 zorder=4,
             )
 
-    pad_x = min(12.0, max(4.0, 0.003 * total_km))
+    # Endpoint labels extend beyond their data coordinates; reserve enough room
+    # to prevent clipping at both edges of the axes.
+    pad_x = max(12.0, 0.012 * total_km)
     ax.set_xlim(-pad_x, total_km + pad_x)
-    ax.set_ylim(-0.12, 0.26)
+    ax.set_ylim(-0.10, 0.17)
     ax.margins(x=0)
     ax.axhline(ROUTE_Y, color="0.82", linewidth=2.4, zorder=0, solid_capstyle="butt")
-    ax.set_xlabel("Cumulative distance along visit sequence (km)")
+    ax.set_xlabel("")
     ax.set_ylabel("")
     ax.set_yticks([])
     ax.grid(True, axis="x", linestyle=(0, (2, 4)), alpha=0.35)
     ax.set_axisbelow(True)
-    ax.set_title(f"{title_line1}\n{title_line2}", pad=5, fontsize=11)
+    # The manuscript caption identifies the instance; omit the in-figure title and frame.
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    ax.tick_params(axis="x", length=0, pad=3)
+    ax.text(
+        1.005, -0.105, r"$\longrightarrow\ \mathrm{km}$",
+        transform=ax.transAxes, ha="left", va="center", fontsize=13,
+        clip_on=False,
+    )
 
     if show_legend:
         from matplotlib.lines import Line2D
@@ -614,6 +596,42 @@ def plot_one_instance(
         )
 
 
+def save_standalone_legend() -> None:
+    """Save the shared legend once for inclusion as a manuscript subfigure."""
+    from matplotlib.lines import Line2D
+
+    handles = [
+        Line2D([0], [0], color=style.color, linewidth=2.4, label=style.label)
+        for style in LEG_STYLES.values()
+    ]
+    handles.extend(
+        [
+            Line2D(
+                [0], [0], marker="s", linestyle="None",
+                markerfacecolor=ORIGIN_DEST_FACE, markeredgecolor=ORIGIN_DEST_EDGE,
+                markersize=11, label=r"Origin / destination ($o$, $d$)",
+            ),
+            Line2D(
+                [0], [0], marker="o", linestyle="None",
+                markerfacecolor=CUSTOMER_FACE, markeredgecolor=CUSTOMER_EDGE,
+                markersize=11, label="Customer (cluster colour)",
+            ),
+            Line2D(
+                [0], [0], marker="s", linestyle="None",
+                markerfacecolor=STATION_FACE, markeredgecolor=STATION_EDGE,
+                markersize=8, label="Charging station",
+            ),
+        ]
+    )
+    fig = plt.figure(figsize=(11.0, 1.15))
+    fig.legend(
+        handles=handles, loc="center", ncol=4, frameon=False,
+        columnspacing=1.5, handletextpad=0.6,
+    )
+    save_figure(fig, OUT_DIR / "route_corridor_legend.pdf")
+    plt.close(fig)
+
+
 def main() -> None:
     setup_pub_style()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -621,6 +639,8 @@ def main() -> None:
     all_ids = discover_instance_ids()
     if not all_ids:
         raise SystemExit(f"No *_Diagnostics.csv found under {ROOT}")
+
+    save_standalone_legend()
 
     for folder in all_ids:
         l1, l2 = titles_for_instance(folder)
@@ -637,8 +657,8 @@ def main() -> None:
         annotate = n_cust <= 12
         w, h = figure_size()
         fig, ax = plt.subplots(figsize=(w, h))
-        plot_one_instance(ax, folder, l1, l2, annotate_customers=annotate, show_legend=True)
-        fig.subplots_adjust(left=0.035, right=0.998, bottom=0.30, top=0.86)
+        plot_one_instance(ax, folder, l1, l2, annotate_customers=annotate, show_legend=False)
+        fig.subplots_adjust(left=0.055, right=0.995, bottom=0.34, top=0.96)
         stem = f"route_corridor_{folder}"
         save_figure(fig, OUT_DIR / f"{stem}.png")
         save_figure(fig, OUT_DIR / f"{stem}.pdf")
@@ -655,12 +675,7 @@ def main() -> None:
 
     fig, axes = plt.subplots(2, 3, figsize=figure_size(overview=True), layout="constrained")
     for ax, (folder, l1, l2) in zip(axes.ravel(), scenarios):
-        plot_one_instance(ax, folder, l1, l2, annotate_customers=False, show_legend=False, marker_size=52.0)
-    fig.suptitle(
-        "Test instances: predetermined customer sequence (distance-proportional)",
-        fontsize=13,
-        y=1.02,
-    )
+        plot_one_instance(ax, folder, l1, l2, annotate_customers=False, show_legend=False, marker_size=90.0)
     save_figure(fig, OUT_DIR / "route_corridor_overview_2x3.png")
     save_figure(fig, OUT_DIR / "route_corridor_overview_2x3.pdf")
     plt.close(fig)
