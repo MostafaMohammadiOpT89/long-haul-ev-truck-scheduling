@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Tuple
 
-ALLOWED_ALGORITHMS: FrozenSet[str] = frozenset({"partial_labeling", "full_labeling", "greedy"})
+ALLOWED_ALGORITHMS: FrozenSet[str] = frozenset({"partial_labeling", "full_labeling", "greedy", "driver_heuristic"})
 
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -36,7 +36,7 @@ import unified_experiment_runner as U
 @dataclass(frozen=True)
 class Job:
     job_id: str
-    algorithm: str  # partial_labeling | full_labeling | greedy
+    algorithm: str  # partial_labeling | full_labeling | greedy | driver_heuristic
     tag: str  # "" or "diesel_lb"
     instance_name: str
     instance_path: str  # path relative to ROOT_DIR (portable on cluster)
@@ -45,6 +45,8 @@ class Job:
     battery_cap: float
     charging_power: float
     safety_buffer_frac: Optional[float] = None
+    policy: Optional[str] = None  # driver_heuristic: "full" | "overlap"
+    t_sync_hours: Optional[float] = None  # driver_heuristic (None -> default)
 
 
 def _discover_instances(instances_root: Path) -> List[Tuple[str, Path]]:
@@ -135,10 +137,27 @@ def _build_jobs(
                             safety_buffer_frac=float(sb),
                         )
                     )
+            if "driver_heuristic" in algorithms:
+                for pol in U.DRIVER_HEURISTIC["policies"]:
+                    jobs.append(
+                        Job(
+                            job_id="",
+                            algorithm="driver_heuristic",
+                            tag="",
+                            instance_name=instance_name,
+                            instance_path=_rel(partial_path),
+                            consumption=float(cons),
+                            distance_per_cs=float(dcs),
+                            battery_cap=float(bc),
+                            charging_power=float(cp),
+                            policy=pol,
+                            t_sync_hours=U.DRIVER_HEURISTIC["t_sync_hours"],
+                        )
+                    )
 
-        # Diesel/LB: anchor from BASE_CASE (works with list or dict charging_powers)
+        # Diesel/LB: anchor from the preset (works with list or dict charging_powers)
         if include_diesel and U.RUN_DIESEL_LOWER_BOUND:
-            cons0, dcs0, cp0 = U.diesel_anchor_params()
+            cons0, dcs0, cp0 = U.diesel_anchor_params(preset)
             if "partial_labeling" in algorithms:
                 jobs.append(
                     Job(
@@ -168,6 +187,22 @@ def _build_jobs(
                         safety_buffer_frac=float(U.DIESEL_SAFETY_BUFFER_FRAC),
                     )
                 )
+            if "driver_heuristic" in algorithms:
+                jobs.append(
+                    Job(
+                        job_id="",
+                        algorithm="driver_heuristic",
+                        tag="diesel_lb",
+                        instance_name=instance_name,
+                        instance_path=_rel(partial_path),
+                        consumption=cons0,
+                        distance_per_cs=dcs0,
+                        battery_cap=float(U.DIESEL_BATTERY_CAP),
+                        charging_power=cp0,
+                        policy=U.DIESEL_DRIVER_POLICY,
+                        t_sync_hours=U.DIESEL_DRIVER_T_SYNC,
+                    )
+                )
 
     # Assign stable job ids after building list
     for i, job in enumerate(jobs, 1):
@@ -178,7 +213,7 @@ def _build_jobs(
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--preset", choices=["base", "full"], default=U.DEFAULT_PRESET)
+    parser.add_argument("--preset", choices=sorted(U.PRESETS.keys()), default=U.DEFAULT_PRESET)
     parser.add_argument(
         "--runid",
         default="",
@@ -194,8 +229,8 @@ def main() -> int:
         "--algorithms",
         default="",
         help=(
-            "Comma-separated subset of: partial_labeling, full_labeling, greedy. "
-            "Default: all three."
+            "Comma-separated subset of: partial_labeling, full_labeling, greedy, driver_heuristic. "
+            "Default: all."
         ),
     )
     args = parser.parse_args()
@@ -221,7 +256,7 @@ def main() -> int:
         print("No overlapping instances found between Partial and Full instances/ directories.")
         return 1
 
-    preset = U.BASE_CASE if args.preset == "base" else U.FULL_GRID
+    preset = U.PRESETS[args.preset]
     include_diesel = not args.no_diesel
     algorithms = _parse_algorithms(args.algorithms)
 

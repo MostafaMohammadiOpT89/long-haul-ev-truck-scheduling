@@ -1,0 +1,4 @@
+problem_size,n_instances,mean_full_h,mean_partial_h,mean_greedy_h,mean_driver_fc_h,mean_driver_oo_h,mean_partial_diesel_lb_h,driver_fc_pct_slower_than_partial,driver_fc_pct_faster_than_greedy,driver_fc_ev_gap_pct_vs_diesel,driver_oo_pct_slower_than_partial,driver_oo_pct_faster_than_greedy,driver_oo_ev_gap_pct_vs_diesel
+short,13,34.318,34.124,46.88,37.342,36.5,34.0,10.099,17.554,10.595,7.481,19.516,7.966
+medium,15,74.112,73.669,107.925,78.476,76.649,73.132,7.136,26.563,8.069,4.657,28.258,5.57
+large,15,132.439,131.619,188.187,139.292,136.036,130.469,5.895,25.652,6.823,3.422,27.395,4.328

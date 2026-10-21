@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unified single-thread experiment runner for TDSPEVRP (Partial + Full + Greedy + Diesel/LB).
+Unified single-thread experiment runner for TDSPEVRP (Partial + Full + Greedy + Driver heuristic + Diesel/LB).
 
 Goal: keep algorithm logic unchanged; this runner only orchestrates parameter grids and
 collects results in one place, using subprocesses to avoid module-name collisions between
@@ -25,6 +25,7 @@ FULL_DIR = ROOT_DIR / "Full Recharge" / "EVTDSPalgorithmmain"
 
 PARTIAL_SINGLE_SCENARIO = PARTIAL_DIR / "single_scenario_runner.py"
 FULL_SINGLE_SCENARIO = FULL_DIR / "single_scenario_runner.py"
+DRIVER_HEURISTIC_RUNNER = PARTIAL_DIR / "driver_heuristic_runner.py"
 
 
 # =========================
@@ -72,8 +73,32 @@ BASE_CASE = {
     },
 }
 
-# Default preset (can be overridden by CLI: --preset base|full)
+# Paper base case (same configuration as the base-scenario post-analysis: analyze.py BASE_SCENARIO_*).
+PAPER_BASE_CASE = {
+    "consumption_rates": [1.49],
+    "distances_per_cs": [60],
+    "battery_caps": [750.0],
+    "charging_powers": {750.0: [350.0]},
+    "safety_buffer_fracs": [0.10],
+}
+
+PRESETS = {"base": BASE_CASE, "full": FULL_GRID, "paper_base": PAPER_BASE_CASE}
+
+# Default preset (can be overridden by CLI: --preset base|full|paper_base)
 DEFAULT_PRESET = "base"
+
+# Algorithms orchestrated by this runner (CLI --algorithms selects a subset).
+ALL_ALGORITHMS = ("partial_labeling", "full_labeling", "greedy", "driver_heuristic")
+
+# Driver-inspired sequential heuristic (Partial Recharge/EVTDSPalgorithmmain/driver_heuristic.py).
+# One scenario per policy. t_sync_hours=None -> driver_heuristic.T_SYNC_HOURS default.
+DRIVER_HEURISTIC = {
+    "policies": ["full", "overlap"],
+    "t_sync_hours": None,
+}
+# Diesel-tagged driver run: huge battery, overlap-only policy, t_sync = 0 (no early synchronisation).
+DIESEL_DRIVER_POLICY = "overlap"
+DIESEL_DRIVER_T_SYNC = 0.0
 
 # Instances filter: [] = run all discovered instances.
 # Names must match instance folder names (e.g., 'short_cl1_cu2').
@@ -161,14 +186,16 @@ def iter_preset_parameter_combinations(preset: Dict[str, Any]) -> Iterator[Tuple
                     yield (float(cons), float(dcs), bc_f, float(cp))
 
 
-def diesel_anchor_params() -> Tuple[float, float, float]:
+def diesel_anchor_params(preset: Optional[Dict[str, Any]] = None) -> Tuple[float, float, float]:
     """
-    (consumption, distance_per_cs, charging_power) for diesel/LB runs: first tuple from BASE_CASE
-    enumeration, with battery replaced by DIESEL_BATTERY_CAP in the scenario builder.
+    (consumption, distance_per_cs, charging_power) for diesel/LB runs: first tuple from the preset
+    enumeration (BASE_CASE when no preset is given), with battery replaced by DIESEL_BATTERY_CAP in
+    the scenario builder.
     """
-    first = next(iter(iter_preset_parameter_combinations(BASE_CASE)), None)
+    preset = BASE_CASE if preset is None else preset
+    first = next(iter(iter_preset_parameter_combinations(preset)), None)
     if first is None:
-        raise ValueError("BASE_CASE produces no parameter combinations (check battery_caps / charging_powers).")
+        raise ValueError("Preset produces no parameter combinations (check battery_caps / charging_powers).")
     cons0, dcs0, _bc, cp0 = first
     return cons0, dcs0, cp0
 
@@ -206,7 +233,7 @@ def preset_snapshot_for_json(preset: Dict[str, Any]) -> Dict[str, Any]:
 
 @dataclass(frozen=True)
 class Scenario:
-    algorithm: str  # "partial_labeling" | "full_labeling" | "greedy"
+    algorithm: str  # "partial_labeling" | "full_labeling" | "greedy" | "driver_heuristic"
     instance_name: str
     instance_path: Path
     consumption: float
@@ -215,6 +242,8 @@ class Scenario:
     charging_power: float
     safety_buffer_frac: Optional[float] = None  # greedy only
     tag: Optional[str] = None  # e.g. "diesel_lb"
+    policy: Optional[str] = None  # driver_heuristic only: "full" | "overlap"
+    t_sync_hours: Optional[float] = None  # driver_heuristic only (None -> default)
 
 
 def _discover_instances(instances_root: Path) -> List[Tuple[str, Path]]:
@@ -288,10 +317,12 @@ def _build_scenarios(
     partial_instances: List[Tuple[str, Path]],
     full_instances: List[Tuple[str, Path]],
     preset: Dict[str, Any],
+    algorithms: Tuple[str, ...] = ALL_ALGORITHMS,
 ) -> List[Scenario]:
     full_map = {name: path for name, path in full_instances}
     safety_fracs = [float(x) for x in preset["safety_buffer_fracs"]]
-    cons0, dcs0, cp0 = diesel_anchor_params()
+    cons0, dcs0, cp0 = diesel_anchor_params(preset)
+    algos = set(algorithms)
 
     scenarios: List[Scenario] = []
     for instance_name, partial_path in partial_instances:
@@ -301,68 +332,103 @@ def _build_scenarios(
             continue
 
         for cons, dcs, bc, cp in iter_preset_parameter_combinations(preset):
-            scenarios.append(
-                Scenario(
-                    algorithm="partial_labeling",
-                    instance_name=instance_name,
-                    instance_path=partial_path,
-                    consumption=cons,
-                    distance_per_cs=dcs,
-                    battery_cap=bc,
-                    charging_power=cp,
-                )
-            )
-            scenarios.append(
-                Scenario(
-                    algorithm="full_labeling",
-                    instance_name=instance_name,
-                    instance_path=full_path,
-                    consumption=cons,
-                    distance_per_cs=dcs,
-                    battery_cap=bc,
-                    charging_power=cp,
-                )
-            )
-            for sb in safety_fracs:
+            if "partial_labeling" in algos:
                 scenarios.append(
                     Scenario(
-                        algorithm="greedy",
+                        algorithm="partial_labeling",
                         instance_name=instance_name,
                         instance_path=partial_path,
                         consumption=cons,
                         distance_per_cs=dcs,
                         battery_cap=bc,
                         charging_power=cp,
-                        safety_buffer_frac=sb,
                     )
                 )
+            if "full_labeling" in algos:
+                scenarios.append(
+                    Scenario(
+                        algorithm="full_labeling",
+                        instance_name=instance_name,
+                        instance_path=full_path,
+                        consumption=cons,
+                        distance_per_cs=dcs,
+                        battery_cap=bc,
+                        charging_power=cp,
+                    )
+                )
+            if "greedy" in algos:
+                for sb in safety_fracs:
+                    scenarios.append(
+                        Scenario(
+                            algorithm="greedy",
+                            instance_name=instance_name,
+                            instance_path=partial_path,
+                            consumption=cons,
+                            distance_per_cs=dcs,
+                            battery_cap=bc,
+                            charging_power=cp,
+                            safety_buffer_frac=sb,
+                        )
+                    )
+            if "driver_heuristic" in algos:
+                for pol in DRIVER_HEURISTIC["policies"]:
+                    scenarios.append(
+                        Scenario(
+                            algorithm="driver_heuristic",
+                            instance_name=instance_name,
+                            instance_path=partial_path,
+                            consumption=cons,
+                            distance_per_cs=dcs,
+                            battery_cap=bc,
+                            charging_power=cp,
+                            policy=pol,
+                            t_sync_hours=DRIVER_HEURISTIC["t_sync_hours"],
+                        )
+                    )
 
         if RUN_DIESEL_LOWER_BOUND:
-            scenarios.append(
-                Scenario(
-                    algorithm="partial_labeling",
-                    instance_name=instance_name,
-                    instance_path=partial_path,
-                    consumption=cons0,
-                    distance_per_cs=dcs0,
-                    battery_cap=DIESEL_BATTERY_CAP,
-                    charging_power=cp0,
-                    tag="diesel_lb",
+            if "partial_labeling" in algos:
+                scenarios.append(
+                    Scenario(
+                        algorithm="partial_labeling",
+                        instance_name=instance_name,
+                        instance_path=partial_path,
+                        consumption=cons0,
+                        distance_per_cs=dcs0,
+                        battery_cap=DIESEL_BATTERY_CAP,
+                        charging_power=cp0,
+                        tag="diesel_lb",
+                    )
                 )
-            )
-            scenarios.append(
-                Scenario(
-                    algorithm="greedy",
-                    instance_name=instance_name,
-                    instance_path=partial_path,
-                    consumption=cons0,
-                    distance_per_cs=dcs0,
-                    battery_cap=DIESEL_BATTERY_CAP,
-                    charging_power=cp0,
-                    safety_buffer_frac=DIESEL_SAFETY_BUFFER_FRAC,
-                    tag="diesel_lb",
+            if "greedy" in algos:
+                scenarios.append(
+                    Scenario(
+                        algorithm="greedy",
+                        instance_name=instance_name,
+                        instance_path=partial_path,
+                        consumption=cons0,
+                        distance_per_cs=dcs0,
+                        battery_cap=DIESEL_BATTERY_CAP,
+                        charging_power=cp0,
+                        safety_buffer_frac=DIESEL_SAFETY_BUFFER_FRAC,
+                        tag="diesel_lb",
+                    )
                 )
-            )
+            if "driver_heuristic" in algos:
+                scenarios.append(
+                    Scenario(
+                        algorithm="driver_heuristic",
+                        instance_name=instance_name,
+                        instance_path=partial_path,
+                        consumption=cons0,
+                        distance_per_cs=dcs0,
+                        battery_cap=DIESEL_BATTERY_CAP,
+                        charging_power=cp0,
+                        tag="diesel_lb",
+                        policy=DIESEL_DRIVER_POLICY,
+                        t_sync_hours=DIESEL_DRIVER_T_SYNC,
+                    )
+                )
 
     return scenarios
 
@@ -398,12 +464,25 @@ def _save_bundle(results_dir: Path, stem: str, payload: Dict[str, Any], rows: Li
 def main() -> int:
     import argparse
 
-    parser = argparse.ArgumentParser(description="Unified single-thread experiment runner (partial/full/greedy + diesel LB).")
+    parser = argparse.ArgumentParser(
+        description="Unified single-thread experiment runner (partial/full/greedy/driver heuristic + diesel LB)."
+    )
     parser.add_argument(
         "--preset",
-        choices=["base", "full"],
+        choices=sorted(PRESETS.keys()),
         default=DEFAULT_PRESET,
-        help="Select parameter preset: 'base' runs the base-case only, 'full' runs the full parameter grid.",
+        help=(
+            "Parameter preset: 'base' = BASE_CASE, 'full' = FULL_GRID, "
+            "'paper_base' = 750 kWh / 60 km / 350 kW / 1.49 kWh/km (base-scenario post-analysis)."
+        ),
+    )
+    parser.add_argument(
+        "--algorithms",
+        default="",
+        help=(
+            "Comma-separated subset of: " + ", ".join(ALL_ALGORITHMS) + ". Default: all. "
+            "Example: --algorithms driver_heuristic"
+        ),
     )
     parser.add_argument(
         "--instances",
@@ -429,13 +508,23 @@ def main() -> int:
     if cli_args.no_diesel:
         RUN_DIESEL_LOWER_BOUND = False
 
-    preset = BASE_CASE if cli_args.preset == "base" else FULL_GRID
+    preset = PRESETS[cli_args.preset]
+
+    if cli_args.algorithms.strip():
+        algorithms = tuple(a.strip() for a in cli_args.algorithms.split(",") if a.strip())
+        unknown = set(algorithms) - set(ALL_ALGORITHMS)
+        if unknown:
+            raise SystemExit(f"Unknown algorithm(s): {sorted(unknown)}. Allowed: {', '.join(ALL_ALGORITHMS)}")
+    else:
+        algorithms = ALL_ALGORITHMS
 
     # Sanity checks
     if not PARTIAL_SINGLE_SCENARIO.exists():
         raise FileNotFoundError(f"Missing: {PARTIAL_SINGLE_SCENARIO}")
     if not FULL_SINGLE_SCENARIO.exists():
         raise FileNotFoundError(f"Missing: {FULL_SINGLE_SCENARIO}")
+    if "driver_heuristic" in algorithms and not DRIVER_HEURISTIC_RUNNER.exists():
+        raise FileNotFoundError(f"Missing: {DRIVER_HEURISTIC_RUNNER}")
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -449,7 +538,7 @@ def main() -> int:
         print(f"No instances found under: {FULL_DIR / 'instances'}")
         return 1
 
-    scenarios = _build_scenarios(partial_instances, full_instances, preset)
+    scenarios = _build_scenarios(partial_instances, full_instances, preset, algorithms)
     if not scenarios:
         print("No scenarios to run (maybe instance intersection is empty).")
         return 1
@@ -465,8 +554,10 @@ def main() -> int:
     print(f"Results dir: {results_dir}")
     print(f"Instances (partial discovered): {len(partial_instances)}")
     print(f"Preset: {cli_args.preset}")
+    print(f"Algorithms: {', '.join(algorithms)}")
 
     for idx, sc in enumerate(scenarios, 1):
+        mode: Optional[str]
         if sc.algorithm == "partial_labeling":
             child = PARTIAL_SINGLE_SCENARIO
             cwd = PARTIAL_DIR
@@ -479,12 +570,14 @@ def main() -> int:
             child = PARTIAL_SINGLE_SCENARIO
             cwd = PARTIAL_DIR
             mode = "greedy"
+        elif sc.algorithm == "driver_heuristic":
+            child = DRIVER_HEURISTIC_RUNNER
+            cwd = PARTIAL_DIR
+            mode = None  # driver_heuristic_runner.py has no --mode
         else:
             raise ValueError(f"Unknown algorithm: {sc.algorithm}")
 
-        child_args = [
-            "--mode",
-            mode,
+        child_args = (["--mode", mode] if mode else []) + [
             "--instance_name",
             sc.instance_name,
             "--instance_path",
@@ -500,12 +593,21 @@ def main() -> int:
         ]
         if mode == "greedy":
             child_args += ["--safety_buffer_frac", str(sc.safety_buffer_frac if sc.safety_buffer_frac is not None else 0.10)]
+        if sc.algorithm == "driver_heuristic":
+            child_args += ["--policy", sc.policy or "full"]
+            if sc.t_sync_hours is not None:
+                child_args += ["--t_sync", str(sc.t_sync_hours)]
 
+        extra = ""
+        if mode == "greedy":
+            extra = f" sb={sc.safety_buffer_frac}"
+        elif sc.algorithm == "driver_heuristic":
+            extra = f" policy={sc.policy} t_sync={sc.t_sync_hours if sc.t_sync_hours is not None else 'default'}"
         print(
             f"[{idx}/{len(scenarios)}] {sc.algorithm}"
             f"{'('+sc.tag+')' if sc.tag else ''}"
             f" | {sc.instance_name} | cons={sc.consumption} dcs={sc.distance_per_cs} bc={sc.battery_cap} cp={sc.charging_power}"
-            f"{' sb='+str(sc.safety_buffer_frac) if mode == 'greedy' else ''}"
+            f"{extra}"
         )
 
         row = _run_child(child, cwd=cwd, args=child_args)
@@ -522,6 +624,8 @@ def main() -> int:
             "timestamp": timestamp,
             "total_scenarios": len(scenarios),
             "preset": cli_args.preset,
+            "algorithms": list(algorithms),
+            "driver_heuristic": DRIVER_HEURISTIC,
             "grid": preset_snapshot_for_json(preset),
             "diesel_lower_bound": {
                 "enabled": RUN_DIESEL_LOWER_BOUND,

@@ -1,0 +1,7 @@
+strategy,label,n_instances,mean_n_charges,mean_n_breaks,mean_n_rests,mean_n_sync_events,mean_n_unsync_charges,mean_pct_charge_sync,mean_idle_charging_min,mean_n_unsync_breaks,mean_n_unsync_rests,mean_route_h,mean_computation_sec,mean_total_charging_time_minutes,mean_total_energy_charged_kWh,mean_num_rule2_sync_stops,mean_num_rule3_forced_charges,mean_num_rule4_road_interruptions,mean_num_customer_interruptions,mean_num_cs_passed,mean_num_guard_break_to_rest
+Full,Full Recharge,43,5.302,4.465,3.628,3.721,1.581,74.56,28.436,4.465,3.628,82.428,1843.534014,,,,,,,,
+Partial,Partial Recharge,43,7.535,4.512,3.628,6.116,1.419,81.89,21.848,4.512,3.628,81.929,253.198591,,,,,,,,
+Greedy,Greedy,44,4.136,7.523,5.795,2.818,4.136,0.0,1167.347,6.818,5.795,115.9,0.00035,,,,,,,,
+Driver_FC,Driver heuristic (full charge),45,10.311,7.2,3.644,10.311,0.0,100.0,120.315,0.333,0.2,84.889,0.00067,528.556,3083.246,10.156,0.156,0.533,0.0,25.178,0.0
+Driver_OO,Driver heuristic (overlap-only),45,10.333,7.222,3.644,10.333,0.0,100.0,0.0,0.333,0.2,82.9,0.000608,513.321,2994.373,10.022,0.311,0.533,0.0,25.156,0.0
+Partial_Diesel_LB,Diesel proxy (high battery),43,1.884,4.163,3.628,1.884,0.0,81.395,0.0,4.163,3.628,81.303,163.793229,,,,,,,,

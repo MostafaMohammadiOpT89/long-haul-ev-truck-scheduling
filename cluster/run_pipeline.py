@@ -26,7 +26,7 @@ def _run(cmd: list[str], cwd: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="TDSPEVRP cluster pipeline (create_jobs -> run_all -> merge_results).")
-    parser.add_argument("--preset", choices=["base", "full"], default="base")
+    parser.add_argument("--preset", choices=["base", "full", "paper_base"], default="base")
     parser.add_argument("--runid", default="", help="Optional run id. If empty, timestamp is used.")
     parser.add_argument("--instances", default="", help="Comma-separated instance names (optional).")
     parser.add_argument("--no_diesel", action="store_true")
@@ -34,8 +34,8 @@ def main() -> int:
         "--algorithms",
         default="",
         help=(
-            "Comma-separated subset passed to create_jobs.py: partial_labeling, full_labeling, greedy. "
-            "Default: all three."
+            "Comma-separated subset passed to create_jobs.py: partial_labeling, full_labeling, greedy, driver_heuristic. "
+            "Default: all."
         ),
     )
 
