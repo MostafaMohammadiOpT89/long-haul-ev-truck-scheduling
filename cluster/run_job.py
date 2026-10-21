@@ -34,6 +34,7 @@ FULL_DIR = ROOT_DIR / "Full Recharge" / "EVTDSPalgorithmmain"
 
 PARTIAL_SINGLE_SCENARIO = PARTIAL_DIR / "single_scenario_runner.py"
 FULL_SINGLE_SCENARIO = FULL_DIR / "single_scenario_runner.py"
+DRIVER_HEURISTIC_RUNNER = PARTIAL_DIR / "driver_heuristic_runner.py"
 
 
 @dataclass
@@ -48,6 +49,8 @@ class Job:
     battery_cap: float
     charging_power: float
     safety_buffer_frac: Optional[float] = None
+    policy: Optional[str] = None  # driver_heuristic
+    t_sync_hours: Optional[float] = None  # driver_heuristic
 
 
 def _load_job(path: Path) -> Job:
@@ -131,13 +134,15 @@ def _job_to_child_args(job: Job) -> tuple[Path, Path, List[str]]:
         child = PARTIAL_SINGLE_SCENARIO
         cwd = PARTIAL_DIR
         mode = "greedy"
+    elif job.algorithm == "driver_heuristic":
+        child = DRIVER_HEURISTIC_RUNNER
+        cwd = PARTIAL_DIR
+        mode = None  # driver_heuristic_runner.py has no --mode
     else:
         raise ValueError(f"Unknown algorithm: {job.algorithm}")
 
     instance_abs = (ROOT_DIR / job.instance_path).resolve()
-    args = [
-        "--mode",
-        mode,
+    args = (["--mode", mode] if mode else []) + [
         "--instance_name",
         job.instance_name,
         "--instance_path",
@@ -153,6 +158,10 @@ def _job_to_child_args(job: Job) -> tuple[Path, Path, List[str]]:
     ]
     if mode == "greedy":
         args += ["--safety_buffer_frac", str(job.safety_buffer_frac if job.safety_buffer_frac is not None else 0.10)]
+    if job.algorithm == "driver_heuristic":
+        args += ["--policy", job.policy or "full"]
+        if job.t_sync_hours is not None:
+            args += ["--t_sync", str(job.t_sync_hours)]
     return child, cwd, args
 
 

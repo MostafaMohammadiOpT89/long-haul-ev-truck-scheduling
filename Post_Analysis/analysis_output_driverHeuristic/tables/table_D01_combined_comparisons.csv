@@ -1,0 +1,12 @@
+Comparison,reference,candidate,n,mean_reference_h,mean_candidate_h,candidate_better,reference_better,ties,candidate_advantage_avg,candidate_advantage_min,candidate_advantage_max,candidate_advantage_median_pct
+Partial vs Driver (full charge),Driver heuristic (full charge),Partial Recharge,43,87.255,81.929,43,0,0,6.67% (319.57 min),3.81% (71.74 min),12.05% (933.50 min),5.096
+Partial vs Driver (overlap-only),Driver heuristic (overlap-only),Partial Recharge,43,85.227,81.929,43,0,0,4.41% (197.92 min),1.58% (29.67 min),10.35% (786.36 min),2.59
+Full vs Driver (full charge),Driver heuristic (full charge),Full Recharge,43,87.255,82.428,43,0,0,6.10% (289.63 min),2.49% (46.82 min),11.49% (890.30 min),4.528
+Full vs Driver (overlap-only),Driver heuristic (overlap-only),Full Recharge,43,85.227,82.428,42,1,0,3.83% (167.97 min),-0.00% (-0.05 min),9.78% (743.16 min),2.116
+Driver (full charge) vs Greedy,Greedy,Driver heuristic (full charge),42,119.149,88.543,39,3,0,23.66% (1836.33 min),-2.55% (-43.40 min),32.05% (3913.50 min),25.228
+Driver (overlap-only) vs Greedy,Greedy,Driver heuristic (overlap-only),42,119.149,86.49,42,0,0,25.45% (1959.49 min),0.41% (11.07 min),33.51% (4090.99 min),26.823
+Driver overlap-only vs Driver full charge,Driver heuristic (full charge),Driver heuristic (overlap-only),43,87.255,85.227,43,0,0,2.35% (121.66 min),1.42% (26.74 min),2.90% (234.29 min),2.319
+Diesel proxy vs Driver (full charge),Driver heuristic (full charge),Diesel proxy (high battery),43,87.255,81.303,43,0,0,7.30% (357.12 min),3.81% (71.74 min),11.89% (1086.44 min),5.626
+Diesel proxy vs Driver (overlap-only),Driver heuristic (overlap-only),Diesel proxy (high battery),43,85.227,81.303,43,0,0,5.06% (235.47 min),2.43% (45.00 min),9.90% (885.00 min),3.117
+Partial vs Greedy (reference),Greedy,Partial Recharge,42,119.149,83.143,42,0,0,28.83% (2160.35 min),2.06% (56.07 min),34.60% (4225.01 min),31.034
+Diesel proxy vs Partial (reference),Partial Recharge,Diesel proxy (high battery),43,81.929,81.303,32,0,11,0.70% (37.55 min),-0.00% (-0.00 min),5.37% (180.00 min),0.585
