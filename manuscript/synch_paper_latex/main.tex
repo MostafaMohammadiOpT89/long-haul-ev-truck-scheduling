@@ -1,0 +1,1992 @@
+q\documentclass[3p,11pt,authoryear]{elsarticle}  %preprint, 1p/3p/5p journal
+\usepackage{setspace}
+\onehalfspacing
+
+\input{setup.tex}
+\journal{Transportation Research Part E: Logistics and Transportation Review}
+
+
+%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%
+
+\begin{frontmatter}
+
+
+\title{Scheduling long-haul battery-electric trucks: coordinating charging, breaks, and daily rests}
+%\title{Scheduling long-haul battery-electric trucks: coordinating charging and driver regulations}
+%
+%\title{The multi-day electric vehicle truck driver scheduling problem: Coordinating charging, breaks, and daily rests}
+
+%Synchronizing charging and driver regulations in long-haul battery-electric freight transport
+
+%The multi-day electric vehicle truck driver scheduling problem
+
+\author[indokaddress]{Steffen J.S. Bakker\corref{cor}} 
+            \ead{steffen.bakker@ntnu.no}
+            \author[indokaddress]{Mostafa Mohammadi}
+            \author[indokaddress]{Johan Stafseng}
+            \author[indokaddress]{Magnus Stålhane}
+            \author[sintefaddress]{Odd André Hjelkrem}
+
+		\cortext[cor]{Corresponding author}
+		\address[indokaddress]{Department of Industrial Economics and Technology Management, Norwegian University of Science and Technology, Alfred Getz veg 3, NO-7491 Trondheim, Norway}
+        \address[sintefaddress]{Department of Energy Systems, SINTEF Energy Research - Trondheim, Norway}
+
+
+\begin{abstract}
+Recent advances in battery technology and fast charging are making long-haul battery-electric freight transport increasingly feasible. As vehicle ranges extend beyond regional distribution, charging decisions become increasingly intertwined with Hours-of-Service regulations. Since charging is time-consuming and unavoidable on long routes, operators must ensure that vehicles remain sufficiently charged while complying with driver regulations. Efficient operation therefore depends on synchronizing charging activities with mandatory driver breaks and daily rest periods.
+%
+We study this scheduling problem for battery-electric trucks operating on multi-day long-haul routes. We introduce a multi-day electric truck driver scheduling problem in which charging decisions are optimized jointly with Hours-of-Service compliance to minimize total route duration. 
+The problem is formulated as a resource-constrained shortest path problem and solved using an exact labeling algorithm that jointly models battery dynamics and driver regulations.
+Computational experiments show that optimized battery-electric truck schedules can, under favorable charging conditions, be completed within \red{XX\%} of the duration of equivalent diesel-truck operations. However, schedule feasibility and performance deteriorate rapidly when charging opportunities are sparse or charging power is insufficient. 
+Compared with a simpler charging strategy, the proposed optimization approach reduces route durations by up to \red{XX\%}. Moreover, allowing partial recharging provides modest but consistent reductions in route time relative to full recharging. The results demonstrate that synchronization of charging and mandatory driver interruptions is a key operational enabler of long-haul freight electrification.
+\end{abstract}
+
+
+
+% Fill in data. If unknown, outcomment the field
+\begin{keyword}
+Battery-electric trucks; long-haul freight transport; hours-of-Service regulations; charging scheduling; driver scheduling; resource-constrained shortest path.
+\end{keyword}
+%\HISTORY{Received: Month DD, YYYY; Accepted: Month DD, YYYY; Published Online: Month DD, YYYY}
+
+\end{frontmatter}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{Introduction}
+\label{sec:Intro}
+
+
+% Motivation
+The electrification of road freight transport has progressed rapidly over the last decade. Battery-electric trucks are now being adopted in urban distribution and regional logistics, where vehicles can typically recharge at depots or terminals during predictable off-duty periods \citep{shoman2023battery}. Recent improvements in battery capacity and fast-charging technology are extending feasible driving ranges and making battery-electric trucks increasingly viable for long-haul freight operations. Current commercial vehicle offerings illustrate this development: heavy-duty battery-electric trucks are commonly marketed with single-charge ranges of around 300 km, while newer long-haul models target approximately 500 km under favorable operating conditions \citep{volvofhElectric,mercedesEactros600}. However, road freight transport is a highly competitive business with low profit margins \citep{eu2025roadcharges}, where schedules are tight and time losses translate directly into cost. If charging causes additional time losses,  battery-electric trucks can quickly become unattractive for long-haul freight operations.
+
+% Operational challenge + Synchronization of charging and Hours-of-Service requirements
+A defining feature of long-haul trucking is that operations are constrained by Hours-of-Service (HoS) regulations. Under EU regulation, drivers must take mandatory breaks and daily rest periods, typically taken overnight, that reset driving and working-time limits \citep{goel2017exact}. Traditionally, compliance with these regulations has been the primary scheduling challenge, as diesel refueling is fast and widely available. Consequently, refueling is rarely modeled as a binding scheduling resource in conventional truck operations \citep{schulz2024ipc}. For battery-electric trucks, in contrast, charging is substantially more time-consuming than diesel refueling and depends on the availability of suitable charging infrastructure. Operators must therefore ensure that vehicles remain sufficiently charged while simultaneously complying with driver regulations. 
+Efficient operation depends on synchronizing charging activities with mandatory breaks and daily rests such that charging can be absorbed into periods during which the driver is already required to be off duty. 
+%The extent to which charging can be effectively synchronized with mandatory driver interruptions, and how this affects route duration, schedule feasibility, and the competitiveness of long-haul battery-electric trucking, remain largely unexplored.
+
+In this paper, we investigate the synchronization of charging activities with mandatory breaks and daily rests in long-haul battery-electric freight transport. We study a multi-day scheduling problem in which charging, breaks, and daily rests must be jointly planned to minimize route duration while satisfying both Hours-of-Service and energy constraints.
+
+\subsection{Related literature}
+
+% Related literature: Truck driver scheduling under Hours-of-Service regulations
+The Truck Driver Scheduling Problem (TDSP) concerns the construction of driver schedules that satisfy regulatory HoS constraints while optimizing operational objectives such as route duration or transportation cost. The Truck Driver Scheduling Problem (TDSP) has been studied extensively under Hours-of-Service regulations \citep{archetti2009trip, goel2012minimum, goel2012truck}. %both EU and USA
+
+Methodologically, TDSPs are commonly formulated as shortest path problems with resource constraints (SPPRCs). Feasible schedules are constructed incrementally through labeling algorithms that extend partial paths while tracking resources such as accumulated driving and working time since the last break or rest. Resource extension functions are used to update resource states and identify infeasible path extensions \citep{goel2010truck, drexl2010labelling}. Building on this paradigm, \citet{goel2017exact} introduced an exact branch-and-price framework with a parameter-free network representation that avoids time discretization, while preserving regulatory feasibility. However, these models assume conventional vehicles with negligible refueling times and do not consider energy constraints.
+
+
+% Related literature: Electric vehicle routing and charging
+While TDSP research focuses on regulatory feasibility, the Electric Vehicle Routing Problem (EVRP) literature provides a rich body of work on modeling battery dynamics and charging decisions \citep{schneider2014electric, han2025uncertainty}. 
+%Charging is time-consuming and depends on the availability of suitable charging infrastructure. 
+%and may be performed partially or fully. 
+Many exact EVRP approaches are based on branch-and-price frameworks in which a master problem selects vehicle routes, while SPPRC pricing problems generate new feasible routes. In these formulations, battery state is treated as a resource and charging duration directly affect route timing \citep{desaulniers2016exact, lam2022branch, nafstad2025branch}. Several works allow partial recharging and nonlinear charging functions to better reflect operational practice \citep{montoya2017electric, froger2019improved}. Whereas most EVRP studies focus on route construction and charging decisions along a route, recent work has begun to integrate routing decisions with the scheduling of charging infrastructure. For example, \citet{yamin2025electric} jointly optimize urban delivery routes and overnight depot-charging schedules using a branch-price-and-cut algorithm. Their formulation accounts for nonlinear charging and limited charging capacity, but does not consider HoS-constrained driver schedules.
+%kicked out: \citep{bruglieri2023matheuristic}
+
+
+%interaction charging and HoS scheduling -> gap
+Only a limited number of studies explicitly consider the interaction between charging activities and driver breaks and rests under HoS regulation. \citet{schiffer2017impact} extend the EVRP by incorporating HoS regulations and allowing en-route charging activities to be synchronized with mandatory driver breaks. Their EVRP is motivated by one-day routing and scheduling of electric commercial delivery vehicles in regional distribution networks. They solve the problem using a mixed-integer formulation combined with an adaptive large neighborhood search heuristic.
+Closer to the long-haul setting considered in this paper, \citet{wan2024longhaul} study an opportunity-charging planning problem for a battery-electric truck in a single freight corridor case study. Their model coordinates charging decisions with planned stops at highway service areas and logistics hubs while accounting for charging technologies, electricity prices, and temporal flexibility. However, HoS regulations are represented only through simplified driving-time and rest constraints and the model does not consider recurring daily-rest requirements.
+More recently, \citet{brockmann2025breakandcharge} develop a mathematical programming model for an Electric Vehicle Truck Driver Scheduling Problem (EVTDSP) in which charging operations and mandatory driver breaks are jointly optimized. %, and evaluate it using real-world data from Northwest Germany. 
+Their analysis highlights the importance of accounting for driver regulations when assessing the operational performance of battery-electric trucks. However, the study is restricted to single-day operations and does not consider recurring daily rests or multi-day scheduling decisions.
+Finally, \citet{schneider2023novel} analyze one-day electric truck operations and evaluate predefined charging and EU HoS-complient break strategies, including alternatives enabled by high-power charging technologies such as the Megawatt Charging System. While their study provides valuable insights into the interaction between charging technology and driver regulations, it only evaluates a limited number of predefined operating strategies and does not address the underlying scheduling problem.
+
+
+
+
+\subsection{Research gap and contributions}
+
+%GAP
+It remains unclear to what extent charging can be absorbed within mandatory driver breaks and daily rests in multi-day long-haul operations, and how incomplete synchronization affects route duration and schedule feasibility. Existing studies focus primarily on distribution networks and single-day operations, whereas multi-day operations involve repeated charging, mandatory breaks, and recurring daily rests, creating greater potential for both synergies and conflicts between energy and regulatory requirements. Furthermore, existing synchronization studies rely primarily on mixed-integer formulations and heuristic solution approaches and do not provide an exact method for jointly optimizing charging, breaks, and daily rests over multiple days.
+
+% Contributions
+To address this gap, we study a multi-day variant of the Electric Vehicle Truck Driver Scheduling Problem (EVTDSP), which determines how charging activities, mandatory breaks, and daily rest periods should be scheduled and synchronized in long-haul battery-electric freight operations. Given a prescribed route and a set of charging opportunities, the objective is to minimize total route duration while satisfying both HoS and battery constraints.
+
+The contributions of this paper are threefold. First, we extend the truck driver scheduling problem to the multi-day battery-electric setting by explicitly integrating charging decisions with both mandatory breaks and recurring daily rest periods. Second, we develop an exact resource-constrained shortest path formulation and labeling algorithm by extending the framework of \citet{goel2017exact} with battery dynamics, tailored resource extension functions, and dominance rules. %The resulting method jointly enforces HoS and energy feasibility without time discretization.
+Third, we introduce an open-source benchmark set for the EVTDSP informed by interviews and operational data collected from long-distance trucking companies in Norway and Northern Europe, and use it to systematically analyze how route structure, charging conditions, and rest requirements affect schedule feasibility, charging-rest synchronization, and the value of partial recharging.
+
+
+
+% Research objectives (alreadu in contributions!!)
+%Beyond the development of an exact optimization framework, this paper seeks to understand how charging requirements interact with Hours-of-Service regulations in long-haul battery-electric truck operations. In particular, we examine how route structure, charging infrastructure, and charging strategies affect route duration and schedule feasibility.
+
+
+\begin{comment}
+    \begin{table}
+\TABLE
+{Comparative overview of related works.\label{tab:Literature_Review}}
+{\begin{tabular}{@{}p{7.5cm}p{2.2cm}p{3cm}ccccc@{}}
+\hline\up
+\textbf{Paper} & \textbf{Objective Function} & \textbf{Solution Method} & \textbf{TDS} & \textbf{CS} & \textbf{LCF} & \textbf{MS} & \textbf{LH} \\
+\hline\up
+\cite{xue2025routing} & Min Time & DP & Yes & Yes & Yes & Yes & Yes \\
+\cite{archetti2009trip} & None & PA & Yes & No & No & Yes & No \\
+\cite{barco2017optimal} & Min Cost & DEA & No & Yes & No & No & No \\
+\cite{campbell2004efficient} & MCO & Heuristic & Yes & No & No & Yes & No \\
+\cite{ceselli2009column} & Min Cost & CG, DP & Yes & No & No & No & No \\
+\cite{conrad2011recharging} & MCO & Heuristics & No & No & Yes & No & No \\
+\cite{de2022using} & Min Cost & DP, Heuristics & No & No & Yes & Yes & Yes \\
+\cite{desaulniers2016exact} & Min Cost & BNPNC & No & Yes & Yes & No & No \\
+\cite{drexl2010labelling} & MCO & DP & Yes & No & No & Yes & Yes \\
+\cite{dolgui2024scheduling} & Min Distance & Heuristics & No & Yes & No & No & Yes \\
+\cite{ferro2020optimal} & Min Cost & MIP & No & Yes & Yes & No & No \\
+\cite{froger2019improved} & Min Time & DP, Heuristic & No & Yes & No & No & No \\
+\cite{goel2009vehicle} & MCO & Heuristic, LNS & Yes & No & No & Yes & No \\
+\cite{goel2010truck} & None & BFS & Yes & No & Yes & Yes & Yes \\
+\cite{goel2012canadian} & Min Time & DP & Yes & No & Yes & Yes & Yes \\
+\cite{goel2012minimum} & Min Time & DP & Yes & No & Yes & Yes & Yes \\
+\cite{goel2017exact} & Min Cost & DP & Yes & No & Yes & Yes & Yes \\
+\cite{goel2012efficient} & None & DFBSS & Yes & No & No & Yes & Yes \\
+\cite{vidal2020concise} & Min Cost & HGSADC & Yes & Yes & No & Yes & Yes \\
+\cite{grandinetti2016pick} & MCO & MIP, WSM & No & Yes & Yes & No & No \\
+\cite{keskin2019electric} & MCO & Matheuristic & No & No & No & Yes & No \\
+\cite{kocc2018long} & Min Cost & Matheuristics, ALNS & Yes & No & No & Yes & Yes \\
+\cite{kok2010dynamic} & MCO & DP, Heuristic & Yes & No & No & Yes & Yes \\
+\cite{lam2022branch} & Min Cost & BNCNP & No & Yes & No & No & No \\
+\cite{lin2016electric} & Min Cost & MIP & No & Yes & Yes & No & No \\
+\cite{mayerle2020long} & Min Cost & LNS & Yes & No & No & Yes & Yes \\
+\cite{montoya2017electric} & Min Time & Hybrid Metaheuristic & No & Yes & No & No & No \\
+\cite{pelletier2018charge} & Min Cost & MIP & No & No & No & Yes & No \\
+\cite{prescott2010european} & Min Cost & LNS, labeling & Yes & No & No & Yes & No \\
+\cite{rancourt2013long} & MCO & Tabu Search & Yes & No & No & Yes & Yes \\
+\cite{savelsbergh1998drive} & MCO & BNP & Yes & No & No & Yes & No \\
+\cite{schiffer2017impact} & Min Cost & MIP, ALNS & Yes & Yes & Yes & No & No \\
+\cite{schneider2014electric} & MCO & Hybrid Heuristic & No & Yes & Yes & No & Yes \\
+\cite{schneider2023novel} & None & -- & Yes & Yes & No & Yes & Yes \\
+\cite{tilk2020bidirectional} & Min Cost & BNCNP, DP & Yes & No & No & Yes & Yes \\
+\cite{vital2021scheduling} & Min Cost & DP & Yes & No & Yes & No & No \\
+\cite{xu2003solving} & Min Cost & Matheuristics, DP & Yes & No & Yes & No & No \\
+Current Study & Min Cost & DP & Yes & Yes & Yes & Yes & Yes \down\\
+\hline
+\end{tabular}}
+{TDS = Truck Driver Scheduling, CS = Charging Stations, LCF = Linear Charging Function, MS = Multiple Shifts, LH = Long-Haul.}
+\end{table}
+% 
+\end{comment}
+
+
+
+
+
+    %------------------------------------------------%
+\begin{comment}
+    SOME OLD COMMENTS
+    energy at a fixed power level, implying a linear relationship between charging time and energy gained. At each charging station, the vehicle may recharge either to full capacity or by a selected amount of energy. Multiple charging stops are permitted throughout the route. Charging is not allowed during customer service.
+
+
+The driver is subject to EU HoS regulations, which define allowable driving and working durations, as well as mandatory break and rest periods. Driving time includes only the operation of the vehicle between locations, while working time encompasses both driving and service time at customers. A break is a pause of at least 45 minutes required after a maximum of 4.5 hours of driving. A daily rest is an uninterrupted period of at least 11 hours required after a maximum of 9 hours of driving or 13 hours of total working time. Figure~\ref{fig:driver_schedule} illustrates a valid HoS-compliant schedule under these rules. While EU regulations provide additional flexibility through mechanisms such as split breaks %and reduced or split daily rests
+, the base formulation focuses on standard 45-minute breaks and full 11-hour daily rests. Additional regulatory options can be incorporated within the proposed framework but are omitted to maintain focus on the core scheduling problem. \red{REF to a goel paper doing more intricate HoS regulation?}
+   
+\end{comment}
+
+
+ \section{Problem definition}
+    
+    %------------------------------------------------%
+
+
+\red{updated based on Magnus his new version. OK Now?}
+
+This paper studies the Electric Vehicle Truck Driver Scheduling Problem (EVTDSP), which concerns the construction of HoS-compliant and energy-feasible schedules for a battery-electric truck operating on a long-haul route. Given a predefined sequence of customer visits, the objective is to minimize the total route duration by determining the timing of mandatory breaks and daily rests, as well as when, where and how much to  charge the battery. We consider a one-week planning horizon, \(T^{\text{horizon}}=168\) hours, reflecting the regulatory limit on the duration of a weekly work cycle.
+
+The problem is defined on a directed graph \(\mathcal{G}=(\mathcal{N},\mathcal{A})\), where \(\mathcal{N}\) and \(\mathcal{A}\) denote the sets of nodes and arcs, respectively. The node set comprises the customer nodes \(\mathcal{N}^C\), the charging-station nodes \(\mathcal{N}^S\), the origin \(o\), and the destination \(d\), i.e., $\mathcal{N}=\mathcal{N}^C\cup\mathcal{N}^S\cup\{o,d\}$.
+Because the sequence of customer visits is predetermined and only charging stations located along this route are considered, all nodes have a unique order. Let \((i_1,\ldots,i_{|\mathcal{N}|})\) denote this order, with \(i_1=o\) and \(i_{|\mathcal{N}|}=d\). The arc set connects consecutive nodes:
+$\mathcal{A}=\{(i_k,i_{k+1})\mid k=1,\ldots,|\mathcal{N}|-1\}$.
+%A charging-station node represents a charging opportunity; visiting it does not require the vehicle to charge. 
+Figure~\ref{fig:evtdsp_route} illustrates the graph for a route with three customers and six charging stations.
+
+\begin{figure}[htbp!]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (-0.25,-2.95) rectangle (10.85,0.45);
+
+\draw[very thick,color=black!75] (1.15,0) -- (10.35,0);
+\draw[very thick,color=black!75] (10.35,0) -- (10.35,-2.0);
+\draw[very thick,->,color=black!75] (10.35,-2.0) -- (1.15,-2.0);
+
+\draw[thick,fill=orange!20] (0.25,-0.36) rectangle (1.15,0.36);
+\node at (0.70,0) {\small $o$};
+\node at (0.70,-0.82) {\scriptsize origin};
+
+\draw[thick,fill=orange!20] (0.25,-2.36) rectangle (1.15,-1.64);
+\node at (0.70,-2.0) {\small $d$};
+\node at (0.70,-2.82) {\scriptsize destination};
+
+\draw[thick,fill=blue!20] (2.90,0) circle (0.38);
+\node at (2.90,0) {\small $c_1$};
+
+\draw[thick,fill=blue!20] (6.65,0) circle (0.38);
+\node at (6.65,0) {\small $c_2$};
+
+\draw[thick,fill=green!20] (1.65,-0.24) rectangle (2.25,0.24);
+\node at (1.95,0) {\scriptsize $s_1$};
+
+\draw[thick,fill=green!20] (4.15,-0.24) rectangle (4.75,0.24);
+\node at (4.45,0) {\scriptsize $s_2$};
+
+\draw[thick,fill=green!20] (5.25,-0.24) rectangle (5.85,0.24);
+\node at (5.55,0) {\scriptsize $s_3$};
+
+\draw[thick,fill=green!20] (8.05,-0.24) rectangle (8.65,0.24);
+\node at (8.35,0) {\scriptsize $s_4$};
+
+\draw[thick,fill=blue!20] (6.45,-2.0) circle (0.38);
+\node at (6.45,-2.0) {\small $c_3$};
+
+\draw[thick,fill=green!20] (7.75,-2.24) rectangle (8.35,-1.76);
+\node at (8.05,-2.0) {\scriptsize $s_5$};
+
+\draw[thick,fill=green!20] (4.85,-2.24) rectangle (5.45,-1.76);
+\node at (5.15,-2.0) {\scriptsize $s_6$};
+\end{tikzpicture}
+\caption{Illustrative route structure for the EVTDSP. The truck travels
+from origin \(o\) to destination \(d\), visiting customers
+\((c_1,c_2,c_3)\), with charging stations \((s_1,\ldots,s_6)\)
+available along the route.}
+\label{fig:evtdsp_route}
+\end{figure}
+
+Each customer node $i\in\mathcal{N}^C$ requires a fixed, non-interruptible service time $s_i$. For each arc $(i,j)\in\mathcal{A}$, the distance $d_{ij}$ and driving time $t_{ij}$ are known. We assume a constant driving speed $v$ and a constant energy-consumption rate $\alpha$ per unit of distance. 
+%\red{If driving along an arc is interrupted after a duration $\Delta$, the corresponding energy consumption is $(e_{ij}/t_{ij})\Delta$. DEFINE THIS?} 
+The vehicle has battery capacity $B$, departs from the origin fully charged, and must maintain a nonnegative state of charge throughout the route.
+
+All charging stations are assumed to provide a constant charging power $P^{\mathrm{ch}}$. Charging is therefore linear: adding $q$ units of energy requires $q/P^{\mathrm{ch}}$ units of time. At a charging station, the vehicle may continue without charging or charge any amount up to the available battery capacity. Partial charging is thus part of the general problem definition, while full charging is obtained by restricting the vehicle to charge to capacity whenever a charging activity is selected. Multiple charging stops are allowed, but charging cannot be performed during customer service.
+
+The driver is subject to the EU HoS rules represented by four limits: $t_{\texttt{drive}|B}$ and $t_{\texttt{elapsed}|B}$ bound the driving and elapsed working time, respectively, between consecutive breaks or rests, while $t_{\texttt{drive}|R}$ and $t_{\texttt{elapsed}|R}$ impose the corresponding limits between consecutive daily rests. A break lasts at least $t_{\texttt{break}}$, and a daily rest lasts at least $t_{\texttt{rest}}$. 
+%In the base setting, these values are 4.5 and 6 hours before a break, 9 and 13 hours before a daily rest, and minimum break and rest durations of 0.75 and 11 hours, respectively \citep{goel2017exact}. 
+The driver is fully rested at the origin. Figure~\ref{fig:driver_schedule} illustrates a feasible schedule under these rules. We focus on standard 45-minute breaks and 11-hour daily rests; regulatory options such as split breaks and reduced daily rests are not considered.
+
+
+
+\begin{figure}[htbp!]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}
+\def\y{0}
+\def\h{1}
+
+\fill[fill=lime!70] (0,\y) rectangle (4.5,\y+\h);
+\node at (2.25,\y+0.5) {Drive};
+\node at (2.25,\y-0.25) {4.5h};
+
+\fill[fill=yellow!70] (4.5,\y) rectangle (5.25,\y+\h);
+\node[font=\scriptsize,align=center] at (4.875,\y+0.5) {Break\\+\\Charge};
+\node at (4.875,\y-0.25) {0.75h};
+
+\fill[fill=lime!70] (5.25,\y) rectangle (8.25,\y+\h);
+\node at (6.75,\y+0.5) {Drive};
+\node at (6.75,\y-0.25) {3h};
+
+\fill[fill=gray!20] (8.25,\y) rectangle (10.25,\y+\h);
+\node at (9.25,\y+0.5) {Service};
+\node at (9.25,\y-0.25) {2h};
+
+\fill[fill=lime!70] (10.25,\y) rectangle (11.75,\y+\h);
+\node at (11.0,\y+0.5) {Drive};
+\node at (11.0,\y-0.25) {1.5h};
+
+\fill[fill=red!70] (11.75,\y) rectangle (22.75,\y+\h);
+\node at (17.25,\y+0.5) {Rest};
+\node at (17.25,\y-0.25) {11h};
+\end{tikzpicture}%
+}
+\caption{Example of an HoS-compliant schedule for a fully rested driver.}
+\label{fig:driver_schedule}
+\end{figure}
+
+Breaks and daily rests may be taken at customer nodes, charging-station nodes, or intermediate points along an arc, but they cannot overlap with customer service. At charging stations, charging may be performed simultaneously with a break or daily rest. Only the part of a charging activity extending beyond the concurrent break or rest contributes additional time to the schedule. 
+
+The EVTDSP therefore determines a sequence of driving, service, charging, break, and rest activities that completes the prescribed route within \(T^{\text{horizon}}\), satisfies all HoS and battery constraints, and minimizes the elapsed time from departure at \(o\) to arrival at \(d\).
+
+
+
+    
+    %------------------------------------------------%
+    \newpage
+    \section{ SPPRC Framework}   
+    \label{sec:spprc}
+    %------------------------------------------------%
+%\begin{comment}
+{\color{red}
+
+\begin{itemize}
+    %\item check the new structure + formulations. I do not like \(\mathbf{T}\) for resources, but in line with previous work. 
+    \item @mostafa+Magnus: resources elapsed since break or rest not interval valued  -> Long discussion -> Not needed under our assumptins -> Explain
+    \item @mostafa -> latest|R and latest|B  -> only needed for time windows -> remove
+\end{itemize}
+}
+%\end{comment}
+
+
+%---------------
+
+The EVTDSP can be formulated as a shortest path problem with resource constraints (SPPRC) and solved using a labeling algorithm. We build on the labeling framework of \citet{goel2017exact}, extending it to jointly represent battery dynamics, charging decisions, and the synchronization of charging with mandatory breaks and daily rests. The prescribed route is transformed into a parameter-free activity network in which driving, breaks, daily rests, customer service, and charging are represented by activity arcs. Feasibility is tracked through temporal, Hours-of-Service, and battery resources propagated using resource extension functions (REFs).
+
+The framework supports both full- and partial-recharge strategies. We focus on the more general partial-recharge formulation, in which the charging amount is a decision variable. The full-recharge formulation is obtained as a special case and is presented in \ref{app:full_recharge_spprc}.
+
+The main notation used throughout the remainder of the paper is summarized in Table~\ref{tab:notation}. 
+\begin{table}[!htbp]
+\centering
+\caption{Main notation.}
+%\small 
+\footnotesize
+\label{tab:notation}
+\begin{tabular}{@{}ll@{}}
+
+\toprule
+\textbf{Symbol} & \textbf{Description} \\
+\midrule
+
+\multicolumn{2}{@{}l}{\textit{Networks and sets}} \\[2pt]
+$\mathcal{G}=(\mathcal{N},\mathcal{A})$
+    & Prescribed route graph, with node set $\mathcal{N}$ and arc set $\mathcal{A}$. \\
+$\widetilde{\mathcal{G}}=(\widetilde{\mathcal{N}},\widetilde{\mathcal{A}})$
+    & Parameter-free activity network used by the labeling algorithm. \\
+$\mathcal{N}^{C},\,\mathcal{N}^{S} \subseteq \mathcal{N}$
+    & Sets of customer and charging-station nodes, respectively. \\
+$o,d$
+    & Origin and destination nodes. \\
+
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Route and vehicle parameters}} \\[2pt]
+$d_{ij},\,t_{ij}$
+    & Distance and driving time of route arc $(i,j)\in\mathcal{A}$. \\
+$s_i$
+    & Service time at customer node $i$. \\
+$v,\,\alpha$
+    & Constant driving speed and energy-consumption rate per unit of distance. \\
+$B,\,P^{\mathrm{ch}}$
+    & Battery capacity and charging power. \\
+$T^{\mathrm{horizon}}$
+    & Planning horizon. \\
+
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Hours-of-Service parameters}} \\[2pt]
+$t_{\mathrm{break}},\,t_{\mathrm{rest}}$
+    & Minimum break and daily-rest durations. \\
+$t_{\texttt{drive}|B},\,t_{\texttt{elapsed}|B}$
+    & Driving- and elapsed-time limits between consecutive breaks or rests. \\
+$t_{\texttt{drive}|R},\,t_{\texttt{elapsed}|R}$
+    & Driving- and elapsed-time limits between consecutive daily rests. \\
+
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Labeling notation}} \\[2pt]
+$\mathcal{L}=(i,\pi,\mathbf{T})$
+    & Label at node $i$, with predecessor information $\pi$ and resource vector $\mathbf{T}$. \\
+$l_r,\,l'_r$
+    & Value of resource $r$ before and after a resource extension. \\
+$\Delta$
+    & Driving duration determined by a driving extension. \\
+$q$
+    & Energy added during a charging activity. \\
+$\texttt{SOC}$
+    & Battery state of charge. \\
+\shortstack[l]{
+$f^{\mathrm{start}},f^{\mathrm{drive}},f^{\mathrm{break}},$\\
+$f^{\mathrm{rest}},f^{\mathrm{visit}},f^{\mathrm{charge}}$
+}
+    & \shortstack[l]{Resource extension functions associated with the activity arcs.} \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+The remainder of this section first describes the parameter-free network structure, followed by the label resources, REFs, and the feasibility and dominance rules used in the labeling algorithm.
+
+
+
+
+
+\subsection{Parameter-free activity network}
+
+We transform the route graph
+\(\mathcal{G}=(\mathcal{N},\mathcal{A})\) into a parameter-free network\footnote{The term \emph{parameter-free} refers to the representation of activity durations. The network does not contain separate arcs for different possible durations of an activity. Instead, the duration is determined by the corresponding REF from the resources of the label being extended. In particular, the driving duration $\Delta$ is computed dynamically as the maximum feasible driving increment before the next route node is reached or an HoS limit becomes binding.}
+\(\mathcal{\widewidetilde{G}}=(\mathcal{\widetilde{N}},\mathcal{\widetilde{A}})\), on which the labeling algorithm is performed. The two graphs serve different purposes. The route graph \(\mathcal{G}\) specifies the ordered sequence of route nodes and the associated travel parameters, whereas \(\mathcal{\widetilde{G}}\) represents the feasible sequences of driver and vehicle activities along that route.
+
+
+The parameter-free network is constructed by replacing each route arc
+\((i,j)\in\mathcal{A}\) with an activity subnetwork. Its node set
+\(\mathcal{\widetilde{N}}\) consists of the original route nodes and two intermediate
+state nodes associated with each route arc: a fit state
+\(\tilde n_{ij}^{\mathrm{fit}}\) and a dull state
+\(\tilde n_{ij}^{\mathrm{dull}}\). Hence,
+$$
+\mathcal{\widetilde{N}}
+:=
+\mathcal{N}
+\cup
+\left\{
+\tilde n_{ij}^{k}
+\mid
+(i,j)\in\mathcal{A},
+\ k\in\{\mathrm{fit},\mathrm{dull}\}
+\right\}.
+$$
+
+A fit state represents a situation in which driving may continue. A dull
+state represents a decision point reached after a driving extension. If
+the current route arc has not yet been completed, a break or daily rest
+must be taken before driving can resume; if the head node has been
+reached, the corresponding visit REF may instead be applied.
+
+The arc set \(\mathcal{\widetilde{A}}\) contains directed activity arcs connecting
+the route and intermediate nodes. Each activity arc represents a permissible
+driver or vehicle activity and is associated with an REF that updates the
+resources of the label being extended. Figure~\ref{fig:subnetwork_cs_partial}
+illustrates the activity subnetworks generated by two consecutive route
+arcs, \((n,s)\) and \((s,m)\), where
+\(s\in\mathcal{N}^{S}\) is a charging-station node.
+
+
+
+
+
+
+
+%----------
+
+
+
+
+\begin{figure}[htbp!]
+\centering
+\begin{tikzpicture}[scale=0.8, transform shape, ->, thick, auto]
+% Node styles
+\tikzstyle{main} = [circle, draw=black, minimum size=1.4cm, inner sep=0pt]
+\tikzstyle{fit}  = [circle, draw=black, fill=lime!70, minimum size=1.6cm, inner sep=0pt]
+\tikzstyle{dull} = [circle, draw=black, fill=red!70, minimum size=1.6cm, inner sep=0pt]
+\tikzstyle{cs}   = [circle, draw=black, fill=gray!30, minimum size=1.4cm, inner sep=0pt]
+
+% Nodes
+\node[main] (n) at (0,0) {$n$};
+\node[fit]  (fitL) at (4, 3) {$\tilde{n}^{\text{fit}}_{ns}$};
+\node[dull] (dullL) at (4, -3) {$\tilde{n}^{\text{dull}}_{ns}$};
+\node[cs]   (cs) at (8, 0) {$s$};
+\node[fit]  (fitR) at (12, 3) {$\tilde{n}^{\text{fit}}_{sm}$};
+\node[dull] (dullR) at (12, -3) {$\tilde{n}^{\text{dull}}_{sm}$};
+\node[main] (m) at (16,0) {$m$};
+
+% From n to left states
+\path (n) edge node[left] {$f^{\text{start}}_{ns}$} (fitL);
+\path (n) edge node[left] {$f^{\text{start}}_{ns}$} (dullL);
+
+% Transitions between fit/dull (left side)
+\path[bend right=28] (fitL) edge node[left] {$f^{\text{drive}}_{\Delta}$} (dullL);
+\path (dullL) edge node[right, yshift=5pt] {\scriptsize $f^{\text{break}}$} (fitL);
+\path[bend right=28] (dullL) edge node[right, yshift=-6pt] {\scriptsize $f^{\text{rest}}$} (fitL);
+
+% To s
+\path (fitL) edge node[above] {$f^{\text{visit}}_{ns}$} (cs);
+\path (dullL) edge node[below] {$f^{\text{visit}}_{ns}$} (cs);
+
+% From s to right states
+\path (cs) edge node[above] {$f^{\text{charge}}$} (fitR);
+\path (cs) edge node[below] {$f^{\text{charge}}$} (dullR);
+
+% Transitions between fit/dull (right side)
+\path[bend right=28] (fitR) edge node[left] {$f^{\text{drive}}_{\Delta}$} (dullR);
+\path (dullR) edge node[right, yshift=5pt] {\scriptsize $f^{\text{break}}$} (fitR);
+\path[bend right=28] (dullR) edge node[right, yshift=-6pt] {\scriptsize $f^{\text{rest}}$} (fitR);
+
+% From right states to m
+\path (fitR) edge node[above right] {$f^{\text{visit}}_{sm}$}  (m);
+\path (dullR) edge node[below right] {$f^{\text{visit}}_{sm}$} (m);
+\end{tikzpicture}
+\caption{Parameter-free activity subnetworks for two consecutive customer
+nodes, \(n\) and \(m\), with an intermediate charging-station
+node \(s\). Each activity arc in \(\mathcal{\widetilde{A}}\) is associated with
+the indicated resource extension function.}
+\label{fig:subnetwork_cs_partial}
+\end{figure}
+
+The activity arcs in \(\mathcal{\widetilde{A}}\) are: \emph{start arcs}, which initialize the traversal of a route arc; \emph{driving arcs}, which advance the vehicle along the current route arc; \emph{break arcs} and \emph{rest arcs}, which represent the corresponding HoS activities; \emph{visit arcs}, which complete traversal of a route arc and process the route node reached, including customer service where applicable; and \emph{charging arcs}, which determine the charging amount at a charging-station node and initialize traversal of the subsequent route arc. A charging amount of zero represents passing the station without charging. %Thus, the route arcs in (\mathcal{A}) specify the prescribed route and its travel parameters, while the activity arcs in (\mathcal{\widetilde{A}}) define the possible label extensions.
+
+
+
+%The resulting network contains six classes of arcs: start arcs, driving arcs, break arcs, rest arcs, visit arcs, and charging arcs. 
+%A key feature of this representation is that a driving arc is not assigned a fixed duration in advance. Instead, its duration \(\Delta\) is computed as the longest feasible driving duration given the current resource state.
+%, equal to the minimum of (i) the remaining travel time to the next route node, (ii) the remaining driving time until a mandatory break or daily rest, (iii) the remaining daily working time before a mandatory rest must begin, and (iv) the remaining driving time permitted by the available battery energy. 
+%Consequently, each driving extension terminates either at the next route node or at the point where HoS or energy constraints require a new decision.
+
+
+
+\subsection{Labeling algorithm}
+
+We solve the SPPRC using a labeling algorithm on the parameter-free
+activity network. The algorithm starts with an initial label at the origin
+$o$, representing a fully rested driver and a fully charged vehicle. At
+each iteration, an unprocessed label is extended along every feasible
+outgoing activity arc. The associated resource extension function (REF) updates the temporal, regulatory, and energy resources. Infeasible and dominated labels are discarded, and a complete schedule is obtained when a label reaches the destination $d$.
+
+\subsubsection{Label definition}
+
+A label represents a partial path in the parameter-free network \(\mathcal{\widetilde{G}}\), together with the resource state needed to assess its feasibility and extend it into a complete schedule. Formally, $\mathcal{L}=(i,\pi,\mathbf{T})$,
+where \(i\in\mathcal{\widetilde{N}}\) is the current node, \(\pi\) stores the predecessor information required to reconstruct the partial path, and \(\mathbf{T}\) contains the associated resources.
+
+The resource vector $\mathbf{T}$ tracks schedule time, progress along the current route arc, the HoS counters associated with breaks and daily rests, and
+the vehicle SOC. Table~\ref{tab:resource_windows_partial} summarizes the
+individual resources and their feasibility windows.
+%The HoS resources build on \citet{goel2017exact}. We additionally retain the break-specific resources \(\texttt{drive|B}\) and \(\texttt{elapsed|B}\), as both can become binding in our problem. 
+%The energy deficit, when needed, is derived as \(\texttt{reqEC}:=B-\texttt{SOC}\). 
+Table~\ref{tab:resource_windows_partial} summarizes the resources and their feasibility windows.
+
+
+
+
+\begin{table}[!htbp]
+\centering
+\caption{Label resources with corresponding feasibility windows.}
+\label{tab:resource_windows_partial}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Resource} & \textbf{Type} & \textbf{Description} & \textbf{Feasibility Window} \\
+\midrule
+$\texttt{time}$ & Temporal & Total time elapsed since departure & $[0,T^{\text{horizon}}]$ \\
+$\texttt{timeToNext}$ & Temporal &  Remaining driving time on current route arc & $[0,t_{nm}]$ \\
+$\texttt{drive|R}$ & Regulatory & Driving time since last daily rest & $[0,t_{\texttt{drive}|R}]$ \\
+$\texttt{drive|B}$ & Regulatory & Driving time since last break or rest & $[0,t_{\texttt{drive}|B}]$ \\
+$\texttt{elapsed|R}$ & Regulatory & Elapsed time since last daily rest & $[0,t_{\texttt{elapsed}|R}]$ \\
+$\texttt{elapsed|B}$ &  Regulatory & Elapsed time since last break or rest & $[0,t_{\texttt{elapsed}|B}]$ \\
+$\texttt{SOC}$ & Energy & Battery state of charge
+  & $[0,\,B]$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Under partial recharge, the continuous charging decision is represented
+through interval-valued time and SOC resources, while the HoS resources
+remain scalar-valued. The interpretation and propagation of these
+interval endpoints are detailed in Section~\ref{sec:charging_ref}. The resulting resource vector is
+\[
+\mathbf{T}=
+\bigl(
+l_{\texttt{time}}^{\min},
+l_{\texttt{time}}^{\max},
+l_{\texttt{timeToNext}},
+l_{\texttt{drive|R}},
+l_{\texttt{drive|B}},
+l_{\texttt{elapsed|R}},
+l_{\texttt{elapsed|B}},
+l_{\texttt{SOC}}^{\min},
+l_{\texttt{SOC}}^{\max}
+\bigr).
+\]
+
+
+
+\subsubsection{Temporal and HoS resource extensions}
+
+Each activity arc \(a=\in\mathcal{\widetilde{A}}\) is associated with a resource extension function \(f_a\). Given a resource vector \(\mathbf{T}\) at node \(i\in\mathcal{\widetilde{N}}\), the REF returns an updated resource vector \(\mathbf{T}'=f_a(\mathbf{T})\), computes valid lower bounds on its components, or declares the extension infeasible. Extending a label \(\mathcal{L}=(i,\pi,\mathbf{T})\) therefore produces a label \(\mathcal{L}'=(j,\pi',\mathbf{T}')\), where \(\pi'\) contains the updated predecessor information. We use \(l_r\) and \(l'_r\) to denote the value of resource \(r\) before and after an extension, respectively.
+
+The activity arcs in \(\mathcal{\widetilde{A}}\) use six types of REFs: \(f^{\mathrm{start}}_{ij}\), \(f^{\mathrm{drive}}_{\Delta}\), \(f^{\mathrm{break}}\), \(f^{\mathrm{rest}}\), \(f^{\mathrm{visit}}_{ij}\), and \(f^{\mathrm{charge}}_{ij}\). 
+%The indices \(i\) and \(j\) identify the underlying route arc \((i,j)\in\mathcal{A}\), whereas \(u\) and \(v\) identify nodes in the parameter-free network. 
+The start, driving, break, rest, and visit REFs propagate the temporal and HoS resources, while the driving REF additionally accounts for battery-energy consumption. Table~\ref{tab:ref_temporal_hos} summarizes these extensions. For the interval-valued time and SOC resources, the listed updates apply to both endpoints.
+
+
+\begin{table}[!htbp]
+\centering
+\caption{Resource updates for the start,
+driving, break, rest, and visit REFs.
+A dash indicates that the resource remains unchanged.}
+\label{tab:ref_temporal_hos}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+%\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+\textbf{Resource}
+& \(f^{\mathrm{start}}_{ij}\)
+& \(f^{\mathrm{drive}}_{\Delta}\)
+& \(f^{\mathrm{break}}\)
+& \(f^{\mathrm{rest}}\)
+& \(f^{\mathrm{visit}}_{ij}\) \\
+\midrule
+\(l'_{\mathrm{time}}\)
+& ---
+& \(l_{\mathrm{time}}+\Delta\)
+& \(l_{\mathrm{time}}+t_{\mathrm{break}}\)
+& \(l_{\mathrm{time}}+t_{\mathrm{rest}}\)
+& \(l_{\mathrm{time}}+s_j\) \\
+
+\(l'_{\mathrm{timeToNext}}\)
+& \(t_{ij}\)
+& \(l_{\mathrm{timeToNext}}-\Delta\)
+& ---
+& ---
+& --- \\
+
+\(l'_{\mathrm{drive|R}}\)
+& ---
+& \(l_{\mathrm{drive|R}}+\Delta\)
+& ---
+& \(0\)
+& --- \\
+
+\(l'_{\mathrm{drive|B}}\)
+& ---
+& \(l_{\mathrm{drive|B}}+\Delta\)
+& \(0\)
+& \(0\)
+& --- \\
+
+\(l'_{\mathrm{elapsed|R}}\)
+& ---
+& \(l_{\mathrm{elapsed|R}}+\Delta\)
+& \(l_{\mathrm{elapsed|R}}+t_{\mathrm{break}}\)
+& \(0\)
+& \(l_{\mathrm{elapsed|R}}+s_j\) \\
+
+\(l'_{\mathrm{elapsed|B}}\)
+& ---
+& \(l_{\mathrm{elapsed|B}}+\Delta\)
+& \(0\)
+& \(0\)
+& \(l_{\mathrm{elapsed|B}}+s_j\) \\
+
+\(l'_{\mathrm{SOC}}\)
+& ---
+& \(l_{\mathrm{SOC}}-\alpha v \Delta\)
+& ---
+& ---
+& --- \\
+\bottomrule
+\end{tabular}%
+%}
+\end{table}
+
+
+For a route arc $(i,j)\in\mathcal{A}$, $t_{ij}$ denotes the required driving time from route node $i$ to route node $j$, and $s_j$ denotes the service time at node $j$ \red{(but also index of a charging station)}, with $s_j=0$ when $j\notin\mathcal{N}^{C}$. 
+
+The start REF initializes traversal of an arc $(i,j)$ by setting
+$l'_{\mathrm{timeToNext}}=t_{ij}$. A driving extension advances the
+schedule by a duration $\Delta$, increases the applicable HoS counters,
+reduces the remaining driving time, and consumes $\alpha v \Delta$ units
+of battery energy. The driving duration is determined endogenously as
+\begin{align*}
+\Delta
+=
+\min\bigl\{
+&l_{\mathrm{timeToNext}},
+t_{\texttt{drive}|B}-l_{\texttt{drive|B}},
+t_{\texttt{drive}|R}-l_{\texttt{drive|R}},
+\nonumber\\
+&t_{\texttt{elapsed}|B}-l_{\texttt{elapsed|B}},
+t_{\texttt{elapsed}|R}-l_{\texttt{elapsed|R}}
+\bigr\}.
+\end{align*}
+
+A driving extension therefore terminates when the head node of the
+current route arc is reached or when an HoS limit becomes binding. 
+%In contrast to \citet{goel2017exact}, 
+The driving REF additionally updates SOC. The
+extension is feasible if and only if $l_{\mathrm{SOC}}-\alpha v \Delta \geq 0.$
+
+
+The break and rest REFs add the corresponding interruption duration and reset the applicable HoS counters. A break resets \(l_{\mathrm{drive|B}}\) and \(l_{\mathrm{elapsed|B}}\), whereas a daily rest resets both the break- and rest-related resources. Finally, the visit REF completes traversal of route arc \((i,j)\), records arrival at route node \(j\), and adds \(s_j\) to the temporal and elapsed-time resources.
+
+
+\subsubsection{Charging resource extension}
+\label{sec:charging_ref}
+
+The charging REF \(f_{ij}^{\mathrm{charge}}\) introduces the coupling between time and battery energy. We first describe this relationship for a scalar charging decision and then explain how the continuum of charging decisions is represented compactly within a label.
+
+
+Consider a partial label arriving at charging station \(i\) at time \(t\) with
+state of charge \(l_{\mathrm{SOC}}\). 
+%Let \(B\) denote the battery capacity and \(P^{\mathrm{ch}}\) the constant charging power.
+We assume a linear charging
+process, such that the energy added is proportional to the charging
+duration. The vehicle may charge any amount $0\leq q\leq B-l_{\mathrm{SOC}}$, 
+requiring a charging duration $\tau(q)=\frac{q}{P^{\mathrm{ch}}}$.
+
+
+Charging may take place simultaneously with a break or daily rest. In
+the activity network, this synchronization is represented by applying
+the corresponding break or rest REF immediately before the charging
+REF at the same charging-station location. The break or rest REF first
+adds the interruption duration and resets the relevant HoS resources.
+The charging REF then recognizes this reset state and treats the
+already-recorded interruption as a charging window. Thus, the break or
+rest duration is not added to the schedule a second time.
+
+Let \(w(\mathcal{L})\) denote the synchronization window identified from
+the current HoS state:
+\[
+w(\mathcal{L})=
+\begin{cases}
+t_{\mathrm{rest}},
+    & \text{if the preceding activity is a daily rest},\\[2pt]
+t_{\mathrm{break}},
+    & \text{if the preceding activity is a break},\\[2pt]
+0,
+    & \text{otherwise}.
+\end{cases}
+\]
+Only the portion of the charging duration exceeding this window
+increases the route duration. The additional, unsynchronized charging
+time is therefore
+\[
+\delta(q,\mathbf{T})
+=
+\left[
+\frac{q}{P^{\mathrm{ch}}}-w(\mathbf{T})
+\right]^+.
+%\qquad [x]^+:=\max\{0,x\}.
+\]
+%If \(q/P^{\mathrm{ch}}\leq w(\mathbf{T})\), charging is fully synchronized and adds no route time. If \(q/P^{\mathrm{ch}}>w(\mathbf{T})\), charging is partially synchronized: the first \(w(\mathbf{T})\) time units overlap with the interruption, while the remaining \(q/P^{\mathrm{ch}}-w(\mathbf{T})\) time units extend the schedule. When \(w(\mathbf{T})=0\), the complete charging duration is added to the schedule.
+
+The charging REF, $f^{\mathrm{charge}}_{ij}$, then updates the time and SOC resources as:
+\[
+l'_{\mathrm{time}}
+=
+l_{\mathrm{time}}+\delta(q,\mathbf{T}),
+\qquad
+l'_{\mathrm{SOC}}
+=
+l_{\mathrm{SOC}}+q,
+\qquad
+0\leq q\leq B-l_{\mathrm{SOC}}.
+\]
+The same unsynchronized duration is added to the applicable
+elapsed-time HoS resources, whereas the accumulated driving-time
+resources remain unchanged. %If charging is synchronized with a break or daily rest, the corresponding HoS reset is performed by that activity.
+After charging, \(\texttt{timeToNext}\) is initialized for the subsequent route arc.
+
+Each feasible charging amount produces a paired departure-time and SOC value. Because charging is linear, the continuum of attainable combinations can be represented by the two endpoints
+$
+\bigl(l_{\mathrm{time}}^{\min},l_{\mathrm{SOC}}^{\min}\bigr)
+$ and $
+\bigl(l_{\mathrm{time}}^{\max},l_{\mathrm{SOC}}^{\max}\bigr).
+$
+These endpoints define an attainable time--SOC line segment, rather than two independent intervals. The segment represents every feasible partial-charging decision between an earlier departure with less energy and a later departure with more energy.
+
+
+Charging that fits within an available break or rest window increases
+SOC without delaying departure. Consequently, charging less than the
+amount available at no additional time is not useful. If
+\[
+\frac{B-l_{\mathrm{SOC}}}{P^{\mathrm{ch}}}\leq w(\mathbf{T}),
+\]
+a full recharge can be completed entirely within the synchronized
+interruption. Otherwise, the label retains the trade-off between
+departing earlier with less energy and remaining longer to obtain a
+higher SOC.
+
+The algorithm propagates this trade-off through subsequent driving,
+HoS, and visit extensions rather than fixing a charging amount
+immediately. Downstream energy requirements and HoS
+restrictions determine which portion of the represented interval can
+lead to a feasible and time-efficient completion. Dominance likewise
+compares the energy available at relevant times along the represented
+time--SOC segment. At the destination, the algorithm selects the feasible label with the shortest completion time. By tracing this label backward through the
+sequence of preceding labels, the algorithm determines the exact charging duration and energy added at each visited charging station.
+%The full-recharge formulation is recovered as the special case in which each charging extension selects \(q=B-e\).
+
+
+
+
+\subsubsection{Feasibility and dominance}
+
+\red{clean up!}
+After each resource extension, the resulting label must remain feasible. Feasibility is enforced through the resource windows in Table~\ref{tab:resource_windows_partial}; labels violating any bound are discarded immediately. Under partial recharge, the bounds on \(\texttt{time}\) and \(\texttt{SOC}\) apply to both endpoints of the attainable time--SOC segment. The structure of \(\mathcal{\widetilde{G}}\) additionally restricts the permissible extensions at each node. Driving arcs may be used only from a fit state. From a dull state, a break or daily rest must be completed before driving resumes. Once \(l_{\texttt{timeToNext}}=0\), a visit arc from either intermediate state completes traversal of the current route arc. At a charging-station route node, charging arcs initialize traversal of the subsequent route arc.
+
+
+To limit the number of labels stored at each node in \(\mathcal{\widetilde{N}}\), dominance is applied among labels ending at the same node. Let \(\mathcal{L}_1=(i,\pi_1,\mathbf{T}_1)\) and \(\mathcal{L}_2=(i,\pi_2,\mathbf{T}_2)\) be two feasible labels at \(i\in\mathcal{\widetilde{N}}\).
+ Label $\mathcal{L}_1$ dominates $\mathcal{L}_2$ if and only if:
+\begin{align*}
+l_{\text{timeToNext}}^{(1)} &\le l_{\text{timeToNext}}^{(2)}, \\
+l_{\text{drive|R}}^{(1)} &\le l_{\text{drive|R}}^{(2)}, &
+l_{\text{drive|B}}^{(1)} &\le l_{\text{drive|B}}^{(2)}, \\
+l_{\text{elapsed|R}}^{(1)} &\le l_{\text{elapsed|R}}^{(2)}, &
+l_{\text{elapsed|B}}^{(1)} &\le l_{\text{elapsed|B}}^{(2)}, \\
+l_{\text{latest|R}}^{(1)} &\ge l_{\text{latest|R}}^{(2)}, &
+l_{\text{latest|B}}^{(1)} &\ge l_{\text{latest|B}}^{(2)}, \\
+l_{\text{time}}^{\min,(1)} &\le l_{\text{time}}^{\min,(2)}, \\
+l_{\text{SOC}}^{\min,(1)} &\ge l_{\text{SOC}}^{\min,(2)}, &
+l_{\text{SOC}}^{\max,(1)} &\ge l_{\text{SOC}}^{\max,(2)}.
+\end{align*}
+
+
+and, at the earliest departure time of label 2, label 1 must offer at least the same battery energy, accounting for optional charging between $l_{\text{time}}^{\min,(1)}$ and $l_{\text{time}}^{\max,(1)}$.  Since the objective is to minimize total route duration, a label is preferable if its resource values are at least as good for continuing the route. For the scalar HoS resources ($\texttt{timeToNext}$, $\texttt{drive|R}$, $\texttt{drive|B}$,
+$\texttt{elapsed|R}$, and $\texttt{elapsed|B}$), which are monotone non-decreasing along every REF except break, rest, and synchronized charging, label~1 dominates label~2 at the same node if each of these resources is no
+larger in label~1 than in label~2. This pairwise comparison is sufficient for SPPRC with monotone resources and
+preserves optimality \citep{irnich2005shortest, goel2017exact}. Resources $\texttt{latest|R}$ and $\texttt{latest|B}$ are compared in the reverse direction because larger values correspond to greater remaining scheduling flexibility. The partial-recharge extension introduces interval-valued time and SOC resources. The additional dominance conditions on $l_{\text{time}}^{\min}$, $l_{\text{SOC}}^{\min}$, $l_{\text{SOC}}^{\max}$, and the battery level at $t=l_{\text{time}}^{\min,(2)}$ follow the interval dominance rule for delivery paths with optional recharging
+\citep{desaulniers2016exact}.
+
+%When \(\bigl[l_{\text{time}}^{\min},\, l_{\text{time}}^{\max}\bigr]\) reduces to a single time value and \(\bigl[l_{\text{reqEC}}^{\min},\, l_{\text{reqEC}}^{\max}\bigr]\) reduces to a single energy value, these conditions simplify to the scalar full-recharge dominance rule reported in Appendix~\ref{app:full_recharge_spprc}.
+
+
+
+
+    
+    %------------------------------------------------%
+    
+    \section{Experimental design} %Experimental design
+    
+    %------------------------------------------------%
+
+
+This section outlines the experimental design used in the computational study. We first describe the benchmark instances used to evaluate the proposed framework. We then introduce a baseline scheduling heuristic, which serves as a reference for assessing the benefits of jointly optimizing charging, breaks, and daily rests.
+
+%------------------------------------------------%
+\subsection{Benchmark instances}
+%------------------------------------------------%
+
+{
+\color{red}
+\begin{itemize}
+    \item SB: create new figure with all customers.
+\end{itemize}
+}
+Long-haul freight operations vary substantially in route length, customer distribution, and operating conditions. These characteristics influence the potential gains from jointly scheduling charging, mandatory breaks, and daily rests. We therefore develop a diverse set of structural route instances and evaluate them under different charging-station coverage levels, battery capacities, charging powers, and energy-consumption rates. Rather than reproducing individual observed routes, the instances represent a broad range of realistic long-haul freight operations and constitute, to the best of our knowledge, the first benchmark set for the long-haul EVTDSP.
+
+The benchmark design was informed by interviews with freight operators in Scandinavia and Northern Europe. With assistance from the Norwegian Trucking Association (NLF), 28 companies from different regions and transport segments were contacted, of which eight participated. They represented general freight, container, seafood, temperature-controlled, waste, and bulk transport. The interviews highlighted considerable variation in route length, route duration, number of stops, and customer distribution. Customers were often geographically clustered, resulting in routes that combine long intercity movements with shorter local collection and distribution activities. The interviews also emphasized the importance of charging-station availability and the potential gains from coordinating charging with mandatory driver breaks and daily rests.
+
+
+Based on these industry inputs, we develop an instance generator for heterogeneous long-haul routes. The generator first defines route instances along three main dimensions: route length, customer distribution, and the number of customer stops. %These dimensions are represented through route, cluster, and customer classes, respectively. 
+Scenario parameters are added subsequently to vary charging-station spacing, battery capacity, charging power, and energy consumption without changing the underlying route and customer structure.
+
+
+Routes are classified as {short}, {medium}, or {long}, corresponding to increasing route distances. Specifically, short routes span 800--1200~km and typically require 1--2 overnight rests, while medium routes span 1500--2500~km and require 3--4 overnight rests. Long routes span 3000--4000~km and require 5--6 overnight rests, reaching the maximum multi-day operating horizon of six days before a longer weekly rest becomes necessary under the HoS regulations. For each instance, the total route length \(D_{\text{total}}\) is sampled uniformly from the interval associated with its route class.
+
+Each route contains between one and three industrial clusters, interpreted as groups of geographically proximate customers. Cluster centers are positioned along intermediate sections of the route, so that customer visits are concentrated around these clusters and the first and last long-haul legs are typically the longest. %do not include this part: For a route of total length \(D_{\text{total}}\), the cluster centers are placed approximately at 50--60\% of \(D_{\text{total}}\) for one-cluster routes, at 35--45\% and 55--65\% for two-cluster routes, and at 25--30\%, 50--55\%, and 70--75\% for three-cluster routes. 
+%Small perturbations of \(D_{\text{total}}\) are introduced to avoid artificial symmetry.
+
+
+Customer stops are generated in two steps. First, one of three customer-count categories is selected: \textit{few} (1--3 customers), \textit{medium} (4--5 customers), or \textit{many} (6--15 customers), and the total number of customers \(N\) is sampled from the corresponding range. Second, customers are allocated among the route clusters, with at least one customer assigned to each cluster. In the base configurations, customers are distributed approximately evenly among clusters, refered to as balanced instances. For selected multi-cluster configurations, an unbalanced variant is also generated by assigning most customers to one randomly selected dominant cluster and only a few to the remaining clusters. For example, 12 customers across three clusters may be allocated as \([4,4,4]\) in a balanced instance and \([9,2,1]\) in an unbalanced instance. %The cluster centers remain distributed relatively evenly along the route in both variants, and the distinction does not apply to single-cluster routes. 
+
+Customer locations are then placed within 75~km of their cluster center in either direction along the route, while maintaining local customer-to-customer distances of 30--150~km. This produces long intercity movements between clusters and shorter local movements within them. Service times are linked to the customer-count category: 20--30 minutes per stop for few-customer instances, 10--20 minutes for medium instances, and 5--10 minutes for many-customer instances. Instance names indicate the route class, number of clusters, number of customers, and, where applicable, the allocation variant; for example, \texttt{long\_cl2\_cu5\_Balanced}.
+
+
+A total of \red{42} unique structural benchmark instances are generated by combining the route, cluster, and customer classes described above. Table~\ref{tab:benchmark_structure} summarizes the structural design, while the full set of instances and their characteristics is reported in Table~\ref{tab:test_instance_config}.
+
+
+\begin{table}[!htbp]
+\caption{Structural design of the benchmark instances.}
+\label{tab:benchmark_structure}
+\centering
+\small
+\setlength{\tabcolsep}{7pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}llll@{}}
+\toprule
+
+\textbf{Route characteristics} & \textbf{Short} & \textbf{Medium} & \textbf{Long} \\
+\midrule
+Route length
+& 800--1200 km
+& 1500--2500 km
+& 3000--4000 km \\
+
+Overnight rests
+& 1--2
+& 3--4
+& 5--6 \\
+
+Sampled customers
+& 2--12
+& 2--13
+& 2--14 \\
+
+\addlinespace[5pt]
+\textbf{Customer characteristic} & \textbf{Few} & \textbf{Medium} & \textbf{Many} \\
+\midrule
+Number of customers
+& 1--3
+& 4--5
+& 6--15 \\
+
+Service time per stop
+& 20--30 min
+& 10--20 min
+& 5--10 min \\
+
+\addlinespace[5pt]
+\multicolumn{4}{@{}l}{\textbf{Cluster characteristics}} \\
+\midrule
+Clusters per route
+& \multicolumn{3}{l}{1--3 clusters} \\
+
+Customer distribution across clusters
+& \multicolumn{3}{l}{Balanced; unbalanced} \\
+
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+Figure~\ref{fig:representative_routes} illustrates three representative instances. Charging stations are shown using the base-case maximum spacing of 50~km; the spacing parameter is defined below.
+
+\begin{figure}[!htbp]
+\centering
+
+\begin{subfigure}[t]{0.90\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+    {figures/route_corridor_short_cl2_cu3_Balanced.pdf}
+    \caption{\texttt{short\_cl2\_cu3\_Balanced}}
+\end{subfigure}
+
+\vspace{0.4em}
+
+\begin{subfigure}[t]{0.90\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+    {figures/route_corridor_med_cl3_cu13_Balanced.pdf}
+    \caption{\texttt{med\_cl3\_cu13\_Balanced}}
+\end{subfigure}
+
+\vspace{0.4em}
+
+\begin{subfigure}[t]{0.90\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+    {figures/route_corridor_med_cl3_cu13_Unbalanced.pdf}
+    \caption{\texttt{med\_cl3\_cu13\_Unbalanced}}
+\end{subfigure}
+
+\vspace{0.4em}
+
+\begin{subfigure}[t]{0.90\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]
+    {figures/route_corridor_legend.pdf}
+\end{subfigure}
+
+\caption{Three representative benchmark instances illustrating variation in route length and customer distribution. Charging stations are shown using a maximum spacing of 50~km. \red{colors of some arcs are a bit weird -> check steffen}}
+\label{fig:representative_routes}
+\end{figure}
+
+
+The computational experiments use different technological and infrastructure parameters, as summarized in Table~\ref{tab:scen_par}. 
+
+\begin{table}[!htbp]
+\caption{Scenario parameters and fixed HoS parameters.}
+\label{tab:scen_par}
+\centering
+\small
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\multicolumn{4}{@{}l}{\textit{Scenario parameters}} \\
+\textbf{Parameter} & \textbf{Symbol} &
+\textbf{Base value} & \textbf{Sensitivity values} \\
+\midrule
+Battery capacity
+    & \(B\) & 500 kWh & 350, 750 kWh \\
+Charging power
+    & \(P_{\text{ch}}\) & 350 kW & 1000 kW \\
+Maximum charging-station spacing
+    & \(d_{\text{CS}}\) & 50 km & 40, 60, \ldots, 100 km \\
+Energy consumption
+    & \(\alpha\) & 1.49 kWh/km & 1.12, 2.08 kWh/km \\
+
+\addlinespace[0.6em]
+\multicolumn{4}{@{}l}{\textit{Fixed HoS parameters}} \\
+\textbf{Parameter} & \textbf{Symbol} &
+\multicolumn{2}{l}{\textbf{Value}} \\
+\midrule
+Maximum continuous driving time
+    & \(t_{\text{drive}|B}\) & \multicolumn{2}{l}{4.5 h} \\
+Daily driving limit
+    & \(t_{\text{drive}|R}\) & \multicolumn{2}{l}{9 h} \\
+Maximum elapsed time before break
+    & \(t_{\text{elapsed}|B}\) & \multicolumn{2}{l}{6 h} \\
+Maximum elapsed time before daily rest
+    & \(t_{\text{elapsed}|R}\) & \multicolumn{2}{l}{13 h} \\
+Minimum break duration
+    & \(t_{\text{break}}\) & \multicolumn{2}{l}{0.75 h} \\
+Minimum daily rest duration
+    & \(t_{\text{rest}}\) & \multicolumn{2}{l}{11 h} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The selected battery capacities of 350, 500, and 750~kWh span current and announced heavy-duty electric-truck configurations, which range from approximately 360 to 780~kWh \citep{winkler2026potential,volvofhElectric,mercedesEactros600,volvo2025fhaero}. Charging powers of 350 and 1000~kW represent high-power CCS charging and prospective Megawatt Charging System capabilities, respectively. For example, the Mercedes-Benz eActros~600 supports up to 400~kW with CCS and 1000~kW with MCS \citep{mercedesEactros600}. In our model, these values are treated as constant charging rates; the 1000~kW case should therefore be interpreted as an idealized near-future scenario. Energy-consumption rates of 1.12, 1.49, and 2.08~kWh/km represent operating conditions ranging from favorable to demanding, around values reported in empirical studies and real-world trials \citep{volvofhElectric,le2025real}. Travel times are calculated using a fixed average speed of {60~km/h}, based on historical data provided by an industry partner.
+
+The maximum charging-station spacing ranges from 40 to 100~km. This range reflects the 2030 targets in EU Regulation 2023/1804 (AFIR): publicly accessible charging sites for heavy-duty vehicles must be available in each direction of travel at intervals of at most 60~km along the TEN-T core network and 100~km along the comprehensive network; including at least two 350~kW charging points on the core network and one on the comprehensive network \citep{eu2023afir}.
+
+Charging stations are inserted separately along each route leg. If a leg is shorter than the selected maximum spacing, one station is placed at its midpoint. Otherwise, stations are distributed such that the distance between consecutive charging opportunities does not exceed the selected spacing. The spacing parameter thus represents an upper bound rather than the exact distance between neighboring stations.
+
+The HoS parameters are fixed across all experiments. Following \citet{goel2017exact}, we use maximum continuous and daily driving times of 4.5 and 9~h, maximum elapsed times of 6 and 13~h before a break and daily rest, and minimum break and daily-rest durations of 0.75 and 11~h, respectively. 
+
+
+
+
+
+
+\begin{comment}
+After generating the structural route instances, we combine each route with scenario parameters. These parameters vary the availability of chargers along the route through the charging-station spacing, as well as battery capacity, charging power, and energy consumption. The parameter ranges are chosen to span both currently available heavy-duty battery-electric truck technologies and plausible near-future developments in vehicle and charging capabilities. Battery capacity ranges from 480 to 624 kWh, with an average of 540 kWh \citep{winkler2026potential}. Energy consumption is set to 1.15 kWh/km, with a variation of  $\pm$0.15 kWh/km to account for different driving conditions and loads \citep{le2025real}. \red{REFS to reports for battery capacity, charging power, and energy-consumption ranges, if possible @mostafa/@Odd-Andre}.
+INPUT: Have not found any useful references for this, but as an example, the eActros 600 is reported to have a chrging power of 400 kW for CCS2 and 1000 kW for MCS. These are maximum values, but from the data I have seen, the charging curves with CCS2 are relatively constant just below the max value of 400 kW. Not sure how to address this in the paper. I think the most realistic base value woud be 400 kW, and if necesary refer to the CCS standard from Charin.
+The average driving speed is fixed to \red{XXkmh -> Mostafa.} across all instances based on historical data provided by one of the industry partners. \red{should we use le2025real instead (41km/h -> I do not think so, seems too slow for our setting.}
+
+Charging stations are inserted along each route leg based on the selected charging-station spacing parameter. The range of spacing values is based on regulatory targets for publicly available charging infrastructure for heavy-duty vehicles under Regulation (EU) 2023/1804 (AFIR), which states that by December 2030, recharging pools must be deployed in each direction of travel with a maximum distance of 60 km between them along the TEN-T core road network. For the TEN-T comprehensive road network, the maximum distance is 100 km \citep{eu2023afir}. \red{REF to some EU report stating min required distance between charging stations. } .
+
+If a route leg is shorter than the specified spacing, a single charging station is placed at its midpoint. Otherwise, multiple charging stations are distributed along the leg such that the distance between consecutive charging opportunities does not exceed the specified spacing. Consequently, the charging-station spacing should be interpreted as a maximum spacing level rather than an exact distance between neighboring stations. Table~\ref{tab:benchmark_design} summarizes the instance classes, scenario values, and fixed HoS parameters used throughout the experiments.
+
+\red{Other parameters which are forgotten / not defined?}
+
+
+% Each route is represented as a linear sequence of nodes,
+% \[
+% \text{Origin} \rightarrow \text{Customer}_1 \rightarrow \cdots \rightarrow \text{Customer}_N \rightarrow \text{Destination},
+% \]
+% with cumulative distances satisfying \(\sum_i \Delta d_i = D_{\text{total}}\) and \(\Delta d_i>0\). Travel times are derived from these distances using a constant average speed consistent with the optimization model. The resulting distance and travel-time data populate the \texttt{DistanceMatrix.csv} and \texttt{TimeMatrix.csv} files used by the network parser to construct arcs between consecutive route nodes.
+
+\end{comment}
+
+
+
+
+
+
+%------------------------------------------------%
+\subsection{Driver-inspired heuristic}
+\label{sec:driver_heuristic}
+%------------------------------------------------%
+
+To assess how much of the benefit of joint optimization can be achieved with
+simple operational rules, we develop a driver-inspired sequential scheduling
+heuristic. It constructs a feasible schedule along the prescribed route using
+the current vehicle and hours-of-service (HoS) state and information about
+the next charging opportunity. Its decisions follow four rules:
+
+\begin{enumerate}
+    \item \textit{Drive as far as reasonably possible.}
+    At a charging station, continue without charging if the available state
+    of charge (SOC) is sufficient to reach the next charging opportunity or
+    the destination, unless a break or daily rest will become mandatory soon
+    and can be synchronized there (Rule~2).
+
+    \item \textit{Use a necessary charging stop for a break or rest.}
+    If charging is needed to reach the next charging opportunity, combine
+    the charging stop with a break or daily rest. Take a daily rest if one     will become mandatory within \(t^{\mathrm{sync}}\); otherwise, take a     break.
+    
+    \item \textit{Take an upcoming break or rest at a charging station.}
+    If a break or daily rest will become mandatory within
+    \(t^{\mathrm{sync}}\), take it early at the current charging station and     synchronize it with charging. If both interruptions are eligible, prefer     the daily rest.
+
+    
+
+    \item \textit{Take an interruption on the road if needed.}
+    If the vehicle is travelling between charging stations and cannot reach
+    the next station before an HoS limit becomes binding, take the required
+    interruption on the road.
+\end{enumerate}
+
+The synchronization horizon \(t^{\mathrm{sync}}\) determines how early an
+upcoming interruption may be taken at a charging station and whether a daily
+rest is close enough to take instead of a break during necessary charging.
+Unless otherwise stated, we use \(t^{\mathrm{sync}}=1\)~h.
+
+We evaluate a \emph{full-charge policy}, which charges to full capacity at a planned charging stop, and an \emph{overlap-only policy}, which charges during the concurrent interruption and extends charging only as needed to reach the next charging opportunity. The complete pseudocode is provided in Appendix~\ref{app:driver_heuristic}.
+
+
+
+
+
+
+
+
+\begin{comment}
+    
+%\subsubsection{Restricted-labeling heuristic}
+%\label{sec:restricted_labeling}
+
+The second heuristic uses the labeling framework of
+Section~\ref{sec:spprc}, but restricts the
+set of REFs considered. The restrictions implement the
+same operational principles as the driver-inspired heuristic while
+keeping the ability of the labeling algorithm to optimize decisions.
+
+The following restrictions are imposed:
+\begin{enumerate}
+    \item Charging at a charging station is considered only if
+    (i) the current SOC is insufficient to reach the next charging
+    opportunity or the destination, or
+    (ii) a break or daily rest will become mandatory within
+    $t^{\mathrm{sync}}$.
+
+    \item A break or daily rest may be taken early at a charging station
+    only if the corresponding HoS limit will become binding within
+    $t^{\mathrm{sync}}$. If both interruptions satisfy this condition,
+    the daily rest is considered.
+
+    \item Away from charging stations, breaks and daily rests are taken
+    only when required by the HoS constraints.
+
+    \item Whenever the charging REF is applied at a charging-station node, the corresponding break or daily rest is synchronized with charging whenever permitted by the above rules. 
+\end{enumerate}
+
+\red{Run this for both partial charging and full charging. Could we also impose the rules of the driver-heuristic (charge for the duration of the break, otherwise full)?}
+\end{comment}
+
+
+
+    %------------------------------------------------%
+    \section{Computational results} \label{sec:Computational Results}
+    %------------------------------------------------%
+
+{
+\color{red}
+Potential structure for new results
+\begin{enumerate}
+    \item \textbf{Base case results (optional).}
+    \begin{itemize}
+        \item one table summarizing the different approaches in the base case. 
+        \item keep extremely short, or not include at all.
+    \end{itemize}
+    \item \textbf{Competitiveness of (optimized) electric operation}. Can smart electric charging compete with diesel, and under what conditions?
+    \begin{itemize}
+        \item Smart (partial) charging vs diesel
+        \item Why/when EV can match diesel
+        \item Sensitivity: battery, charging power, consumption, station spacing
+        \item Feasibility 
+    \end{itemize}
+    \item \textbf{The value of partial charging}. Does partial charging actually matter, and when?
+    \begin{itemize}
+        \item Partial vs full in base case
+        \item How large is the gain?
+        \item Route length / difficult instances
+        \item WHY: synchronization, idle charging, number/location of stops
+        \item Sensitivity: under what technological conditions is partial charging valuable?
+    \end{itemize}
+    \item \textbf{Performance of heuristic scheduling strategies}. How much complex optimization is needed?
+    \begin{itemize}
+        \item Exact vs driver heuristic vs restricted labeling
+        \item Sensitivity to $t^{\mathrm{sync}}$
+        \item Full-charge vs overlap-only heuristic
+    \end{itemize}
+\end{enumerate}
+
+}
+
+This section reports the computational results. We first compare partial recharge, full recharge, the greedy heuristic, and the diesel proxy in the base-case setting. We then examine how these differences vary across instance classes and relate them to charging synchronization. Finally, we analyze the sensitivity of the results to battery characteristics, charging infrastructure, and energy consumption.
+
+\subsection{Performance comparison of charging strategies}  %what
+
+Table~\ref{tab:base_case_overview} summarizes the aggregate benchmark comparison for the base-case scenario. The results indicate that the dominant performance effect comes from optimization itself: schedules produced by the exact methods substantially outperform the greedy benchmark, highlighting the benefit of jointly optimizing charging decisions and driver scheduling under the Hours-of-Service regulation. Within this optimized setting, partial recharge provides a further systematic improvement over full recharge, indicating that additional value comes from adjusting charging amounts more precisely to downstream scheduling opportunities.
+\begin{table}[!htbp]
+\centering
+\caption{Base-case comparison: partial recharge vs.\ alternative solution approaches.}
+\label{tab:base_case_overview}
+\begin{threeparttable}
+\begin{tabular}{l r r r r r r r}
+\toprule
+Alternative &
+$n$ &
+\multicolumn{2}{c}{Mean route time (h)} &
+\multicolumn{4}{c}{Partial advantage (benchmark $-$ partial)} \\
+\cmidrule(lr){3-4} \cmidrule(lr){5-8}
+& &
+Partial & Alternative &
+Mean (\%) & Mean (min) & Min (min) & Max (min) \\
+\midrule
+Full recharge & 43 & 81.93 & 82.43  &  0.61 &  29.95 &   4.80 &  89.39 \\
+Greedy        & 42 & 83.14 & 119.15 & 28.83 & 2160.35 &  56.07 & 4225.01 \\
+Diesel proxy  & 43 & 81.93 &  81.30 & $-$0.71 & $-$37.55 & $-$180.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Each row compares partial recharge with one alternative on the same test instances ($n$). Partial advantage: positive values mean partial recharge is faster. Min/Max (min) are the smallest and largest instance-level time differences in minutes.
+% \item Mean route times are averaged over those matched instances only (hence partial means differ across rows).
+% \item Partial advantage: positive values mean partial recharge is faster; negative values mean the alternative is faster.
+% \item Min/Max (min) are the smallest and largest instance-level time differences in minutes.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+At the same time, the small average gap to the diesel reference case suggests that, when charging is coordinated effectively with mandatory breaks and daily rests, battery-electric operation can come close to diesel-like performance in the base-case setting. This average result is not uniform across instances, however. Figure~\ref{fig:base_case_per_instance} shows that the advantage of partial recharge over full recharge varies across the test set, and that the remaining EV--diesel gap is concentrated in a limited number of more difficult cases. The next subsection therefore examines where these gains are largest and how they relate to route structure.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/02c_comparisons_per_instance_boxplots.png}
+\caption{Per-instance comparison of partial recharge against full recharge, the greedy heuristic, and the diesel proxy in the base-case setting.}
+\label{fig:base_case_per_instance}
+\end{figure}
+
+The benefit of partial recharging increases in absolute terms with route length, although the percentage improvement over full recharging remains modest across all route classes. For short routes, partial recharging reduces the mean route time from \SI{34.32}{h} to \SI{34.12}{h}, corresponding to an average saving of \SI{12}{min}. The mean saving increases to \SI{27}{min} for medium routes and to around \SI{50}{min} for long routes. Thus, the additional flexibility of partial recharging becomes more valuable as route duration and the number of charging decisions increase.
+
+
+
+This pattern is also visible in the instances with the largest full-versus-partial gaps. The five strongest improvements all occur on long routes, namely L\_cl3\_cu4\_U, L\_cl3\_cu3\_B, L\_cl2\_cu2\_B, L\_cl2\_cu2\_U, and L\_cl2\_cu3\_B, with savings ranging from \SI{62.40}{min} to \SI{89.39}{min}. These cases are precisely those in which longer routes create many charging decisions and therefore more scope to improve the schedule by reallocating charging and aligning it with mandatory interruptions. For example, in L\_cl3\_cu4\_U, partial recharge reduces route time by \SI{89.39}{min}, raises the synchronization share from 58.33\% to 78.57\%, reduces the number of unsynchronized charging events from 5 to 3, and cuts idle charging time from \SI{122.76}{min} to \SI{45.98}{min}, despite increasing the number of charging stops from 12 to 14. By contrast, the smallest gains occur on short routes S\_cl3\_cu4\_U, S\_cl2\_cu4\_U, S\_cl2\_cu3\_B, S\_cl3\_cu5\_B, and S\_cl3\_cu4\_B where the savings are only \SIrange{4.80}{9.60}{min}. In S\_cl3\_cu4\_U, both strategies already achieve full synchronization, with zero unsynchronized charging and zero idle charging time, so the scope for further improvement is minimal. Detailed per-instance route times and charging-activity statistics are reported in Table~\ref{tab:appendix_full_results}.
+
+These results show that the operational value of partial recharge increases with route length and appears to be closely linked to charging synchronization. The next subsection examines this mechanism more directly by relating the observed time savings to the alignment of charging with breaks and daily rests.
+
+
+\subsection{The role of charging synchronization}  %why
+
+The route-class results suggest that the value of partial recharge comes not from charging less, but from charging more effectively. Table~\ref{tab:charging_sync_summary} makes this mechanism explicit. On average, partial recharge uses more charging stops than full recharge (7.53 versus 5.30), yet still achieves a lower mean route time. The improvement arises because these additional charging stops are better aligned with mandatory driver interruptions. In particular, the synchronization share increases from 74.56\% under full recharge to 81.89\% under partial recharge, while the number of unsynchronized charging events falls slightly from 1.58 to 1.42 despite the larger number of total charges. The main difference comes from break synchronization: partial recharge performs, on average, 2.58 charging stops during breaks, compared with only 0.19 under full recharge, whereas synchronization with daily rests remains essentially unchanged. The same table also clarifies why the greedy benchmark performs poorly. Although the greedy heuristic averages only 4.14 charging stops, none of them are synchronized with breaks or rests, so every charging event adds directly to route duration. The principal benefit of optimization is therefore not simply to reduce the amount of charging, but to embed charging more effectively within time that the driver is required to spend off the road anyway.
+\begin{table}[!htbp]
+\centering
+\caption{Charging-synchronization statistics by solution approach in the base-case setting.}
+\label{tab:charging_sync_summary}
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccccccc}
+\toprule
+Approach & \makecell{Route time\\(h)} & Charges & \makecell{Sync.\ share\\(\%)} & \makecell{Sync.\ charges} & \makecell{Unsync.\ charges} & Break-sync & Rest-sync \\
+\midrule
+Full recharge    & 82.43  & 5.30 & 74.56 & 3.72 & 1.58 & 0.19 & 3.53 \\
+Partial recharge & 81.93  & 7.53 & 81.89 & 6.12 & 1.42 & 2.58 & 3.53 \\
+{\color{red}Greedy heuristic} & 115.90 & 4.14 & 0.00  & 0.00 & 4.14 & 0.00 & 0.00 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Entries report averages across the available base-case schedules for each approach. ``Sync.\ charges'' and ``Unsync.\ charges'' denote charging events that do and do not overlap with mandatory breaks or rests, respectively. ``Break-sync'' and ``Rest-sync'' report the average numbers of charging events synchronized with breaks and daily rests.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The same mechanism explains why the gains from partial recharge are largest on long routes. Table~\ref{tab:partial_full_extremes} compares the five instances with the largest and smallest reductions in route time relative to full recharge. In the largest-gain cases, all of which are long routes, full recharge is associated with comparatively low synchronization and substantial idle charging time. Partial recharge raises the synchronization share from 57.47\% to 68.90\%, reduces unsynchronized charging from 5.0 to 4.2 events on average, and cuts idle charging time from \SI{94.41}{min} to \SI{66.60}{min}, despite using slightly more charging stops. By contrast, the smallest-gain cases are all short routes. There, both strategies already achieve near-complete synchronization, virtually no unsynchronized charging, and negligible idle charging time, leaving little scope for further improvement. Thus, the advantage of partial recharge comes not from fewer charging stops, but from greater flexibility in allocating charging across stops so as to reduce idle and unsynchronized charging when routes become long enough for these effects to matter.
+
+\begin{table}[!htbp]
+\centering
+\caption{Comparison of instances with the largest and smallest partial-recharge gains over full recharge.}
+\label{tab:partial_full_extremes}
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{
+p{3.0cm}
+l
+S[table-format=2.2]
+S[table-format=2.2]
+S[table-format=1.1]
+S[table-format=2.2]
+S[table-format=2.1]
+}
+\toprule
+Group & Class & {Saving (min)} & {Sync.\ share (F/P)} & {Unsync.\ (F/P)} & {Idle (F/P)} & {CS stops (F/P)} \\
+\midrule
+Largest gains  & Long  & 74.49 & 57.47 / 68.90 & 5.0 / 4.2 & 94.41 / 66.60 & 11.6 / 13.6 \\
+Smallest gains & Short & 6.72  & 90.00 / 93.33 & 0.2 / 0.2 & 3.07 / 3.07   & 1.4 / 2.6 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Entries report averages over the five instances with the largest and smallest values of \emph{full recharge route time minus partial recharge route time}. Positive savings therefore indicate that partial recharge is faster. In columns marked ``F/P'', values are reported as \emph{Full / Partial}.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+The cases closest to the diesel benchmark reinforce this interpretation. In the six base-case instances for which the optimized electric schedule matches the diesel benchmark exactly in total route time, every charging stop is synchronized with a mandatory break or rest, and both unsynchronized charging and idle charging are zero. Near-diesel performance is therefore achieved not by avoiding charging altogether, but by absorbing charging fully within the Hours-of-Service structure. Detailed per-instance evidence for these near-diesel cases is reported in \ref{appendix:diagnostics} Table~\ref{tab:near_diesel_cases}.
+
+\subsection{Effects of battery and charging infrastructure characteristics} %under which conditions
+
+We next examine how technology and charging-infrastructure assumptions affect the ability of optimized electric-truck schedules to approach the diesel proxy. In this analysis, the benchmark is the full-recharge electric schedule, and the performance measure is the paired route-time gap relative to the diesel proxy:
+
+\[ g_{i,\theta}
+=
+100*\frac{
+T^{\mathrm{full}}_{i,\theta}-T^{\mathrm{diesel}}_{i} }{ T^{\mathrm{diesel}}_{i}
+},
+\]
+
+where \(T^{\mathrm{full}}_{i,\theta}\) denotes the optimized full-recharge route time for instance \(i\) under parameter setting \(\theta\), and \(T^{\mathrm{diesel}}_{i}\) denotes the corresponding diesel-proxy route time for the same route. Reported averages are computed over EV routes that remain feasible, while feasibility rates are reported separately. Figure~\ref{fig:sensitivity_full_diesel} shows that EV-diesel gap is increasing when energy demand is high, battery capacity is low, or charging is slow. As the energy-consumption rate increases from \SI{1.12}{kWh/km} to \SI{2.08}{kWh/km}, the mean route-time penalty rises from \SI{0.49}{\percent} to \SI{3.05}{\percent}, reflecting the additional charging burden and reduced flexibility for absorbing recharging within mandatory breaks and daily rests. The opposite pattern is observed for battery capacity and charging power. Increasing battery capacity from \SI{750}{kWh} to \SI{1000}{kWh} reduces the mean penalty from \SI{2.52}{\percent} to \SI{1.04}{\percent}, while increasing charging power from \SI{350}{kW} to \SI{1000}{kW} reduces it from \SI{2.73}{\percent} to \SI{0.97}{\percent}. These reductions indicate that larger batteries and faster charging make it easier to complete required charging within off-duty periods.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=\textwidth]{figures/sensitivity_combined_full_vs_diesel.png}
+\caption{Mean paired route-time penalty of optimized full-recharge electric schedules relative to the diesel proxy, by technology parameter. The highlighted marker indicates the base-case parameter value used in the benchmark comparison.}
+\label{fig:sensitivity_full_diesel}
+\end{figure}
+
+The charging-pattern indicators in Table~\ref{tab:sensitivity_full_diesel} support this interpretation. Higher consumption rates and smaller batteries increase the number of charging stops and the number of synchronized charging events. For example, the average number of charging stops rises from 1.44 at \SI{1.12}{kWh/km} to 3.70 at \SI{2.08}{kWh/km}. Similarly, the \SI{750}{kWh} battery case requires 3.60 charging stops on average, compared with 1.94 for the \SI{1000}{kWh} case. Charging power affects the mechanism differently: higher power reduces the time cost of each charging event, so even when charging remains necessary, the route-time penalty relative to diesel declines substantially.
+
+\begin{table}[h!]
+\centering
+\caption{Sensitivity summary for optimized full-recharge schedules relative to the diesel proxy.}
+\label{tab:sensitivity_full_diesel}
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{
+ll
+S[table-format=1.2]
+S[table-format=3.0]
+S[table-format=3.1]
+S[table-format=1.2]
+S[table-format=1.2]
+S[table-format=1.2]
+S[table-format=1.2]
+S[table-format=1.2]
+S[table-format=1.2]
+}
+\toprule
+Parameter & Value & {Gap (\%)} & {Gap (min)} & {Feas. (\%)} & {Charges} & {Sync.} & {Unsync.} & {Break} & {Rest} \\
+\midrule
+Consumption rate & 1.12 & 0.49 & 13.17 & 100.0 & 1.44 & 1.32 & 0.13 & 0.24 & 1.08 \\
+(kWh/km) & 1.49 & 2.06 & 83.85 & 99.2 & 3.31 & 2.95 & 0.36 & 1.2 & 1.75 \\
+ & 2.08 & 3.05 & 75.66 & 100.0 & 3.7 & 3.08 & 0.63 & 1.49 & 1.59 \\
+\addlinespace
+Station spacing & 60 & 1.59 & 33.81 & 100.0 & 2.44 & 1.81 & 0.62 & 0.31 & 1.5 \\
+(km) & 80 & 1.97 & 42.33 & 100 & 2.5 & 1.94 & 0.56 & 0.39 & 1.56 \\
+ & 100 & 2.31 & 50.07 & 100 & 2.61 & 2.06 & 0.56 & 0.56 & 1.5 \\
+ & 120 & 2.38 & 108.23 & 100 & 4.75 & 3.88 & 0.88 & 1.09 & 2.78 \\
+ & 140 & 3.46 & 171.73 & 100 & 5.28 & 4.78 & 0.5 & 2.59 & 2.19 \\
+ & 160 & 3.16 & 141.65 & 100 & 4.88 & 4.47 & 0.41 & 1.97 & 2.5 \\
+ & 180 & 3.46 & 166.02 & 100 & 5.39 & 5.24 & 0.15 & 2.58 & 2.67 \\
+ & 200 & 4.04 & 196.23 & 100 & 5.24 & 5.06 & 0.18 & 3.12 & 1.94 \\
+ & 220 & 3.9 & 186.43 & 100 & 5.33 & 5.06 & 0.27 & 2.97 & 2.09 \\
+ & 240 & 3.64 & 167.42 & 100 & 4.88 & 4.62 & 0.25 & 2.22 & 2.41 \\
+ & 260 & 3.72 & 183.44 & 97.0 & 5.55 & 5.32 & 0.23 & 3.03 & 2.29 \\
+ & 300 & 4.95 & 235.76 & 84.8 & 4.48 & 4.37 & 0.11 & 2.7 & 1.67 \\
+\addlinespace
+Battery capacity & 750 & 2.52 & 88.59 & 99.4 & 3.6 & 3.21 & 0.39 & 1.55 & 1.66 \\
+(kWh) & 1000 & 1.04 & 25.08 & 100 & 1.94 & 1.59 & 0.35 & 0.27 & 1.32 \\
+\addlinespace
+Charging power & 350 & 2.73 & 100.86 & 99.2 & 3.54 & 3.23 & 0.3 & 1.43 & 1.8 \\
+(kW) & 500 & 1.49 & 36.47 & 100 & 2.46 & 2.13 & 0.33 & 0.73 & 1.4 \\
+ & 1000 & 0.97 & 23.97 & 100 & 2.34 & 1.81 & 0.53 & 0.64 & 1.17 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item Gap (\% and min) is the mean paired route-time penalty of full-recharge vs.\ diesel-proxy schedules. Feas.\ reports full-recharge feasibility. Charging columns give mean stop counts; Sync.\ and Unsync.\ indicate stops overlapping or not with mandatory breaks or rests. Station-spacing rows use base-case EV settings (1.49 kWh/km, 750 kWh, 350 kW).
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+
+
+Figure~\ref{fig:spacing_full_diesel} isolates the role of charging-station spacing. The results show that infrastructure density affects route-time competitiveness before it affects feasibility. When the spacing increases from \SI{60}{km} to \SI{140}{km}, the mean full-recharge penalty relative to the diesel proxy rises from \SI{1.59}{\percent} to \SI{3.46}{\percent}, while all tested scenarios remain feasible. Between approximately \SI{140}{km} and \SI{240}{km}, the penalty remains in the range of roughly \SIrange{3.2}{4.0}{\percent}, suggesting that the routes can still be completed but charging is increasingly difficult to align with favorable break and rest opportunities. Beyond this range, feasibility begins to deteriorate: the feasibility rate falls to \SI{97}{\percent} at \SI{260}{km} and to \SI{84.8}{\percent} at \SI{300}{km} (Table~\ref{tab:sensitivity_full_diesel}), where the mean penalty among feasible scenarios reaches \SI{4.95}{\percent}. It should be noted that the small non-monotonic changes arise because station locations are regenerated for each spacing value, so larger spacings do not uniformly worsen all routes, and because the largest-spacing averages exclude infeasible cases.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/ev_vs_diesel_full_vs_diesel_spacing_penalty.png}
+\caption{Mean paired route-time penalty of optimized full-recharge electric schedules relative to the diesel proxy as charging-station spacing increases. The highlighted marker indicates the base-case spacing.}
+\label{fig:spacing_full_diesel}
+\end{figure}
+
+\subsection{time horizon heuristic}
+
+
+\red{
+The sensitivity analysis in Figure~\ref{fig:tsync_sensitivity} shows a
+U-shaped pattern in mean route duration for both charging policies. Route
+duration is minimized near \(t^{\mathrm{sync}}=0.75\)~h and remains
+comparatively low at \(1\)~hour. Shorter horizons miss useful opportunities to
+synchronize charging and interruptions, whereas longer horizons can trigger
+interruptions prematurely. We therefore use \(t^{\mathrm{sync}}=1\)~h as the
+default.}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{figures/D06_tsync_sensitivity.png}
+    \caption{Sensitivity of mean route duration to the synchronization horizon
+    \(t^{\mathrm{sync}}\) for the full-charge and overlap-only driver
+    heuristics. Horizontal lines indicate the mean route durations of the
+    benchmark policies, and the vertical dotted line marks the default setting
+    \(t^{\mathrm{sync}}=1\)~h.}
+    \label{fig:tsync_sensitivity}
+\end{figure}
+
+
+\section{Conclusion}
+
+This paper studied the joint scheduling of charging, mandatory breaks, and daily rests for battery-electric trucks operating on fixed multi-day long-haul routes. We introduced the electric vehicle truck driver scheduling problem as a multi-day extension of the truck driver scheduling setting in which energy replenishment becomes a binding operational resource, and we developed an exact solution approach by extending the parameter-free labeling framework of Goel and Irnich with battery dynamics and charging decisions. The resulting SPPRC formulation captures the interaction between Hours-of-Service compliance and energy feasibility without time discretization, and supports both full- and partial-recharge strategies within a unified framework.
+
+The computational results show that the central operational issue is not charging per se, but charging \emph{in synchrony} with legally mandated interruptions. In the base-case benchmark, partial recharge systematically improves on full recharge, while both exact methods substantially outperform the greedy benchmark. The absolute value of partial recharge grows with route length: although the percentage gain over full recharge remains modest, the time saving rises from about 12 minutes on short routes to about 49 minutes on long routes. Mechanism-based comparisons show that these gains arise because partial recharge allocates charging more flexibly across stops, increases the share of charging synchronized with breaks and rests, and reduces idle and unsynchronized charging on the routes where such effects matter most. Near-diesel performance is achieved precisely in those instances where charging can be fully absorbed into the Hours-of-Service structure. 
+
+These findings carry two broader implications. First, the feasibility and competitiveness of long-haul electric trucking depend critically on whether charging opportunities can be embedded within the driver’s regulatory timetable rather than added as separate time-consuming stops. Second, the value of partial recharge is highest in technologically tight settings, namely when energy consumption is high, battery capacity is smaller, or charging power is lower. In such regimes, the scheduling problem becomes more constrained, and the ability to tailor charging amounts to downstream breaks and rests becomes materially more valuable. From a planning perspective, this suggests that operational synchronization should be treated as a first-order design principle alongside battery size and charger deployment. 
+
+Several extensions remain relevant for future research. The present study considers fixed route sequences, homogeneous charging technology, deterministic travel and energy consumption. Extending the framework to integrated routing and scheduling decisions, heterogeneous and potentially congested charging infrastructure, nonlinear charging functions, and stochastic travel-time or energy-consumption processes would further strengthen its practical applicability. 
+
+% It would also be valuable to incorporate richer regulatory flexibilities, such as split breaks and reduced or split daily rests, and to study how synchronization effects interact with corridor design and public charging network planning. More generally, the results suggest that the transition to long-haul electric freight transport is not determined by battery technology alone, but by the extent to which energy replenishment and regulatory driver scheduling can be optimized jointly. 
+
+
+\begin{comment}
+    OUTLOOK / FUTURE WORK
+
+    
+
+\subsection{Extensions and Practical Considerations}
+
+Although the current model is designed for fixed-route EVTDSP with full compliance to EU regulations, several extensions are possible to enhance realism and operational scope.
+
+The current implementation supports standard 11-hour rest durations. However, the EU HoS regulation also allows split rests (e.g., 3+9 hours) and reduced rests under specific conditions. These can be incorporated by adding additional rest arc types with shorter \( t_{\text{rest}} \) values and appropriate resource resets. This would require adjustments to both REF logic and dominance checks. At present, charging is modeled as a linear function of energy and power. In reality, charging rates often vary with state-of-charge, particularly under fast-charging regimes. Future extensions may replace constant \( P^{\mathrm{ch}} \) with time-dependent or piecewise-linear REFs, adapting techniques from \citet{montoya2017electric} or \citet{froger2019improved}.
+
+The current approach is exact and suitable for fixed-route scenarios. For routing problems with flexible customer sequences or larger networks, hybrid metaheuristics (e.g., ALNS with SPPRC subproblems) or rolling-horizon techniques may be employed to scale the method while preserving regulatory feasibility. Energy consumption is modeled using the proportionality parameter \( \alpha \), derived from empirical values in \citet{schneider2023novel}. These include worst-, average-, and best-case scenarios, enabling sensitivity analysis. The modular structure of the algorithm allows easy adaptation of \( \alpha \) to vehicle type, terrain, or traffic conditions. These enhancements would broaden the applicability of the method to operational planning tools in BET logistics and support future empirical deployments.
+\end{comment}
+
+
+
+% Acknowledgments here
+
+\section*{Acknowledgments}
+
+\red{
+Funding etc. NTRANS, TRANSPLAN, MEGACHARGE
+}
+
+\section*{Declaration of Generative AI and AI-assisted technologies in the writing process}
+
+\red{
+During the preparation of this work the authors used AI tools in order to suggest alternative formulations for individual sentences. After using these tools, the authors reviewed and edited the content as needed and take full responsibility for the content of the publication.}
+
+\bibliography{references} % if more than one, comma separated
+
+
+
+
+\appendix
+\newpage
+
+
+
+
+%------------------------------------------------%
+
+\section{Full-recharge SPPRC variant and pass-by arcs}
+\label{app:full_recharge_spprc}
+
+%------------------------------------------------%
+
+\red{needs to be updated validates, after finishing the partial charging description in the main text}
+
+This appendix presents the full-recharge variant of the SPPRC framework. The full-recharge strategy is recovered from the partial-recharge model by restricting every charging action to restore the battery to full capacity. Under this restriction, the energy state can be represented by a scalar resource, and additional pass-by arcs are used to preserve feasible continuations when a charging station is traversed without stopping.
+
+%------------------------------------------------%
+
+\subsection{Network structure with pass-by arcs}
+
+%------------------------------------------------%
+
+Figure~\ref{fig:subnetwork_cs_full} illustrates the extended subnetwork for a route segment from customer \(n\) to customer \(m\) with a single intermediate charging station \(s\). The corresponding arcs are \((n,s)\) and \((s,m)\).
+
+\begin{figure}[htbp!]
+\centering
+\begin{tikzpicture}[scale=0.8, transform shape, ->, thick, auto]
+% Node styles
+\tikzstyle{main} = [circle, draw=black, minimum size=1.4cm, inner sep=0pt]
+\tikzstyle{fit}  = [circle, draw=black, fill=lime!70, minimum size=1.6cm, inner sep=0pt]
+\tikzstyle{dull} = [circle, draw=black, fill=red!70, minimum size=1.6cm, inner sep=0pt]
+\tikzstyle{cs}   = [circle, draw=black, fill=gray!30, minimum size=1.4cm, inner sep=0pt]
+
+% Nodes
+\node[main] (n) at (0,0) {$n$};
+\node[fit]  (fitL) at (4, 3) {$\tilde{n}^{\text{fit}}_{ns}$};
+\node[dull] (dullL) at (4, -3) {$\tilde{n}^{\text{dull}}_{ns}$};
+\node[cs]   (cs) at (8, 0) {$s$};
+\node[fit]  (fitR) at (12, 3) {$\tilde{n}^{\text{fit}}_{sm}$};
+\node[dull] (dullR) at (12, -3) {$\tilde{n}^{\text{dull}}_{sm}$};
+\node[main] (m) at (16,0) {$m$};
+
+% From n to left states
+\path (n) edge node[left] {$f^{\text{start}}_{ns}$} (fitL);
+\path (n) edge node[left] {$f^{\text{start}}_{ns}$} (dullL);
+
+% Transitions between fit/dull (left side)
+\path[bend right=28] (fitL) edge node[left] {$f^{\text{drive}}_{\Delta}$} (dullL);
+\path (dullL) edge node[right, yshift=5pt] {\scriptsize $f^{\text{break}}$} (fitL);
+\path[bend right=28] (dullL) edge node[right, yshift=-6pt] {\scriptsize $f^{\text{rest}}$} (fitL);
+
+% To s
+\path (fitL) edge node[above] {$f^{\text{visit}}_{ns}$} (cs);
+\path (dullL) edge node[below] {$f^{\text{visit}}_{ns}$} (cs);
+
+% From s to right states
+\path (cs) edge node[above] {$f^{\text{charge}}$} (fitR);
+\path (cs) edge node[below] {$f^{\text{charge}}$} (dullR);
+
+% Transitions between fit/dull (right side)
+\path[bend right=28] (fitR) edge node[left] {$f^{\text{drive}}_{\Delta}$} (dullR);
+\path (dullR) edge node[right, yshift=5pt] {\scriptsize $f^{\text{break}}$} (fitR);
+\path[bend right=28] (dullR) edge node[right, yshift=-6pt] {\scriptsize $f^{\text{rest}}$} (fitR);
+
+% From right states to m
+\path (fitR) edge node[above right] {$f^{\text{visit}}_{sm}$}  (m);
+\path (dullR) edge node[below right] {$f^{\text{visit}}_{sm}$} (m);
+
+% Passing-by arcs
+\path[->, dashed, thick, green!60!black, bend left=28]
+  (fitL) edge node[left, yshift=8pt] {\textcolor{black}{$f^{\text{passby}}_{\text{start}}$}} (fitR);
+\path[->, dashed, thick, green!60!black, bend right=28]
+  (dullL) edge node[right, xshift=-40pt, yshift=-30pt] {\textcolor{black}{$f^{\text{passby}}_{\text{start}}$}} (fitR);
+\path[->, dashed, thick, green!60!black, bend right=28]
+  (dullL) edge node[right, yshift=-8pt] {\textcolor{black}{$f^{\text{passby}}_{\text{start}}$}} (dullR);
+\end{tikzpicture}
+\caption{Extended subnetwork with an intermediate charging station \(s\) and pass-by arcs under the full-recharge strategy.}
+\label{fig:subnetwork_cs_full}
+\end{figure}
+
+At a charging-station node, the schedule may either initiate a charging activity or continue without charging. Charging is represented through charging arcs originating from the charging-station node, while pass-by arcs allow the station to be traversed without stopping. Together, these arcs preserve the feasible continuation of both fit and dull driver states while introducing the operational choice of whether and where to recharge.
+
+The pass-by arcs determine how HoS states are propagated when a charging station is traversed without stopping. The fit-to-fit pass-by arc represents a driver who reaches the charging-station location in a state that permits further driving, either because no interruption is due or because the required break or rest has already been completed. If the station is skipped, the driver therefore remains fit and can immediately begin the arc from the charging-station location to \(m\). A fit-to-dull pass-by arc is unnecessary, since it would require another break or rest before any additional driving; the dull state is reached naturally only when a driving limit becomes binding on the subsequent arc. The dull-to-dull pass-by arc preserves an outstanding interruption requirement: after skipping the charging station, the driver remains dull and must take a break or rest before driving toward \(m\). The dull-to-fit pass-by arc is a network connector that preserves the alternative continuations available after the charging-station node, allowing the next arc to begin with driving and, if necessary, a break or rest to be taken later. It does not reset any HoS resource, so such a continuation is retained only when it is feasible under the current driving and working-time counters.
+
+%------------------------------------------------%
+
+\subsection{Full-recharge label definition}
+
+%------------------------------------------------%
+
+Under the full-recharge strategy, each charging stop restores the battery to full capacity. The energy state can therefore be represented by a single scalar resource \(l_{\text{reqEC}}\), which measures the energy requirement accumulated since the last recharge. Equivalently, the state of charge after any partial path is uniquely determined by \(B-l_{\text{reqEC}}\), where \(B\) denotes the battery capacity.
+
+A full-recharge label is thus defined as
+\[
+\begin{aligned}
+l = (&l_{\text{time}},\, l_{\text{timeToNext}},\, l_{\text{drive|R}},\\
+     &l_{\text{drive|B}},\, l_{\text{elapsed|R}},\, l_{\text{elapsed|B}},\\
+     &l_{\text{reqEC}})
+\end{aligned}
+\]
+The resource \(l_{\text{reqEC}}\) is bounded by \(0 \leq l_{\text{reqEC}} \leq B\). Its design is inspired by \citet{desaulniers2016exact}, but we retain an energy-based rather than time-based representation in order to preserve flexibility across different battery capacities, charging powers, and energy-consumption rates.
+
+%------------------------------------------------%
+
+\subsection{Full-recharge resource extension functions}
+
+%------------------------------------------------%
+
+For the full-recharge strategy, charging at a station \(\mathrm{cs}\) is represented by an additional REF \(f^{\text{charge}}_{\mathrm{cs}}\). This extension resets the accumulated energy requirement \(l_{\text{reqEC}}\) to zero and increases the elapsed time by the charging duration implied by the current energy deficit and the available charging power. When charging overlaps with a legally admissible break or rest, the corresponding HoS counters are updated consistently so that synchronization between charging and regulatory interruptions is captured directly in the label propagation. In addition, pass-by arcs are modeled through \(f^{\text{passby}}_{\text{start}}\), which allows a charging station to be traversed without stopping while preserving all resource values except the remaining travel time to the next route node. Table~\ref{tab:ref_full_recharge} summarizes the resource updates for the REFs together with the full-recharge charging and pass-by extensions.
+
+
+
+
+
+\begin{table}[!htbp]
+\caption{Resource updates for the REFs and the full-recharge charging extension.}
+\label{tab:ref_full_recharge}
+\centering
+\small
+\setlength{\tabcolsep}{2.5pt}
+\renewcommand{\arraystretch}{1.15}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+\textbf{Resource} 
+& \( f^{\text{start}}_{nm} \) 
+& \( f^{\text{drive}}_{\Delta} \) 
+& \( f^{\text{break}}_{\Delta} \) 
+& \( f^{\text{rest}}_{\Delta} \) 
+& \( f^{\text{visit}}_{nm} \) 
+& \( f^{\text{charge}}_{\text{cs}} \) 
+& \( f^{\text{passby}}_{\text{start}} \) \\
+\midrule
+
+\( l'_{\text{time}} \) 
+& --- 
+& \( l_{\text{time}} + \Delta \) 
+& \( l_{\text{time}} + t_{\text{break}} \) 
+& \( l_{\text{time}} + t_{\text{rest}} \) 
+& \( l_{\text{time}} + s_m \) 
+& \( \begin{cases}
+l_{\text{time}} & l_{\text{elapsed|R}} = 0 \\
+l_{\text{time}} + \max\left\{0, \frac{l_{\text{reqEC}}}{P^{\mathrm{ch}}} - t_{\text{break}} \right\} & l_{\text{elapsed|B}} = 0 \\
+l_{\text{time}} + \frac{l_{\text{reqEC}}}{P^{\mathrm{ch}}} & \text{otherwise}
+\end{cases} \) 
+& --- \\
+
+\( l'_{\text{timeToNext}} \) 
+& \( t_{nm} \) 
+& \( l_{\text{timeToNext}} - \Delta \) 
+& --- 
+& --- 
+& --- 
+& \( t_{\text{cs},m} \) 
+& \( t_{\text{cs},m} \) \\
+
+\( l'_{\text{drive|R}} \) 
+& --- 
+& \( l_{\text{drive|R}} + \Delta \) 
+& --- 
+& 0 
+& --- 
+& --- 
+& --- \\
+
+\( l'_{\text{drive|B}} \) 
+& --- 
+& \( l_{\text{drive|B}} + \Delta \) 
+& 0 
+& 0 
+& --- 
+& --- 
+& --- \\
+
+\( l'_{\text{elapsed|R}} \) 
+& --- 
+& \( l_{\text{elapsed|R}} + \Delta \) 
+& \( l_{\text{elapsed|R}} + t_{\text{break}} \) 
+& 0 
+& \( l_{\text{elapsed|R}} + s_m \) 
+& \( \begin{cases}
+0 & l_{\text{elapsed|R}} = 0 \\
+l_{\text{elapsed|R}} + \frac{l_{\text{reqEC}}}{P^{\mathrm{ch}}} & \text{otherwise}
+\end{cases} \) 
+& --- \\
+
+\( l'_{\text{elapsed|B}} \) 
+& --- 
+& \( l_{\text{elapsed|B}} + \Delta \) 
+& 0 
+& 0 
+& \( l_{\text{elapsed|B}} + s_m \) 
+& \( \begin{cases}
+0 & l_{\text{elapsed|B}} = 0 \\
+l_{\text{elapsed|B}} + \frac{l_{\text{reqEC}}}{P^{\mathrm{ch}}} & \text{otherwise}
+\end{cases} \) 
+& --- \\
+
+\( l'_{\text{reqEC}} \) 
+& --- 
+& \( l_{\text{reqEC}} + \Delta \cdot \alpha \) 
+& --- 
+& --- 
+& --- 
+& 0 
+& --- \\
+
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+%------------------------------------------------%
+
+\subsection{Full-recharge feasibility and dominance}
+
+%------------------------------------------------%
+
+Under the full-recharge strategy, energy feasibility is captured through the accumulated energy requirement since the last recharge. The scalar resource \(l_{\text{reqEC}}\) must remain within \([0,B]\) and is reset to zero by a recharge extension.
+
+Let \(l_1\) and \(l_2\) be two labels ending at the same node. Under the full-recharge strategy, \(l_1\) dominates \(l_2\) if
+\[
+\begin{aligned}
+&l_{\text{time}}^{(1)} \le l_{\text{time}}^{(2)},\qquad
+l_{\text{timeToNext}}^{(1)} \le l_{\text{timeToNext}}^{(2)},\\
+&\mathbf{l}_{\text{drive}}^{(1)} \le \mathbf{l}_{\text{drive}}^{(2)},\qquad
+\mathbf{l}_{\text{elapsed}}^{(1)} \le \mathbf{l}_{\text{elapsed}}^{(2)},\\
+&l_{\text{reqEC}}^{(1)} \le l_{\text{reqEC}}^{(2)}.
+\end{aligned}
+\]
+where 
+\[
+\mathbf{l}_{\text{drive}}
+=
+\bigl(l_{\text{drive|R}},\,l_{\text{drive|B}}\bigr),
+\qquad
+\mathbf{l}_{\text{elapsed}}
+=
+\bigl(l_{\text{elapsed|R}},\,l_{\text{elapsed|B}}\bigr).
+\]
+If these componentwise conditions hold, \(l_2\) can be discarded because it cannot yield a better feasible completion than \(l_1\).
+
+The scalar full-recharge dominance rule is therefore a special case of the partial-recharge dominance rule in the main text, obtained when the time and energy intervals collapse to singletons.
+
+
+
+\newpage
+\section{Pseudocode benchmark instance generator}
+
+    
+\begin{algorithm}[t]
+\caption{Benchmark instance generation}
+\label{alg:instance-generator}
+\begin{algorithmic}[1]
+\color{red}
+\Require Route class $r$, number of clusters $K$, number of customers $N$,
+         allocation type $a$, random seed
+\Ensure Instance data, distance matrix, time matrix, and diagnostics
+
+\State Sample the total route length $D$ according to route class $r$
+\State Place $K$ cluster centers approximately evenly along $[0,D]$,
+       with small random perturbations
+\If{$K=1$}
+    \State Assign all customers to the single cluster
+\ElsIf{$a=\textsc{Balanced}$}
+    \State Distribute the $N$ customers approximately evenly among the clusters
+\Else
+    \State Select one dominant cluster at random
+    \State Assign most customers to the dominant cluster and only a few to each remaining cluster
+\EndIf
+\State Sample customer positions around their assigned cluster centers
+\State Adjust customer positions to satisfy the required spacing constraints
+\State Construct the predetermined visit sequence from the origin through the customers to the destination
+\State Compute pairwise route distances $d_{ij}$
+\State Compute travel times as $t_{ij} \gets d_{ij}/60$, assuming a constant speed of $60$ km/h
+\State Generate customer service times %and time windows
+\If{the feasibility conditions are violated}
+    \State Resample the instance until a feasible configuration is obtained
+\EndIf
+\State Write the instance file, distance and time matrices, and diagnostic data
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+%------------------------------------------------%
+\newpage
+\section{Driver-inspired sequential heuristic}
+%------------------------------------------------%
+
+
+
+\begin{algorithm}[!htbp]
+\caption{Driver-inspired sequential heuristic}
+\label{alg:driver_heuristic}
+\begin{algorithmic}[1]
+\Require Prescribed route, battery capacity \(B\), charging power \(P_{\mathrm{ch}}\),
+         consumption rate \(\alpha\), CS spacing \(d_{\mathrm{CS}}\),
+         synchronization horizon \(t_{\mathrm{sync}}\), policy
+         \(p\in\{\textsc{Full},\textsc{Overlap}\}\)
+\Ensure Feasible activity schedule or an infeasibility declaration
+
+\State Insert the charging opportunities along the prescribed route
+\State Initialize time and HoS counters to zero and \(\mathrm{SOC}\gets B\)
+
+\For{each next route node or charging opportunity \(j\)}
+    \While{\(j\) has not been reached}
+        \State Set \(\Delta\) to the minimum of the remaining travel time,
+               time to the next mandatory break, and time to the next daily rest
+        \State Drive for \(\Delta\); update time, SOC, and HoS counters
+        \If{an HoS limit binds before reaching \(j\)}
+            \State Take a daily rest if required; otherwise take a break
+            \Comment{Rule 4}
+        \EndIf
+    \EndWhile
+
+    \If{\(j\) is a charging station}
+        \State Compute energy \(E_{\mathrm{next}}\) needed to reach the next
+               charging opportunity or destination
+        \State Compute times \(t_B\) and \(t_R\) until a break and daily rest
+               become mandatory
+
+        \If{\(\mathrm{SOC}<E_{\mathrm{next}}\)}
+            \State Select a daily rest if \(t_R<t_{\mathrm{sync}}\);
+                   otherwise select a break
+            \State Mark the stop as necessary charging
+            \Comment{Rule 2}
+        \ElsIf{\(t_R<t_{\mathrm{sync}}\) or \(t_B<t_{\mathrm{sync}}\)}
+            \State Select a daily rest if \(t_R<t_{\mathrm{sync}}\);
+                   otherwise select a break
+            \State Mark the stop as early synchronization
+            \Comment{Rule 3}
+        \Else
+            \State Pass the charging station without stopping
+            \Comment{Rule 1}
+            \State \textbf{continue}
+        \EndIf
+
+        \If{\(p=\textsc{Full}\)}
+            \State Set target SOC to \(B\)
+        \Else
+            \State Set target SOC to the energy obtainable during the selected
+                   interruption
+            \State Increase target SOC to \(E_{\mathrm{next}}\) if required
+        \EndIf
+
+        \If{a break and its excess charging time violate the daily elapsed limit}
+            \State Replace the break by a daily rest
+        \EndIf
+        \State Perform charging and the selected interruption concurrently
+
+    \Else
+        \If{service at \(j\) would violate an HoS elapsed-time limit}
+            \State Take the required break or daily rest
+        \EndIf
+        \State Perform service at \(j\)
+    \EndIf
+\EndFor
+
+%\State Validate the complete activity timeline independently
+\State \Return schedule if valid; otherwise declare infeasibility
+\end{algorithmic}
+\end{algorithm}
+
+
+
+\newpage
+\section{Summary of benchmark instances}\label{appendix:Test_Instance}
+
+\red{We should make this openly available on say Github. Add a link}
+
+{\scriptsize
+\setlength{\tabcolsep}{3pt}
+%\renewcommand{\arraystretch}{1.1}
+
+\begin{longtable}{@{}l l r r l r r c r r r r@{}}
+\caption{Key columns only. Distances in km; times in h. Abbreviations: Test = scenario/test name; Class = route class (short/med/long); K = number of clusters; N = total customers; Var = variant (Balanced/Unbalanced); Dist\_km = total route distance; Time\_h = total route time; Cust/Cl = customers per cluster; AvgCl\_km = average cluster distance; AvgIntra\_km = average intra-cluster customer distance; AvgInter\_km = average inter-cluster distance; AvgSvc\_h = average service time per customer.}
+\label{tab:test_instance_config}\\
+
+\toprule
+Test & Class & K & N & Var & Dist\_km & Time\_h & Cust/Cl & AvgCl\_km & AvgIntra\_km & AvgInter\_km & AvgSvc\_h \\
+\midrule
+long\_cl1\_cu4 & long & 1 & 4 & - & 3929.38 & 56.1340 & [4] & 0.00 & 30.00 & 0.00 & 0.2650 \\
+long\_cl2\_cu2\_Balanced & long & 2 & 2 & Balanced & 4485.46 & 64.0780 & [1,1] & 674.75 & 0.00 & 674.75 & 0.4579 \\
+long\_cl2\_cu2\_Unbalanced & long & 2 & 2 & Unbalanced & 4472.53 & 63.8932 & [1,1] & 972.92 & 0.00 & 972.92 & 0.4207 \\
+long\_cl2\_cu3\_Balanced & long & 2 & 3 & Balanced & 4400.36 & 62.8623 & [1,2] & 797.97 & 37.73 & 797.97 & 0.4761 \\
+long\_cl2\_cu4\_Balanced & long & 2 & 4 & Balanced & 4162.88 & 59.4697 & [2,2] & 459.89 & 52.93 & 459.89 & 0.2409 \\
+long\_cl2\_cu4\_Unbalanced & long & 2 & 4 & Unbalanced & 4576.22 & 65.3745 & [3,1] & 1030.26 & 103.29 & 1030.26 & 0.2304 \\
+long\_cl2\_cu5\_Balanced & long & 2 & 5 & Balanced & 5119.54 & 73.1362 & [3,2] & 988.26 & 73.77 & 988.26 & 0.2437 \\
+long\_cl3\_cu12\_Balanced & long & 3 & 12 & Balanced & 5097.76 & 72.8252 & [4,4,4] & 810.85 & 45.65 & 1081.13 & 0.1286 \\
+long\_cl3\_cu12\_Unbalanced & long & 3 & 12 & Unbalanced & 4355.65 & 62.2236 & [1,10,1] & 647.62 & 30.00 & 863.49 & 0.1340 \\
+long\_cl3\_cu14\_Balanced & long & 3 & 14 & Balanced & 5063.93 & 72.3419 & [5,5,4] & 807.74 & 30.00 & 1076.99 & 0.1190 \\
+long\_cl3\_cu3\_Balanced & long & 3 & 3 & Balanced & 5016.56 & 71.6651 & [1,1,1] & 818.32 & 0.00 & 1091.09 & 0.3899 \\
+long\_cl3\_cu4\_Balanced & long & 3 & 4 & Balanced & 4155.45 & 59.3636 & [2,1,1] & 680.25 & 62.77 & 907.00 & 0.2582 \\
+long\_cl3\_cu4\_Unbalanced & long & 3 & 4 & Unbalanced & 5020.14 & 71.7163 & [1,2,1] & 758.57 & 50.84 & 1011.43 & 0.2508 \\
+long\_cl3\_cu5\_Balanced & long & 3 & 5 & Balanced & 5518.38 & 78.8340 & [2,2,1] & 894.65 & 44.15 & 1192.87 & 0.2550 \\
+med\_cl1\_cu2 & med & 1 & 2 & - & 2710.05 & 38.7150 & [2] & 0.00 & 84.81 & 0.00 & 0.4260 \\
+med\_cl1\_cu4 & med & 1 & 4 & - & 2615.02 & 37.3575 & [4] & 0.00 & 30.00 & 0.00 & 0.2420 \\
+med\_cl2\_cu2\_Balanced & med & 2 & 2 & Balanced & 2737.17 & 39.1024 & [1,1] & 446.85 & 0.00 & 446.85 & 0.4159 \\
+med\_cl2\_cu2\_Unbalanced & med & 2 & 2 & Unbalanced & 2321.67 & 33.1667 & [1,1] & 258.77 & 0.00 & 258.77 & 0.4043 \\
+med\_cl2\_cu3\_Balanced & med & 2 & 3 & Balanced & 3074.20 & 43.9171 & [1,2] & 499.00 & 43.26 & 499.00 & 0.4393 \\
+med\_cl2\_cu4\_Balanced & med & 2 & 4 & Balanced & 2413.01 & 34.4716 & [2,2] & 436.35 & 42.90 & 436.35 & 0.2751 \\
+med\_cl2\_cu4\_Unbalanced & med & 2 & 4 & Unbalanced & 3105.84 & 44.3691 & [2,2] & 681.02 & 73.82 & 681.02 & 0.2348 \\
+med\_cl2\_cu5\_Balanced & med & 2 & 5 & Balanced & 2251.60 & 32.1658 & [3,2] & 286.03 & 47.68 & 286.03 & 0.2607 \\
+med\_cl3\_cu11\_Balanced & med & 3 & 11 & Balanced & 2534.30 & 36.2043 & [4,4,3] & 332.33 & 56.27 & 443.11 & 0.1281 \\
+med\_cl3\_cu13\_Balanced & med & 3 & 13 & Balanced & 2513.67 & 35.9096 & [5,4,4] & 369.80 & 30.00 & 493.07 & 0.1271 \\
+med\_cl3\_cu13\_Unbalanced & med & 3 & 13 & Unbalanced & 3189.23 & 45.5604 & [2,2,9] & 437.50 & 36.03 & 583.33 & 0.1135 \\
+med\_cl3\_cu3\_Balanced & med & 3 & 3 & Balanced & 3292.08 & 47.0297 & [1,1,1] & 477.29 & 0.00 & 636.38 & 0.4144 \\
+med\_cl3\_cu4\_Balanced & med & 3 & 4 & Balanced & 2265.07 & 32.3581 & [2,1,1] & 360.47 & 142.64 & 480.63 & 0.2684 \\
+med\_cl3\_cu4\_Unbalanced & med & 3 & 4 & Unbalanced & 2200.53 & 31.4361 & [2,1,1] & 399.06 & 132.66 & 532.08 & 0.2710 \\
+med\_cl3\_cu5\_Balanced & med & 3 & 5 & Balanced & 3472.59 & 49.6084 & [2,2,1] & 559.40 & 34.92 & 745.87 & 0.2871 \\
+short\_cl1\_cu2 & short & 1 & 2 & - & 1081.84 & 15.4549 & [2] & 0.00 & 39.79 & 0.00 & 0.4019 \\
+% short\_cl1\_cu4 & short & 1 & 4 & - & 1265.62 & 18.0803 & [4] & 0.00 & 30.00 & 0.00 & 0.2092 \\
+short\_cl2\_cu2\_Balanced & short & 2 & 2 & Balanced & 1306.92 & 18.6703 & [1,1] & 213.84 & 0.00 & 213.84 & 0.4766 \\
+short\_cl2\_cu2\_Unbalanced & short & 2 & 2 & Unbalanced & 1512.53 & 21.6076 & [1,1] & 221.86 & 0.00 & 221.86 & 0.4272 \\
+short\_cl2\_cu3\_Balanced & short & 2 & 3 & Balanced & 1109.01 & 15.8429 & [1,2] & 108.55 & 72.96 & 108.55 & 0.3558 \\
+short\_cl2\_cu4\_Balanced & short & 2 & 4 & Balanced & 1221.36 & 17.4480 & [2,2] & 162.51 & 84.56 & 162.51 & 0.2685 \\
+short\_cl2\_cu4\_Unbalanced & short & 2 & 4 & Unbalanced & 1408.63 & 20.1233 & [1,3] & 159.19 & 93.35 & 159.19 & 0.2364 \\
+short\_cl2\_cu5\_Balanced & short & 2 & 5 & Balanced & 1249.49 & 17.8499 & [3,2] & 175.63 & 35.51 & 175.63 & 0.2610 \\
+short\_cl3\_cu10\_Balanced & short & 3 & 10 & Balanced & 1761.42 & 25.1631 & [4,3,3] & 260.70 & 30.00 & 347.60 & 0.1333 \\
+short\_cl3\_cu12\_Balanced & short & 3 & 12 & Balanced & 1941.81 & 27.7401 & [4,4,4] & 277.09 & 43.40 & 369.45 & 0.1206 \\
+short\_cl3\_cu12\_Unbalanced & short & 3 & 12 & Unbalanced & 1541.88 & 22.0269 & [8,2,2] & 215.62 & 43.30 & 287.50 & 0.1268 \\
+short\_cl3\_cu3\_Balanced & short & 3 & 3 & Balanced & 1450.69 & 20.7242 & [1,1,1] & 234.78 & 0.00 & 313.04 & 0.4172 \\
+short\_cl3\_cu4\_Balanced & short & 3 & 4 & Balanced & 1270.79 & 18.1542 & [2,1,1] & 241.75 & 106.66 & 322.33 & 0.2682 \\
+short\_cl3\_cu4\_Unbalanced & short & 3 & 4 & Unbalanced & 1324.85 & 18.9264 & [2,1,1] & 197.50 & 31.86 & 263.33 & 0.2117 \\
+short\_cl3\_cu5\_Balanced & short & 3 & 5 & Balanced & 1876.99 & 26.8142 & [2,2,1] & 259.19 & 68.40 & 345.58 & 0.2621 \\
+\bottomrule 
+\end{longtable}
+}
+
+
+
+
+
+
+
+
+
+\newpage
+%---------------------------------------------------
+\section{Additional Per-Instance Comparison}
+\label{appendix:diagnostics}
+%---------------------------------------------------
+
+
+\begin{table}[!htbp]
+\centering
+\caption{Near-diesel diagnostic cases in the base-case setting.}
+\label{tab:near_diesel_cases}
+\begin{threeparttable}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{
+p{4.0cm}
+S[table-format=2.2]
+S[table-format=2.2]
+S[table-format=1.0]
+S[table-format=3.1]
+S[table-format=1.0]
+S[table-format=3.0]
+}
+\toprule
+Instance & {EV (h)} & {Diesel (h)} & {CS} & {Sync. (\%)} & {Unsync.} & {Idle (min)} \\
+\midrule
+s\_cl2\_cu4\_U & 27.86 & 27.86 & 3 & 100.0 & 0 & 0 \\
+s\_cl2\_cu3\_B   & 27.19 & 27.19 & 2 & 100.0 & 0 & 0 \\
+m\_cl2\_cu2\_U   & 68.95 & 68.95 & 6 & 100.0 & 0 & 0 \\
+m\_cl3\_cu4\_U   & 64.10 & 64.10 & 5 & 100.0 & 0 & 0 \\
+s\_cl3\_cu10\_B  & 44.20 & 44.20 & 4 & 100.0 & 0 & 0 \\
+s\_cl2\_cu4\_B   & 44.19 & 44.19 & 2 & 100.0 & 0 & 0 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]
+\footnotesize
+\item These are the base-case instances for which the optimized electric schedule attains the same total route time as the diesel proxy. In all six cases, every charging stop is synchronized with a mandatory break or rest.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}
+
+{\scriptsize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{1.0}
+
+\begin{longtable}{@{}llrrrrrrrrrrrr@{}}
+\caption{\red{Full- and partial-recharge results from the computational experiments. Times are in hours. Abbreviations: ID = short instance identifier used in the results files; Test = full instance name; F\_Time = full-recharge route time; F\_CS = number of charging stops under full recharge; F\_Sync = number of synchronized charging stops under full recharge; F\_Unsync = number of unsynchronized charging stops under full recharge; F\_Break = number of full-recharge charging stops synchronized with breaks; F\_Rest = number of full-recharge charging stops synchronized with daily rests; P\_Time = partial-recharge route time; P\_CS = number of charging stops under partial recharge; P\_Sync = number of synchronized charging stops under partial recharge; P\_Unsync = number of unsynchronized charging stops under partial recharge; P\_Break = number of partial-recharge charging stops synchronized with breaks; P\_Rest = number of partial-recharge charging stops synchronized with daily rests.}}
+\label{tab:appendix_full_results}\\
+\toprule
+ID & Test & F\_Time & F\_CS & F\_Sync & F\_Unsync & F\_Break & F\_Rest & P\_Time & P\_CS & P\_Sync & P\_Unsync & P\_Break & P\_Rest \\
+\midrule
+S\_cl1\_cu2\_B & short\_cl1\_cu2 & 31.73 & 3 & 1 & 2 & 0 & 1 & 31.49 & 3 & 1 & 2 & 0 & 1 \\
+S\_cl2\_cu3\_B & short\_cl2\_cu3\_Balanced & 27.27 & 1 & 1 & 0 & 0 & 1 & 27.19 & 2 & 2 & 0 & 1 & 1 \\
+S\_cl2\_cu4\_B & short\_cl2\_cu4\_Balanced & 44.35 & 2 & 2 & 0 & 0 & 2 & 44.19 & 2 & 2 & 0 & 0 & 2 \\
+S\_cl2\_cu4\_U & short\_cl2\_cu4\_Unbalanced & 27.94 & 1 & 1 & 0 & 0 & 1 & 27.86 & 3 & 3 & 0 & 2 & 1 \\
+S\_cl2\_cu5\_B & short\_cl2\_cu5\_Balanced & 30.88 & 2 & 1 & 1 & 0 & 1 & 30.72 & 2 & 1 & 1 & 0 & 1 \\
+S\_cl3\_cu10\_B & short\_cl3\_cu10\_Balanced & 44.36 & 2 & 2 & 0 & 0 & 2 & 44.20 & 4 & 4 & 0 & 2 & 2 \\
+S\_cl3\_cu12\_B & short\_cl3\_cu12\_Balanced & 43.69 & 2 & 2 & 0 & 0 & 2 & 43.53 & 4 & 4 & 0 & 2 & 2 \\
+S\_cl3\_cu12\_U & short\_cl3\_cu12\_Unbalanced & 30.57 & 2 & 1 & 1 & 0 & 1 & 30.16 & 2 & 2 & 0 & 1 & 1 \\
+S\_cl3\_cu3\_B & short\_cl3\_cu3\_Balanced & 31.35 & 3 & 1 & 2 & 0 & 1 & 30.86 & 3 & 2 & 1 & 1 & 1 \\
+S\_cl3\_cu4\_B & short\_cl3\_cu4\_Balanced & 31.18 & 2 & 1 & 1 & 0 & 1 & 31.02 & 3 & 2 & 1 & 1 & 1 \\
+S\_cl3\_cu4\_U & short\_cl3\_cu4\_Unbalanced & 32.17 & 2 & 1 & 1 & 0 & 1 & 31.85 & 3 & 2 & 1 & 1 & 1 \\
+S\_cl3\_cu5\_B & short\_cl3\_cu5\_Balanced & 31.48 & 2 & 1 & 1 & 0 & 1 & 31.32 & 3 & 2 & 1 & 1 & 1 \\
+M\_cl1\_cu2\_B & med\_cl1\_cu2 & 68.95 & 6 & 6 & 0 & 0 & 6 & 68.95 & 6 & 6 & 0 & 0 & 6 \\
+M\_cl1\_cu4\_B & med\_cl1\_cu4 & 64.26 & 5 & 4 & 1 & 0 & 4 & 64.10 & 5 & 5 & 0 & 1 & 4 \\
+M\_cl2\_cu2\_B & med\_cl2\_cu2\_Balanced & 69.44 & 4 & 3 & 1 & 0 & 3 & 68.95 & 6 & 6 & 0 & 0 & 6 \\
+M\_cl2\_cu2\_U & med\_cl2\_cu2\_Unbalanced & 37.11 & 2 & 2 & 0 & 0 & 2 & 36.62 & 3 & 3 & 0 & 1 & 2 \\
+M\_cl2\_cu3\_B & med\_cl2\_cu3\_Balanced & 47.95 & 3 & 3 & 0 & 0 & 3 & 47.46 & 4 & 4 & 0 & 1 & 3 \\
+M\_cl2\_cu4\_B & med\_cl2\_cu4\_Balanced & 64.09 & 5 & 5 & 0 & 0 & 5 & 63.60 & 7 & 7 & 0 & 2 & 5 \\
+M\_cl2\_cu4\_U & med\_cl2\_cu4\_Unbalanced & 65.70 & 4 & 3 & 1 & 0 & 3 & 65.20 & 6 & 5 & 1 & 2 & 3 \\
+M\_cl2\_cu5\_B & med\_cl2\_cu5\_Balanced & 37.37 & 2 & 2 & 0 & 0 & 2 & 36.88 & 3 & 3 & 0 & 1 & 2 \\
+M\_cl3\_cu11\_B & med\_cl3\_cu11\_Balanced & 47.45 & 2 & 2 & 0 & 0 & 2 & 47.29 & 4 & 4 & 0 & 2 & 2 \\
+M\_cl3\_cu13\_B & med\_cl3\_cu13\_Balanced & 48.39 & 2 & 2 & 0 & 0 & 2 & 48.23 & 4 & 4 & 0 & 2 & 2 \\
+M\_cl3\_cu13\_U & med\_cl3\_cu13\_Unbalanced & 48.98 & 2 & 2 & 0 & 0 & 2 & 48.82 & 4 & 4 & 0 & 2 & 2 \\
+M\_cl3\_cu3\_B & med\_cl3\_cu3\_Balanced & 48.66 & 4 & 3 & 1 & 0 & 3 & 47.84 & 5 & 4 & 1 & 1 & 3 \\
+M\_cl3\_cu4\_B & med\_cl3\_cu4\_Balanced & 38.37 & 2 & 2 & 0 & 0 & 2 & 37.88 & 3 & 3 & 0 & 1 & 2 \\
+M\_cl3\_cu4\_U & med\_cl3\_cu4\_Unbalanced & 33.00 & 2 & 2 & 0 & 0 & 2 & 32.51 & 3 & 3 & 0 & 1 & 2 \\
+M\_cl3\_cu5\_B & med\_cl3\_cu5\_Balanced & 50.26 & 3 & 2 & 1 & 0 & 2 & 49.77 & 4 & 3 & 1 & 1 & 2 \\
+L\_cl1\_cu2\_B & long\_cl1\_cu2 & 74.61 & 6 & 4 & 2 & 0 & 4 & 74.12 & 7 & 5 & 2 & 1 & 4 \\
+L\_cl1\_cu4\_B & long\_cl1\_cu4 & 86.24 & 5 & 3 & 2 & 0 & 3 & 85.75 & 7 & 5 & 2 & 2 & 3 \\
+L\_cl2\_cu2\_B & long\_cl2\_cu2\_Balanced & 75.95 & 4 & 3 & 1 & 0 & 3 & 74.65 & 7 & 6 & 1 & 2 & 4 \\
+L\_cl2\_cu2\_U & long\_cl2\_cu2\_Unbalanced & 76.55 & 4 & 3 & 1 & 0 & 3 & 75.06 & 6 & 5 & 1 & 2 & 3 \\
+L\_cl2\_cu3\_B & long\_cl2\_cu3\_Balanced & 76.02 & 5 & 3 & 2 & 0 & 3 & 74.53 & 7 & 5 & 2 & 2 & 3 \\
+L\_cl2\_cu4\_B & long\_cl2\_cu4\_Balanced & 65.36 & 4 & 3 & 1 & 0 & 3 & 64.05 & 5 & 4 & 1 & 1 & 3 \\
+L\_cl2\_cu4\_U & long\_cl2\_cu4\_Unbalanced & 79.11 & 6 & 3 & 3 & 0 & 3 & 77.81 & 8 & 5 & 3 & 2 & 3 \\
+L\_cl2\_cu5\_B & long\_cl2\_cu5\_Balanced & 88.17 & 5 & 3 & 2 & 0 & 3 & 87.68 & 7 & 5 & 2 & 2 & 3 \\
+L\_cl3\_cu12\_B & long\_cl3\_cu12\_Balanced & 74.79 & 4 & 4 & 0 & 0 & 4 & 74.63 & 8 & 8 & 0 & 4 & 4 \\
+L\_cl3\_cu12\_U & long\_cl3\_cu12\_Unbalanced & 87.07 & 5 & 3 & 2 & 0 & 3 & 86.58 & 6 & 4 & 2 & 1 & 3 \\
+L\_cl3\_cu14\_B & long\_cl3\_cu14\_Balanced & 73.33 & 4 & 4 & 0 & 0 & 4 & 73.16 & 8 & 8 & 0 & 4 & 4 \\
+L\_cl3\_cu3\_B & long\_cl3\_cu3\_Balanced & 88.04 & 6 & 4 & 2 & 0 & 4 & 86.75 & 7 & 5 & 2 & 1 & 4 \\
+L\_cl3\_cu4\_B & long\_cl3\_cu4\_Balanced & 76.94 & 5 & 3 & 2 & 0 & 3 & 75.45 & 7 & 5 & 2 & 2 & 3 \\
+L\_cl3\_cu4\_U & long\_cl3\_cu4\_Unbalanced & 85.90 & 7 & 4 & 3 & 0 & 4 & 84.41 & 9 & 6 & 3 & 2 & 4 \\
+L\_cl3\_cu5\_B & long\_cl3\_cu5\_Balanced & 98.45 & 6 & 4 & 2 & 0 & 4 & 97.96 & 8 & 6 & 2 & 2 & 4 \\
+\bottomrule
+\end{longtable}
+}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%
+\end{document}
+%%%%%%%%%%%%%%%%%
+
+
+

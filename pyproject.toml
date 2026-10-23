@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "long-haul-ev-truck-scheduling"
+version = "0.1.0"
+description = "Long-haul electric truck scheduling experiments"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.21", "pandas>=1.3", "matplotlib>=3.5", "seaborn>=0.11"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+maps = ["folium>=0.14", "geopy>=2.4", "selenium>=4.22", "webdriver-manager>=4.0", "Pillow>=10"]
+
+[tool.setuptools.packages.find]
+namespaces = false
+include = ["common*", "policies*", "experiments*", "analysis*", "instances*"]
+exclude = ["legacy*", "output*", "tests*"]
+
+[tool.setuptools.package-data]
+experiments = ["configs/*.json"]
+analysis = ["configs/*.json"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

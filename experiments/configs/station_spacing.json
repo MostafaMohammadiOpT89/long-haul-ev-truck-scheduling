@@ -1,0 +1,28 @@
+{
+  "consumption_rates": [
+    1.49
+  ],
+  "distances_per_cs": [
+    120,
+    140,
+    160,
+    180,
+    200,
+    220,
+    240,
+    260,
+    280,
+    300
+  ],
+  "battery_caps": [
+    750.0
+  ],
+  "charging_powers": {
+    "750.0": [
+      350.0
+    ]
+  },
+  "safety_buffer_fracs": [
+    0.1
+  ]
+}

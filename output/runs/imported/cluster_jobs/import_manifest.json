@@ -1,0 +1,7 @@
+{
+  "status": "imported",
+  "code_revision": "unknown",
+  "dataset_provenance": "not fully recorded in original outputs",
+  "source_mapping": "docs/migration_manifest.json",
+  "notes": "Original output bytes preserved. Original paths inside saved payloads describe the historical environment."
+}

@@ -1,3 +1,13 @@
 __pycache__/
 *.pyc
 *.log
+.venv/
+*.egg-info/
+.pytest_cache/
+legacy/local_artifacts/
+output/runs/*
+!output/runs/imported/
+output/analyses/*
+!output/analyses/imported/
+output/generated_instances/
+output/reconstructed*/

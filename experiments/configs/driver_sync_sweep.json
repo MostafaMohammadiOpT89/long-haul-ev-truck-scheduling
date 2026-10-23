@@ -1,0 +1,35 @@
+{
+  "consumption_rates": [
+    1.49
+  ],
+  "distances_per_cs": [
+    60
+  ],
+  "battery_caps": [
+    750.0
+  ],
+  "charging_powers": {
+    "750.0": [
+      350.0
+    ]
+  },
+  "safety_buffer_fracs": [
+    0.1
+  ],
+  "driver_heuristic": {
+    "policies": [
+      "full",
+      "overlap"
+    ],
+    "t_sync_hours": [
+      0,
+      0.25,
+      0.5,
+      0.75,
+      1,
+      1.25,
+      1.5,
+      2
+    ]
+  }
+}

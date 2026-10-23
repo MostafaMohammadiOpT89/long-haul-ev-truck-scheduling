@@ -1,7 +1,0 @@
-VehicleId,Location,LocationId
-1,Origin,1
-
-NodeId,Location,LocationId,Start,End,_,_,_,ServiceTime
-2,Cust1,2,0,1000000000,0,0,0,0.4124
-3,Cust2,3,0,1000000000,0,0,0,0.4396
-4,Destination,4,0,1000000000,0,0,0,0.0

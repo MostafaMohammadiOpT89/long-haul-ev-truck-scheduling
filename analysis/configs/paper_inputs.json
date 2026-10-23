@@ -1,0 +1,11 @@
+{
+  "base_unified": "output/runs/imported/paper_base/unified_results_20260408_135323.csv",
+  "base_greedy": "output/runs/imported/paper_base/greedy_results_20260407_005701.csv",
+  "base_partial_json": "output/runs/imported/paper_base/partial_labeling_results_20260408_135323.json",
+  "base_full_json": "output/runs/imported/paper_base/full_labeling_results_20260408_135323.json",
+  "driver_headline": "output/runs/imported/paper_base/driver_heuristic_results_20261016_213428.csv",
+  "driver_sync": "output/runs/imported/paper_base/driver_heuristic_results_tsync_sweep_20261016_213428.csv",
+  "sweep_unified": "output/runs/imported/parameter_sweep/unified_results_20260407_174118.csv",
+  "sweep_diesel": "output/runs/imported/parameter_sweep/diesel_lb_results_20260210_140456.csv",
+  "spacing": "output/runs/imported/station_spacing/output_cs_spacing_s1_full.csv"
+}

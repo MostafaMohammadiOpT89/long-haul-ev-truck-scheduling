@@ -1,0 +1,206 @@
+def main():
+    """Main execution function for greedy scheduler"""
+    # Set working directory FIRST (before logging, so log file is in correct location)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    print("Working directory set to:", os.getcwd())
+    
+    # Reconfigure logging to use the correct directory
+    # Remove existing handlers and add new file handler in the script directory
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    
+    log_file_path = os.path.join(script_dir, 'greedy_scheduler.log')
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file_path, mode='a'),  # Append mode - preserves log history
+            logging.StreamHandler()  # Also print to console
+        ],
+        force=True  # Override any existing configuration
+    )
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    logging.info("=" * 80)
+    logging.info(f"Starting greedy scheduler analysis at {timestamp}")
+    logging.info(f"Log file: {log_file_path}")
+    logging.info("=" * 80)
+    
+    def load_instance_matrices(instance_path):
+        """Load instance-specific distance and time matrices for an instance."""
+        instance_dir = os.path.dirname(instance_path)
+        instance_name = os.path.splitext(os.path.basename(instance_path))[0]
+        
+        distance_matrix_path = os.path.join(instance_dir, f"{instance_name}_DistanceMatrix.csv")
+        time_matrix_path = os.path.join(instance_dir, f"{instance_name}_TimeMatrix.csv")
+        
+        # Fallback to master matrices if instance-specific ones don't exist
+        if not os.path.isfile(distance_matrix_path) or not os.path.isfile(time_matrix_path):
+            logging.warning(f"Instance-specific matrices not found for {instance_name}, using master matrices")
+            distance_matrix_path = 'Master_DistanceMatrix.csv'
+            time_matrix_path = 'Master_TimeMatrix.csv'
+        
+        distanceData = CSVreader.CSVreader(distance_matrix_path)
+        timeData = CSVreader.CSVreader(time_matrix_path)
+        citiesArcs = arcClass.cityArcs.createArcs(distanceData, timeData)
+        
+        return citiesArcs
+    
+    # Discover all test instances from instances directory
+    discovered_instances = discover_instance_tests()
+    
+    if not discovered_instances:
+        print("No test instances found in the instances directory!")
+        logging.error("No test instances found in the instances directory!")
+        return
+    
+    # Filter instances if specific instances are requested
+    if SPECIFIC_INSTANCES_TO_RUN:
+        # Filter to only run specified instances
+        filtered_instances = [(name, path) for name, path in discovered_instances if name in SPECIFIC_INSTANCES_TO_RUN]
+        if not filtered_instances:
+            print(f"WARNING: None of the specified instances were found: {SPECIFIC_INSTANCES_TO_RUN}")
+            print(f"Available instances: {[name for name, _ in discovered_instances]}")
+            logging.warning(f"None of the specified instances found: {SPECIFIC_INSTANCES_TO_RUN}")
+            return
+        discovered_instances = filtered_instances
+        print(f"Running specific instances: {[name for name, _ in discovered_instances]}")
+        logging.info(f"Running specific instances: {[name for name, _ in discovered_instances]}")
+    else:
+        print(f"Running all discovered instances: {len(discovered_instances)} instances")
+        logging.info(f"Running all discovered instances: {len(discovered_instances)} instances")
+    
+    all_results = []
+    
+    for instance_name, instance_file_path in discovered_instances:
+        # Load instance-specific matrices
+        instance_citiesArcs = load_instance_matrices(instance_file_path)
+        
+        # Print route info using instance-specific matrices
+        route_distance, num_customers = get_route_info(instance_file_path, instance_citiesArcs)
+        print(f"Instance {instance_name}: Total distance = {route_distance} km, Customers = {num_customers}")
+        print(f"Processing greedy scheduler for Instance: {instance_name}...")
+        logging.info(f"Starting Instance: {instance_name} (Distance: {route_distance} km, Customers: {num_customers})")
+        
+        for CP in CPs:
+            for batteryCap in batteryCaps:
+                for consumption in consumptionRates:
+                    for distancePerCS in distancesPerCS:
+                        for safetyFrac in SAFETY_BUFFER_FRACS:
+                            logging.info(f"Processing: Instance {instance_name}, CP: {CP}, Battery: {batteryCap}, Consumption: {consumption}, CS Distance: {distancePerCS}, SafetyFrac: {safetyFrac}")
+                            
+                            # Read test instance using the discovered file path
+                            depot, nodes = read_test_instance(instance_file_path)
+                            
+                            if not depot or not nodes:
+                                print(f"Could not read test instance from {instance_file_path}")
+                                continue
+                            
+                            # Create route using instance-specific matrices
+                            route = create_simple_route(depot, nodes, instance_citiesArcs)
+                            
+                            if not route:
+                                print(f"Could not create route for {instance_file_path}")
+                                continue
+                            
+                            # Build service time map from test instance nodes (keyed by location name)
+                            service_time_map = {n['location']: float(n.get('serviceTime', 0.0) or 0.0) for n in nodes}
+
+                            # Run greedy scheduler (include service times)
+                            result = greedy_scheduler(
+                                route,
+                                consumption,
+                                batteryCap,
+                                CP,
+                                distancePerCS,
+                                cs_positions_map=None,
+                                service_time_map=service_time_map,
+                                include_service_times=True,
+                                safety_buffer_frac=safetyFrac,
+                            )
+                            
+                            # Create result object
+                            greedy_result = GreedySchedulerResult(
+                                instance_id=instance_name,
+                                distance_per_cs=distancePerCS,
+                                battery_capacity=batteryCap,
+                                charging_power=CP,
+                                consumption_rate=consumption,
+                                total_time=result["total_time"],
+                                num_charges=result["charges"],
+                                num_breaks=result["breaks"],
+                                num_rests=result["rests"],
+                                num_synchronized_events=result["synchronized_events"],
+                                feasible=result["feasible"],
+                                computation_time=result["computation_time"],
+                                activity_list=result["activity_list"],
+                                safety_buffer_frac=safetyFrac,
+                            )
+                            
+                            all_results.append(greedy_result)
+                            
+                            print(f"  Completed: Instance {instance_name}, CP: {CP}, Battery: {batteryCap}, Consumption: {consumption}, CS Distance: {distancePerCS}")
+                            print(f"    Total time: {result['total_time']:.2f} hours, Charges: {result['charges']}, Breaks: {result['breaks']}, Rests: {result['rests']}, Sync: {result['synchronized_events']}")
+    
+    # Save full-grid results
+    save_greedy_results(all_results, timestamp)
+
+    # Pareto analysis: pick safety_buffer_frac with highest feasibility, then lowest median time
+    try:
+        csv_path = os.path.join('Results', 'Greedy_Scheduler_Results', f'greedy_results_{timestamp}.csv')
+        df = pd.read_csv(csv_path)
+        # Sanity: show how many rows per safety fraction made it into results
+        try:
+            counts = df['safety_buffer_frac'].value_counts().sort_index()
+            print("Rows per safety_buffer_frac:")
+            for frac, cnt in counts.items():
+                print(f"  {frac:.2f}: {cnt}")
+        except Exception:
+            pass
+        # Feasibility rate per safety fraction
+        feas = df.groupby('safety_buffer_frac')['feasible'].mean().rename('feas_rate')
+        # Median time among feasible only
+        med = df[df['feasible'] == True].groupby('safety_buffer_frac')['total_time'].median().rename('median_time')
+        met = pd.concat([feas, med], axis=1).dropna()
+        if not met.empty:
+            # Filter by minimum feasibility threshold, fallback to all if none meet threshold
+            met_ok = met[met['feas_rate'] >= MIN_FEASIBILITY]
+            cand = met_ok if not met_ok.empty else met
+            # Rank: higher feasibility is better, then lower median time
+            best_frac = cand.sort_values(['feas_rate', 'median_time'], ascending=[False, True]).index[0]
+            logging.info(f"Recommended safety_buffer_frac={best_frac} (feas={met.loc[best_frac, 'feas_rate']:.3f}, median_time={met.loc[best_frac, 'median_time']:.2f} h)")
+            print(f"Recommended safety_buffer_frac={best_frac} (feas={met.loc[best_frac, 'feas_rate']:.3f}, median_time={met.loc[best_frac, 'median_time']:.2f} h)")
+
+            # Plot feasibility vs median time
+            fig_out = os.path.join('Results', 'Greedy_Scheduler_Results', f'pareto_safety_buffer_{timestamp}.png')
+            plt.figure(figsize=(6, 4))
+            plt.scatter(met['feas_rate'], met['median_time'], c=met.index, cmap='viridis', s=80)
+            for frac, row in met.iterrows():
+                plt.annotate(f"{frac:.2f}", (row['feas_rate'], row['median_time']), textcoords="offset points", xytext=(5,5), fontsize=8)
+            plt.xlabel('Feasibility rate')
+            plt.ylabel('Median total time (h)')
+            plt.title('Safety buffer trade-off')
+            plt.tight_layout()
+            plt.savefig(fig_out, dpi=200)
+            plt.close()
+
+            # Save filtered results for the recommended fraction
+            sel = df[df['safety_buffer_frac'] == best_frac]
+            sel_path = os.path.join('Results', 'Greedy_Scheduler_Results', f'greedy_results_recommended_{timestamp}.csv')
+            sel.to_csv(sel_path, index=False)
+            print(f"Saved recommended-fraction results to {sel_path}")
+    except Exception as e:
+        logging.warning(f"Pareto analysis failed: {e}")
+    
+    # Print summary
+    total_scenarios = len(all_results)
+    feasible_scenarios = sum(1 for r in all_results if r.feasible)
+    print(f"\nGreedy scheduler analysis completed!")
+    print(f"Total scenarios tested: {total_scenarios}")
+    print(f"Feasible scenarios: {feasible_scenarios}")
+    print(f"Infeasible scenarios: {total_scenarios - feasible_scenarios}")
+    print(f"Results saved with timestamp: {timestamp}")
+
+if __name__ == "__main__":
+    main() 

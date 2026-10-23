@@ -1,0 +1,118 @@
+def discover_instance_tests():
+    """Discover all test instances in the instances directory"""
+    instances_dir = 'instances'
+    discovered_instances = []
+    
+    if not os.path.exists(instances_dir):
+        logging.warning(f"Instances directory '{instances_dir}' not found")
+        return discovered_instances
+    
+    # Scan all subdirectories in instances folder
+    for item in os.listdir(instances_dir):
+        item_path = os.path.join(instances_dir, item)
+        
+        # Check if it's a directory
+        if os.path.isdir(item_path):
+            # Look for .txt file inside the directory
+            # Prefer a file with the same name as the folder
+            preferred_file = os.path.join(item_path, f"{item}.txt")
+            if os.path.exists(preferred_file):
+                discovered_instances.append((item, preferred_file))
+            else:
+                # Fallback: find any .txt file in the directory
+                txt_files = [f for f in os.listdir(item_path) if f.endswith('.txt')]
+                if txt_files:
+                    # Use the first .txt file found
+                    discovered_instances.append((item, os.path.join(item_path, txt_files[0])))
+                    logging.info(f"Found instance '{item}' with file '{txt_files[0]}' (preferred name not found)")
+    
+    # Sort by instance name for consistent processing order
+    discovered_instances.sort(key=lambda x: x[0])
+    
+    logging.info(f"Discovered {len(discovered_instances)} test instances")
+    for instance_name, instance_path in discovered_instances:
+        logging.info(f"  - {instance_name}: {instance_path}")
+    
+    return discovered_instances
+
+def get_route_info(instance_path, cities_arcs):
+    """Get route distance and customer count for an instance."""
+    route_order = []
+    customers = []
+    try:
+        with open(instance_path, 'r') as file:
+            reader = csv.reader(file)
+            section = None
+            is_first_vehicle_row = True
+            for row in reader:
+                if not row:
+                    continue
+                if row[0].startswith("VehicleId"):
+                    section = "vehicles"
+                    continue
+                if row[0].startswith("NodeId"):
+                    section = "nodes"
+                    continue
+                if section == "vehicles" and is_first_vehicle_row:
+                    if len(row) >= 2:
+                        route_order.append(row[1])  # Origin
+                    is_first_vehicle_row = False
+                elif section == "nodes":
+                    if len(row) >= 2:
+                        location = row[1]
+                        route_order.append(location)
+                        if location.startswith("Cust"):
+                            customers.append(location)
+    except Exception:
+        return 0.0, 0
+    
+    # Calculate total distance
+    total_distance = 0.0
+    driving_speed = 60.0  # km/h
+    for i in range(len(route_order) - 1):
+        from_location = route_order[i]
+        to_location = route_order[i + 1]
+        if from_location in cities_arcs and to_location in cities_arcs[from_location].times:
+            travel_time = float(cities_arcs[from_location].times[to_location])
+            total_distance += travel_time * driving_speed
+    
+    return round(total_distance, 2), len(customers)
+
+def save_greedy_results(all_results, timestamp):
+    """Save greedy scheduler results to files"""
+    
+    # Create Results/Greedy_Scheduler_Results directory
+    results_dir = os.path.join('Results', 'Greedy_Scheduler_Results')
+    if not os.path.exists(results_dir):
+        os.makedirs(results_dir)
+        print(f"Created directory: {results_dir}")
+    
+    # Save to JSON
+    json_filename = os.path.join(results_dir, f'greedy_results_{timestamp}.json')
+    with open(json_filename, 'w') as json_file:
+        json_data = {
+            'metadata': {
+                'timestamp': timestamp,
+                'algorithm': 'greedy_scheduler',
+                'total_scenarios': len(all_results),
+                'parameters': {
+                    'consumption_rates': consumptionRates,
+                    'distances_per_cs': distancesPerCS,
+                    'battery_capacities': batteryCaps,
+                    'charging_powers': CPs
+                }
+            },
+            'results': [result.to_dict() for result in all_results]
+        }
+        json.dump(json_data, json_file, indent=2)
+    
+    # Save to CSV
+    csv_filename = os.path.join(results_dir, f'greedy_results_{timestamp}.csv')
+    with open(csv_filename, 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file)
+        writer.writerow(GreedySchedulerResult.get_csv_headers())
+        for result in all_results:
+            writer.writerow(result.to_csv_row())
+    
+    print(f"Greedy scheduler results saved to {json_filename} and {csv_filename}")
+    logging.info(f"Greedy scheduler results saved to {json_filename} and {csv_filename}")
