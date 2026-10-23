@@ -264,7 +264,7 @@ def main() -> int:
     jobs = _build_jobs(preset, instance_pairs, include_diesel=include_diesel, algorithms=algorithms)
 
     validate_run_id(runid)
-    run_dir = ROOT_DIR / "output" / "runs" / runid
+    run_dir = ROOT_DIR / "output" / "executions" / runid
     if run_dir.exists():
         raise FileExistsError(f"Run already exists: {run_dir}")
     jobs_dir = run_dir / "jobs"

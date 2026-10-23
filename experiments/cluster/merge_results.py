@@ -9,7 +9,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--runid", required=True)
     args = parser.parse_args()
-    folder = OUTPUT / "runs" / validate_run_id(args.runid)
+    folder = OUTPUT / "executions" / validate_run_id(args.runid)
     rows = [json.loads(line) for line in (folder / "results.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
     manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
     expected = {s["job_id"] for s in manifest["scenarios"]}

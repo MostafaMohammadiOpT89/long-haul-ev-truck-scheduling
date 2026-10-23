@@ -22,7 +22,7 @@ Runner modes: `partial_labeling`, `full_labeling`, `greedy`, `driver_heuristic` 
 | `tests/test_driver_heuristic.py` | Unit tests for CS placement, each rule, both policies, validator, and all instances at the base configuration |
 | `analysis/heuristic_comparison.py` | New figures/tables comparing the heuristic with Full, Partial, Greedy and the diesel proxy |
 | `Post_Analysis/analysis_output_driverHeuristic/` | Output figures (`D01`..`D06`) and tables (`table_D00`..`table_D06`) |
-| `output/analyses/imported/Post_Analysis_Report_DriverHeuristic.md` | Generated summary report |
+| `legacy/results/analyses/imported/Post_Analysis_Report_DriverHeuristic.md` | Archived summary report |
 
 The input structure is unchanged: the same `instances/<name>/<name>.txt` files, the same
 `_DistanceMatrix.csv` / `_TimeMatrix.csv` (master matrices as fallback), the same CS placement as
@@ -73,12 +73,12 @@ Use the common experiment interface from the repository root:
 python -m experiments.run --preset paper_base --algorithms driver_heuristic
 python -m experiments.run --preset driver_sync_sweep --algorithms driver_heuristic --no_diesel
 python -m tests.test_driver_heuristic
-python -m analysis.heuristic_comparison
+python -m analysis.scheduling_rules.run
 ```
 
 Configurations live in `experiments/configs/`. Each run stores complete decision logs in
-`output/runs/<run_id>/results.jsonl`. Analysis reads explicitly selected files in
-`analysis/configs/paper_inputs.json` and writes under `output/analyses/`.
+`output/executions/<run_id>/results.jsonl`. Analysis reads explicit source cohorts from the consolidated details file through
+`analysis/configs/paper_inputs.json` and writes under `analysis/scheduling_rules/`.
 
 Result columns (CSV/JSON): `policy`, `t_sync_hours`, `total_time`, `num_charges`, `num_breaks`,
 `num_rests`, `num_synchronized_events`, `num_unsynchronized_*`, `total_idle_charging_time_minutes`,

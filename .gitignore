@@ -6,8 +6,12 @@ __pycache__/
 .pytest_cache/
 legacy/local_artifacts/
 output/runs/*
-!output/runs/imported/
-output/analyses/*
-!output/analyses/imported/
 output/generated_instances/
 output/reconstructed*/
+
+!output/runs/summary.csv
+!output/runs/details.jsonl
+!output/runs/catalog.json
+
+output/executions/
+!output/runs/README.md

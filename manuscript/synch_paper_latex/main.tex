@@ -1,4 +1,4 @@
-q\documentclass[3p,11pt,authoryear]{elsarticle}  %preprint, 1p/3p/5p journal
+\documentclass[3p,11pt,authoryear]{elsarticle}  %preprint, 1p/3p/5p journal
 \usepackage{setspace}
 \onehalfspacing
 
@@ -402,7 +402,7 @@ The remainder of this section first describes the parameter-free network structu
 
 We transform the route graph
 \(\mathcal{G}=(\mathcal{N},\mathcal{A})\) into a parameter-free network\footnote{The term \emph{parameter-free} refers to the representation of activity durations. The network does not contain separate arcs for different possible durations of an activity. Instead, the duration is determined by the corresponding REF from the resources of the label being extended. In particular, the driving duration $\Delta$ is computed dynamically as the maximum feasible driving increment before the next route node is reached or an HoS limit becomes binding.}
-\(\mathcal{\widewidetilde{G}}=(\mathcal{\widetilde{N}},\mathcal{\widetilde{A}})\), on which the labeling algorithm is performed. The two graphs serve different purposes. The route graph \(\mathcal{G}\) specifies the ordered sequence of route nodes and the associated travel parameters, whereas \(\mathcal{\widetilde{G}}\) represents the feasible sequences of driver and vehicle activities along that route.
+\(\mathcal{\widetilde{G}}=(\mathcal{\widetilde{N}},\mathcal{\widetilde{A}})\), on which the labeling algorithm is performed. The two graphs serve different purposes. The route graph \(\mathcal{G}\) specifies the ordered sequence of route nodes and the associated travel parameters, whereas \(\mathcal{\widetilde{G}}\) represents the feasible sequences of driver and vehicle activities along that route.
 
 
 The parameter-free network is constructed by replacing each route arc
@@ -1129,268 +1129,101 @@ The following restrictions are imposed:
 
     %------------------------------------------------%
     \section{Computational results} \label{sec:Computational Results}
-    %------------------------------------------------%
 
-{
-\color{red}
-Potential structure for new results
-\begin{enumerate}
-    \item \textbf{Base case results (optional).}
-    \begin{itemize}
-        \item one table summarizing the different approaches in the base case. 
-        \item keep extremely short, or not include at all.
-    \end{itemize}
-    \item \textbf{Competitiveness of (optimized) electric operation}. Can smart electric charging compete with diesel, and under what conditions?
-    \begin{itemize}
-        \item Smart (partial) charging vs diesel
-        \item Why/when EV can match diesel
-        \item Sensitivity: battery, charging power, consumption, station spacing
-        \item Feasibility 
-    \end{itemize}
-    \item \textbf{The value of partial charging}. Does partial charging actually matter, and when?
-    \begin{itemize}
-        \item Partial vs full in base case
-        \item How large is the gain?
-        \item Route length / difficult instances
-        \item WHY: synchronization, idle charging, number/location of stops
-        \item Sensitivity: under what technological conditions is partial charging valuable?
-    \end{itemize}
-    \item \textbf{Performance of heuristic scheduling strategies}. How much complex optimization is needed?
-    \begin{itemize}
-        \item Exact vs driver heuristic vs restricted labeling
-        \item Sensitivity to $t^{\mathrm{sync}}$
-        \item Full-charge vs overlap-only heuristic
-    \end{itemize}
-\end{enumerate}
+All algorithms and experimental procedures were implemented in Python \red{[version: ask colleague]}. The experiments were executed on \red{[processor model and clock speed: ask colleague]}, with \red{[RAM: ask colleague]}, running \red{[operating system: ask colleague]}; \red{[number of cores per run and parallel execution setup: ask colleague]}. The labeling algorithms are designed to solve the deterministic scheduling problem exactly through label extension, feasibility checks, and dominance. A run is regarded as solved to optimality only when label processing is completed; a feasible solution returned before completion does not establish optimality. \red{[Runtime limit and termination status: ask colleague which runner was used, whether every reported run completed, and how timeouts were recorded. The inherited result files do not contain a search-completion flag.]}
+The implementation, benchmark instances, and experiment configurations will be made openly available at \red{[public repository URL]}.
 
-}
+We first examine the conditions under which optimized electric operation can approach diesel route durations. We then isolate the value of partial rather than full charging and assess the performance lost when joint optimization is replaced by simple scheduling rules.
 
-This section reports the computational results. We first compare partial recharge, full recharge, the greedy heuristic, and the diesel proxy in the base-case setting. We then examine how these differences vary across instance classes and relate them to charging synchronization. Finally, we analyze the sensitivity of the results to battery characteristics, charging infrastructure, and energy consumption.
+\subsection{Conditions for effective electric operation}
+\label{sec:results_conditions}
+% Comparison: optimized partial-charging electric operation versus diesel.
 
-\subsection{Performance comparison of charging strategies}  %what
+We compare the partial-charging labeling solution with a diesel reference for the same route. In the available experiments, the diesel reference is implemented by using a sufficiently large battery capacity to make energy availability nonbinding, while retaining the driver-scheduling constraints. For route $i$ and electric-vehicle parameter setting $\theta$, the paired route-time penalty is
+\begin{equation}
+    g_{i,\theta}=100\frac{T^{\mathrm{EV}}_{i,\theta}-T^{\mathrm{D}}_i}{T^{\mathrm{D}}_i}.
+    \label{eq:conditions_gap}
+\end{equation}
+We also report the absolute difference in minutes. Percentage gaps are calculated for each route before aggregation, so every route receives equal weight. Feasibility and result availability are considered separately from route duration.
 
-Table~\ref{tab:base_case_overview} summarizes the aggregate benchmark comparison for the base-case scenario. The results indicate that the dominant performance effect comes from optimization itself: schedules produced by the exact methods substantially outperform the greedy benchmark, highlighting the benefit of jointly optimizing charging decisions and driver scheduling under the Hours-of-Service regulation. Within this optimized setting, partial recharge provides a further systematic improvement over full recharge, indicating that additional value comes from adjusting charging amounts more precisely to downstream scheduling opportunities.
-\begin{table}[!htbp]
-\centering
-\caption{Base-case comparison: partial recharge vs.\ alternative solution approaches.}
-\label{tab:base_case_overview}
-\begin{threeparttable}
-\begin{tabular}{l r r r r r r r}
-\toprule
-Alternative &
-$n$ &
-\multicolumn{2}{c}{Mean route time (h)} &
-\multicolumn{4}{c}{Partial advantage (benchmark $-$ partial)} \\
-\cmidrule(lr){3-4} \cmidrule(lr){5-8}
-& &
-Partial & Alternative &
-Mean (\%) & Mean (min) & Min (min) & Max (min) \\
-\midrule
-Full recharge & 43 & 81.93 & 82.43  &  0.61 &  29.95 &   4.80 &  89.39 \\
-Greedy        & 42 & 83.14 & 119.15 & 28.83 & 2160.35 &  56.07 & 4225.01 \\
-Diesel proxy  & 43 & 81.93 &  81.30 & $-$0.71 & $-$37.55 & $-$180.00 & 0.00 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item Each row compares partial recharge with one alternative on the same test instances ($n$). Partial advantage: positive values mean partial recharge is faster. Min/Max (min) are the smallest and largest instance-level time differences in minutes.
-% \item Mean route times are averaged over those matched instances only (hence partial means differ across rows).
-% \item Partial advantage: positive values mean partial recharge is faster; negative values mean the alternative is faster.
-% \item Min/Max (min) are the smallest and largest instance-level time differences in minutes.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
+\noindent\red{Draft data note: the figures and table below have been regenerated from the inherited partial-charging results. Their saved base case is 750~kWh, 350~kW, 60~km station spacing, and 1.49~kWh/km. The confirmed paper base case is 500~kWh and 50~km; the figures below remain provisional illustrations using the inherited settings, pending new results. The available files do not establish complete experiment coverage, original input hashes, or search termination. Missing records must not be interpreted as infeasible instances.}
 
-At the same time, the small average gap to the diesel reference case suggests that, when charging is coordinated effectively with mandatory breaks and daily rests, battery-electric operation can come close to diesel-like performance in the base-case setting. This average result is not uniform across instances, however. Figure~\ref{fig:base_case_per_instance} shows that the advantage of partial recharge over full recharge varies across the test set, and that the remaining EV--diesel gap is concentrated in a limited number of more difficult cases. The next subsection therefore examines where these gains are largest and how they relate to route structure.
+\noindent\red{Benchmark membership to resolve with colleagues: the appendix contains 43 instances (14 short, 15 medium, 14 long), whereas the saved base case contains a different 43 (13 short, 15 medium, 15 long). The appendix omits \texttt{short\_cl1\_cu4} and \texttt{long\_cl1\_cu2}; the saved base case omits \texttt{short\_cl2\_cu2\_Balanced} and \texttt{short\_cl2\_cu2\_Unbalanced}. The lists share 41 instances and together cover all 45 stored instances. Which exclusions, if any, were intentional? Pending confirmation, the consolidated files retain all 45 for each parameter/policy setting, with unavailable results explicitly marked as missing. No new experiments have been run.}
+
+\paragraph{Base-case performance.}
+Table~\ref{tab:conditions_base} summarizes the 43 available historical paired records (13 short, 15 medium, and 15 long). All 43 available electric and diesel records are reported feasible. Final benchmark membership remains unresolved. Across these pairs, the mean route-time penalty is 0.71\%, the median is 0.59\%, and the mean additional duration is 37.5~minutes. Of the 43 routes, 38 have a penalty of at most 1\%, and 42 have a penalty of at most 5\%. These proportions describe the available records rather than the complete benchmark.
+
+\input{tables/conditions/base_summary.tex}
+
+Figure~\ref{fig:conditions_base} shows the route-level variation behind these averages. For short routes, the median penalty is zero, whereas long routes incur a mean additional duration of approximately 69~minutes despite a mean relative penalty below 1\%. The largest observed penalty is 5.68\%, or 180~minutes, on a medium route. Reporting both minutes and percentages therefore distinguishes a small relative penalty from a potentially consequential increase in completion time. Explaining the exceptional cases requires examining their schedules; the aggregate differences alone do not establish a synchronization mechanism.
 
 \begin{figure}[!htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{figures/02c_comparisons_per_instance_boxplots.png}
-\caption{Per-instance comparison of partial recharge against full recharge, the greedy heuristic, and the diesel proxy in the base-case setting.}
-\label{fig:base_case_per_instance}
-\end{figure}
-
-The benefit of partial recharging increases in absolute terms with route length, although the percentage improvement over full recharging remains modest across all route classes. For short routes, partial recharging reduces the mean route time from \SI{34.32}{h} to \SI{34.12}{h}, corresponding to an average saving of \SI{12}{min}. The mean saving increases to \SI{27}{min} for medium routes and to around \SI{50}{min} for long routes. Thus, the additional flexibility of partial recharging becomes more valuable as route duration and the number of charging decisions increase.
-
-
-
-This pattern is also visible in the instances with the largest full-versus-partial gaps. The five strongest improvements all occur on long routes, namely L\_cl3\_cu4\_U, L\_cl3\_cu3\_B, L\_cl2\_cu2\_B, L\_cl2\_cu2\_U, and L\_cl2\_cu3\_B, with savings ranging from \SI{62.40}{min} to \SI{89.39}{min}. These cases are precisely those in which longer routes create many charging decisions and therefore more scope to improve the schedule by reallocating charging and aligning it with mandatory interruptions. For example, in L\_cl3\_cu4\_U, partial recharge reduces route time by \SI{89.39}{min}, raises the synchronization share from 58.33\% to 78.57\%, reduces the number of unsynchronized charging events from 5 to 3, and cuts idle charging time from \SI{122.76}{min} to \SI{45.98}{min}, despite increasing the number of charging stops from 12 to 14. By contrast, the smallest gains occur on short routes S\_cl3\_cu4\_U, S\_cl2\_cu4\_U, S\_cl2\_cu3\_B, S\_cl3\_cu5\_B, and S\_cl3\_cu4\_B where the savings are only \SIrange{4.80}{9.60}{min}. In S\_cl3\_cu4\_U, both strategies already achieve full synchronization, with zero unsynchronized charging and zero idle charging time, so the scope for further improvement is minimal. Detailed per-instance route times and charging-activity statistics are reported in Table~\ref{tab:appendix_full_results}.
-
-These results show that the operational value of partial recharge increases with route length and appears to be closely linked to charging synchronization. The next subsection examines this mechanism more directly by relating the observed time savings to the alignment of charging with breaks and daily rests.
-
-
-\subsection{The role of charging synchronization}  %why
-
-The route-class results suggest that the value of partial recharge comes not from charging less, but from charging more effectively. Table~\ref{tab:charging_sync_summary} makes this mechanism explicit. On average, partial recharge uses more charging stops than full recharge (7.53 versus 5.30), yet still achieves a lower mean route time. The improvement arises because these additional charging stops are better aligned with mandatory driver interruptions. In particular, the synchronization share increases from 74.56\% under full recharge to 81.89\% under partial recharge, while the number of unsynchronized charging events falls slightly from 1.58 to 1.42 despite the larger number of total charges. The main difference comes from break synchronization: partial recharge performs, on average, 2.58 charging stops during breaks, compared with only 0.19 under full recharge, whereas synchronization with daily rests remains essentially unchanged. The same table also clarifies why the greedy benchmark performs poorly. Although the greedy heuristic averages only 4.14 charging stops, none of them are synchronized with breaks or rests, so every charging event adds directly to route duration. The principal benefit of optimization is therefore not simply to reduce the amount of charging, but to embed charging more effectively within time that the driver is required to spend off the road anyway.
-\begin{table}[!htbp]
-\centering
-\caption{Charging-synchronization statistics by solution approach in the base-case setting.}
-\label{tab:charging_sync_summary}
-\begin{threeparttable}
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{lccccccc}
-\toprule
-Approach & \makecell{Route time\\(h)} & Charges & \makecell{Sync.\ share\\(\%)} & \makecell{Sync.\ charges} & \makecell{Unsync.\ charges} & Break-sync & Rest-sync \\
-\midrule
-Full recharge    & 82.43  & 5.30 & 74.56 & 3.72 & 1.58 & 0.19 & 3.53 \\
-Partial recharge & 81.93  & 7.53 & 81.89 & 6.12 & 1.42 & 2.58 & 3.53 \\
-{\color{red}Greedy heuristic} & 115.90 & 4.14 & 0.00  & 0.00 & 4.14 & 0.00 & 0.00 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item Entries report averages across the available base-case schedules for each approach. ``Sync.\ charges'' and ``Unsync.\ charges'' denote charging events that do and do not overlap with mandatory breaks or rests, respectively. ``Break-sync'' and ``Rest-sync'' report the average numbers of charging events synchronized with breaks and daily rests.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-The same mechanism explains why the gains from partial recharge are largest on long routes. Table~\ref{tab:partial_full_extremes} compares the five instances with the largest and smallest reductions in route time relative to full recharge. In the largest-gain cases, all of which are long routes, full recharge is associated with comparatively low synchronization and substantial idle charging time. Partial recharge raises the synchronization share from 57.47\% to 68.90\%, reduces unsynchronized charging from 5.0 to 4.2 events on average, and cuts idle charging time from \SI{94.41}{min} to \SI{66.60}{min}, despite using slightly more charging stops. By contrast, the smallest-gain cases are all short routes. There, both strategies already achieve near-complete synchronization, virtually no unsynchronized charging, and negligible idle charging time, leaving little scope for further improvement. Thus, the advantage of partial recharge comes not from fewer charging stops, but from greater flexibility in allocating charging across stops so as to reduce idle and unsynchronized charging when routes become long enough for these effects to matter.
-
-\begin{table}[!htbp]
-\centering
-\caption{Comparison of instances with the largest and smallest partial-recharge gains over full recharge.}
-\label{tab:partial_full_extremes}
-\begin{threeparttable}
-\small
-\setlength{\tabcolsep}{3.5pt}
-\renewcommand{\arraystretch}{1.1}
-\begin{tabular}{
-p{3.0cm}
-l
-S[table-format=2.2]
-S[table-format=2.2]
-S[table-format=1.1]
-S[table-format=2.2]
-S[table-format=2.1]
-}
-\toprule
-Group & Class & {Saving (min)} & {Sync.\ share (F/P)} & {Unsync.\ (F/P)} & {Idle (F/P)} & {CS stops (F/P)} \\
-\midrule
-Largest gains  & Long  & 74.49 & 57.47 / 68.90 & 5.0 / 4.2 & 94.41 / 66.60 & 11.6 / 13.6 \\
-Smallest gains & Short & 6.72  & 90.00 / 93.33 & 0.2 / 0.2 & 3.07 / 3.07   & 1.4 / 2.6 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item Entries report averages over the five instances with the largest and smallest values of \emph{full recharge route time minus partial recharge route time}. Positive savings therefore indicate that partial recharge is faster. In columns marked ``F/P'', values are reported as \emph{Full / Partial}.
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-The cases closest to the diesel benchmark reinforce this interpretation. In the six base-case instances for which the optimized electric schedule matches the diesel benchmark exactly in total route time, every charging stop is synchronized with a mandatory break or rest, and both unsynchronized charging and idle charging are zero. Near-diesel performance is therefore achieved not by avoiding charging altogether, but by absorbing charging fully within the Hours-of-Service structure. Detailed per-instance evidence for these near-diesel cases is reported in \ref{appendix:diagnostics} Table~\ref{tab:near_diesel_cases}.
-
-\subsection{Effects of battery and charging infrastructure characteristics} %under which conditions
-
-We next examine how technology and charging-infrastructure assumptions affect the ability of optimized electric-truck schedules to approach the diesel proxy. In this analysis, the benchmark is the full-recharge electric schedule, and the performance measure is the paired route-time gap relative to the diesel proxy:
-
-\[ g_{i,\theta}
-=
-100*\frac{
-T^{\mathrm{full}}_{i,\theta}-T^{\mathrm{diesel}}_{i} }{ T^{\mathrm{diesel}}_{i}
-},
-\]
-
-where \(T^{\mathrm{full}}_{i,\theta}\) denotes the optimized full-recharge route time for instance \(i\) under parameter setting \(\theta\), and \(T^{\mathrm{diesel}}_{i}\) denotes the corresponding diesel-proxy route time for the same route. Reported averages are computed over EV routes that remain feasible, while feasibility rates are reported separately. Figure~\ref{fig:sensitivity_full_diesel} shows that EV-diesel gap is increasing when energy demand is high, battery capacity is low, or charging is slow. As the energy-consumption rate increases from \SI{1.12}{kWh/km} to \SI{2.08}{kWh/km}, the mean route-time penalty rises from \SI{0.49}{\percent} to \SI{3.05}{\percent}, reflecting the additional charging burden and reduced flexibility for absorbing recharging within mandatory breaks and daily rests. The opposite pattern is observed for battery capacity and charging power. Increasing battery capacity from \SI{750}{kWh} to \SI{1000}{kWh} reduces the mean penalty from \SI{2.52}{\percent} to \SI{1.04}{\percent}, while increasing charging power from \SI{350}{kW} to \SI{1000}{kW} reduces it from \SI{2.73}{\percent} to \SI{0.97}{\percent}. These reductions indicate that larger batteries and faster charging make it easier to complete required charging within off-duty periods.
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=\textwidth]{figures/sensitivity_combined_full_vs_diesel.png}
-\caption{Mean paired route-time penalty of optimized full-recharge electric schedules relative to the diesel proxy, by technology parameter. The highlighted marker indicates the base-case parameter value used in the benchmark comparison.}
-\label{fig:sensitivity_full_diesel}
-\end{figure}
-
-The charging-pattern indicators in Table~\ref{tab:sensitivity_full_diesel} support this interpretation. Higher consumption rates and smaller batteries increase the number of charging stops and the number of synchronized charging events. For example, the average number of charging stops rises from 1.44 at \SI{1.12}{kWh/km} to 3.70 at \SI{2.08}{kWh/km}. Similarly, the \SI{750}{kWh} battery case requires 3.60 charging stops on average, compared with 1.94 for the \SI{1000}{kWh} case. Charging power affects the mechanism differently: higher power reduces the time cost of each charging event, so even when charging remains necessary, the route-time penalty relative to diesel declines substantially.
-
-\begin{table}[h!]
-\centering
-\caption{Sensitivity summary for optimized full-recharge schedules relative to the diesel proxy.}
-\label{tab:sensitivity_full_diesel}
-\begin{threeparttable}
-\small
-\setlength{\tabcolsep}{3.5pt}
-\renewcommand{\arraystretch}{1.1}
-\begin{tabular}{
-ll
-S[table-format=1.2]
-S[table-format=3.0]
-S[table-format=3.1]
-S[table-format=1.2]
-S[table-format=1.2]
-S[table-format=1.2]
-S[table-format=1.2]
-S[table-format=1.2]
-S[table-format=1.2]
-}
-\toprule
-Parameter & Value & {Gap (\%)} & {Gap (min)} & {Feas. (\%)} & {Charges} & {Sync.} & {Unsync.} & {Break} & {Rest} \\
-\midrule
-Consumption rate & 1.12 & 0.49 & 13.17 & 100.0 & 1.44 & 1.32 & 0.13 & 0.24 & 1.08 \\
-(kWh/km) & 1.49 & 2.06 & 83.85 & 99.2 & 3.31 & 2.95 & 0.36 & 1.2 & 1.75 \\
- & 2.08 & 3.05 & 75.66 & 100.0 & 3.7 & 3.08 & 0.63 & 1.49 & 1.59 \\
-\addlinespace
-Station spacing & 60 & 1.59 & 33.81 & 100.0 & 2.44 & 1.81 & 0.62 & 0.31 & 1.5 \\
-(km) & 80 & 1.97 & 42.33 & 100 & 2.5 & 1.94 & 0.56 & 0.39 & 1.56 \\
- & 100 & 2.31 & 50.07 & 100 & 2.61 & 2.06 & 0.56 & 0.56 & 1.5 \\
- & 120 & 2.38 & 108.23 & 100 & 4.75 & 3.88 & 0.88 & 1.09 & 2.78 \\
- & 140 & 3.46 & 171.73 & 100 & 5.28 & 4.78 & 0.5 & 2.59 & 2.19 \\
- & 160 & 3.16 & 141.65 & 100 & 4.88 & 4.47 & 0.41 & 1.97 & 2.5 \\
- & 180 & 3.46 & 166.02 & 100 & 5.39 & 5.24 & 0.15 & 2.58 & 2.67 \\
- & 200 & 4.04 & 196.23 & 100 & 5.24 & 5.06 & 0.18 & 3.12 & 1.94 \\
- & 220 & 3.9 & 186.43 & 100 & 5.33 & 5.06 & 0.27 & 2.97 & 2.09 \\
- & 240 & 3.64 & 167.42 & 100 & 4.88 & 4.62 & 0.25 & 2.22 & 2.41 \\
- & 260 & 3.72 & 183.44 & 97.0 & 5.55 & 5.32 & 0.23 & 3.03 & 2.29 \\
- & 300 & 4.95 & 235.76 & 84.8 & 4.48 & 4.37 & 0.11 & 2.7 & 1.67 \\
-\addlinespace
-Battery capacity & 750 & 2.52 & 88.59 & 99.4 & 3.6 & 3.21 & 0.39 & 1.55 & 1.66 \\
-(kWh) & 1000 & 1.04 & 25.08 & 100 & 1.94 & 1.59 & 0.35 & 0.27 & 1.32 \\
-\addlinespace
-Charging power & 350 & 2.73 & 100.86 & 99.2 & 3.54 & 3.23 & 0.3 & 1.43 & 1.8 \\
-(kW) & 500 & 1.49 & 36.47 & 100 & 2.46 & 2.13 & 0.33 & 0.73 & 1.4 \\
- & 1000 & 0.97 & 23.97 & 100 & 2.34 & 1.81 & 0.53 & 0.64 & 1.17 \\
-\bottomrule
-\end{tabular}
-\begin{tablenotes}[flushleft]
-\footnotesize
-\item Gap (\% and min) is the mean paired route-time penalty of full-recharge vs.\ diesel-proxy schedules. Feas.\ reports full-recharge feasibility. Charging columns give mean stop counts; Sync.\ and Unsync.\ indicate stops overlapping or not with mandatory breaks or rests. Station-spacing rows use base-case EV settings (1.49 kWh/km, 750 kWh, 350 kW).
-\end{tablenotes}
-\end{threeparttable}
-\end{table}
-
-
-
-Figure~\ref{fig:spacing_full_diesel} isolates the role of charging-station spacing. The results show that infrastructure density affects route-time competitiveness before it affects feasibility. When the spacing increases from \SI{60}{km} to \SI{140}{km}, the mean full-recharge penalty relative to the diesel proxy rises from \SI{1.59}{\percent} to \SI{3.46}{\percent}, while all tested scenarios remain feasible. Between approximately \SI{140}{km} and \SI{240}{km}, the penalty remains in the range of roughly \SIrange{3.2}{4.0}{\percent}, suggesting that the routes can still be completed but charging is increasingly difficult to align with favorable break and rest opportunities. Beyond this range, feasibility begins to deteriorate: the feasibility rate falls to \SI{97}{\percent} at \SI{260}{km} and to \SI{84.8}{\percent} at \SI{300}{km} (Table~\ref{tab:sensitivity_full_diesel}), where the mean penalty among feasible scenarios reaches \SI{4.95}{\percent}. It should be noted that the small non-monotonic changes arise because station locations are regenerated for each spacing value, so larger spacings do not uniformly worsen all routes, and because the largest-spacing averages exclude infeasible cases.
-
-\begin{figure}[h!]
-\centering
-\includegraphics[width=0.82\textwidth]{figures/ev_vs_diesel_full_vs_diesel_spacing_penalty.png}
-\caption{Mean paired route-time penalty of optimized full-recharge electric schedules relative to the diesel proxy as charging-station spacing increases. The highlighted marker indicates the base-case spacing.}
-\label{fig:spacing_full_diesel}
-\end{figure}
-
-\subsection{time horizon heuristic}
-
-
-\red{
-The sensitivity analysis in Figure~\ref{fig:tsync_sensitivity} shows a
-U-shaped pattern in mean route duration for both charging policies. Route
-duration is minimized near \(t^{\mathrm{sync}}=0.75\)~h and remains
-comparatively low at \(1\)~hour. Shorter horizons miss useful opportunities to
-synchronize charging and interruptions, whereas longer horizons can trigger
-interruptions prematurely. We therefore use \(t^{\mathrm{sync}}=1\)~h as the
-default.}
-
-\begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{figures/D06_tsync_sensitivity.png}
-    \caption{Sensitivity of mean route duration to the synchronization horizon
-    \(t^{\mathrm{sync}}\) for the full-charge and overlap-only driver
-    heuristics. Horizontal lines indicate the mean route durations of the
-    benchmark policies, and the vertical dotted line marks the default setting
-    \(t^{\mathrm{sync}}=1\)~h.}
-    \label{fig:tsync_sensitivity}
+    \includegraphics[width=\linewidth]{figures/conditions/base_case.pdf}
+    \caption{Draft base-case route-time penalties of partial-charging electric schedules relative to diesel, for 43 available route pairs. Dots represent individual routes and diamonds indicate means. Boxes span the interquartile range, with the median shown inside; whiskers extend to the most extreme observations within 1.5 interquartile ranges. All observations, including those outside the whiskers, are shown. The two panels report the same pairs in percentages and minutes.}
+    \label{fig:conditions_base}
 \end{figure}
 
+\paragraph{Technology and infrastructure sensitivities.}
+The inherited partial-charging sensitivity archive contains 1,273 records across 36 routes, with incomplete coverage of the parameter combinations. To avoid attributing changes in sample composition to parameter effects, Figure~\ref{fig:conditions_sensitivity} uses the same 11 routes at every plotted setting, varying one parameter at a time and holding the others at their saved base values. All 11 routes are short routes and have recorded feasible solutions at every plotted setting. \red{These complete-case comparisons are exploratory and may be selected by solve difficulty. They do not establish sensitivity patterns for medium or long routes, nor a feasibility rate for the intended experiment.}
+
+Within this fixed subset, the mean electric--diesel penalty at the base setting is 1.28\%. Increasing battery capacity from 750 to 1,000~kWh reduces it to 0.59\%, while increasing charging power from 350 to 1,000~kW reduces it to 0.66\%. Raising energy consumption from 1.12 to 2.08~kWh/km increases the mean penalty from 0.44\% to 3.61\%, with a 90th-percentile penalty of 9.67\% at the higher consumption level. These observations motivate examining demanding operating conditions as well as averages. The subset differs from the base-case sample in Table~\ref{tab:conditions_base}, so their aggregate penalties should not be compared as a parameter effect.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/conditions/sensitivities.pdf}
+    \caption{Exploratory one-at-a-time sensitivity of the paired electric--diesel route-time penalty, using the same 11 short routes in all panels. Solid lines show means, dashed lines the empirical 90th percentile, and shading the interquartile range; these are descriptive distributions, not confidence intervals. Dotted vertical lines indicate the saved base setting. Lines connect tested settings only. Other parameters remain at their base values.}
+    \label{fig:conditions_sensitivity}
+\end{figure}
+
+For station spacing, the mean penalty increases from 0.55\% at 40~km to 2.02\% at 100~km in this subset. Changing the spacing also changes candidate station locations, so this comparison does not isolate the effect of removing stations from a fixed, nested network. The available extended-spacing results use full charging and are excluded from this partial-charging comparison. Additional partial-charging runs are required to investigate where sparse infrastructure leads to infeasibility.
+
+\paragraph{Interaction between battery capacity and charging power.}
+Figure~\ref{fig:conditions_interaction} crosses battery capacity and charging power at three energy-consumption levels, with station spacing fixed at 60~km and the same 11 short routes in every cell. Each cell reports a mean paired penalty relative to diesel. The figure makes it possible to assess whether the effect of one technology parameter depends on the other, rather than averaging over differing parameter combinations. In the observed subset, penalties are small under favorable consumption, while the absolute benefits of additional battery capacity and charging power are larger at high consumption. This is an initial interaction analysis over the available 750--1,000~kWh battery range; smaller batteries and the other route classes remain to be evaluated.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/conditions/battery_power.pdf}
+    \caption{Exploratory battery-capacity--charging-power interaction for 11 matched short routes. Cell values and the common color scale show the mean paired electric--diesel route-time penalty (\%). Station spacing is 60~km throughout. The outlined cell marks the saved base configuration. All cells use the same routes and have recorded feasible solutions; missing scenarios elsewhere in the archive have unknown status.}
+    \label{fig:conditions_interaction}
+\end{figure}
+
+% Next iteration: complete the agreed scenario grid, record search termination,
+% and add validated schedule examples explaining synchronization and large gaps.
+
+\subsection{The value of partial versus full charging}
+\label{sec:results_partial_full}
+
+{\color{red}
+\begin{itemize}
+    \item \textbf{Research question.} How much does charging flexibility improve optimized schedules, and when does it matter most?
+    \item \textbf{Controlled comparison.} Compare optimized partial and full charging under identical route and scenario conditions. Report the distribution of paired gains and any differences in feasibility.
+    \item \textbf{Typical and difficult cases.} Test whether modest typical gains conceal substantial benefits for particular routes or conditions; do not assume this pattern in advance.
+    \item \textbf{Mechanisms and targeted sensitivities.} Explain larger gains through charging beyond concurrent interruptions, changes in charging-stop choices, or avoided additional daily rests. Include only sensitivities that clarify the value of partial charging, rather than repeating the full technology study.
+    \item \textbf{Planned figures.} One compact paired comparison and an illustrative schedule comparison explaining a substantial gain.
+\end{itemize}
+}
+
+\subsection{Simple scheduling rules versus joint optimization}
+\label{sec:results_simple_rules}
+
+{\color{red}
+\begin{itemize}
+    \item \textbf{Research question.} How much performance is lost when charging, breaks, and rests follow simple rules representing what a driver might do, rather than a jointly optimized schedule?
+    \item \textbf{Heuristic comparison.} Evaluate the driver-inspired sequential heuristic with both full-charge and overlap-only policies against optimized partial charging. These are stylized operational rules, not an empirically validated model of driver behavior.
+    \item \textbf{Typical losses and difficult cases.} Report the distribution of paired completion-time gaps, including larger losses, and whether the heuristic finds a feasible schedule when the optimized method does.
+    \item \textbf{Synchronization horizon.} Examine sensitivity to $t^{\mathrm{sync}}$ for both heuristic policies, showing typical and upper-tail losses as well as feasibility outcomes. Explain missed synchronization opportunities and unnecessarily early interruptions.
+    \item \textbf{Charging-policy effects.} Identify when overlap-only charging helps and when charging more at an earlier stop avoids later problems. Compare the full-charge heuristic with optimized full charging to distinguish scheduling losses from the full-charge restriction.
+    \item \textbf{Planned figures.} A distribution of heuristic performance gaps and a synchronization-horizon sensitivity figure for both policies; use selected schedule examples to explain difficult cases.
+\end{itemize}
+}
+
+% Study-wide reporting: distinguish proven infeasibility, solver timeouts,
+% and heuristic failure. Report sample counts and compare matched cases.
+% Put experimental settings and a short runtime/solution-status summary in
+% Experimental design, with detailed computational performance in the appendix.
+% Rewrite the abstract and conclusion after the new computational evidence
+% is available; their inherited empirical claims have not yet been revised.
 
 \section{Conclusion}
 

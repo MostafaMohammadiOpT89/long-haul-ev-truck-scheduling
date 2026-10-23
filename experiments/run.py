@@ -502,7 +502,7 @@ def main() -> int:
     if cli_args.max_scenarios and cli_args.max_scenarios > 0:
         scenarios = scenarios[: cli_args.max_scenarios]
 
-    results_dir = ROOT_DIR / "output" / "runs" / (cli_args.preset + "_" + timestamp)
+    results_dir = ROOT_DIR / "output" / "executions" / (cli_args.preset + "_" + timestamp)
     _ensure_dir(results_dir)
 
     from experiments.provenance import create_manifest, save_manifest

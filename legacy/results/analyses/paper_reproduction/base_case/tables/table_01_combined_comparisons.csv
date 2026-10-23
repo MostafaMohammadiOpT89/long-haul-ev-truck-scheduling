@@ -1,0 +1,16 @@
+Comparison,Metric,Value
+Full vs Partial,Mean Partial (hrs),81.93
+Full vs Partial,Mean Full (hrs),82.43
+Full vs Partial,Partial advantage average,0.61% (29.95 min)
+Full vs Partial,Partial advantage minimum,0.29% (4.80 min)
+Full vs Partial,Partial advantage maximum,1.08% (89.39 min)
+Partial vs Greedy,Mean Partial (hrs),83.14
+Partial vs Greedy,Mean Greedy (hrs),119.15
+Partial vs Greedy,Partial advantage average,28.83% (2160.35 min)
+Partial vs Greedy,Partial advantage minimum,2.06% (56.07 min)
+Partial vs Greedy,Partial advantage maximum,34.60% (4225.01 min)
+Partial vs diesel proxy,Mean Partial (hrs),81.93
+Partial vs diesel proxy,Mean diesel proxy (hrs),81.30
+Partial vs diesel proxy,Partial advantage average,-0.71% (-37.55 min)
+Partial vs diesel proxy,Partial advantage minimum,-5.68% (-180.00 min)
+Partial vs diesel proxy,Partial advantage maximum,0.00% (0.00 min)

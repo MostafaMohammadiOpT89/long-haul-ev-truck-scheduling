@@ -6,8 +6,8 @@ This script is executed remotely by `cluster/run_all.sh` via SSH.
 It is designed for Linux (Solstorm). It uses fcntl locks for safe appends.
 
 Output (shared, appended by many nodes):
-  output/runs/<runid>/results.jsonl
-  output/runs/<runid>/exports/results.csv
+  output/executions/<runid>/results.jsonl
+  output/executions/<runid>/exports/results.csv
 """
 
 from __future__ import annotations
@@ -148,14 +148,14 @@ def _job_to_child_args(job: Job) -> tuple[Path, Path, List[str]]:
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--runid", required=True, help="Run id (folder name under output/runs/).")
+    parser.add_argument("--runid", required=True, help="Run id (folder name under output/executions/).")
     parser.add_argument("job_files", nargs="+", help="One or more job JSON paths.")
     args = parser.parse_args()
 
     runid = args.runid
     from experiments.provenance import validate_run_id
     validate_run_id(runid)
-    out_dir = ROOT_DIR / "output" / "runs" / runid
+    out_dir = ROOT_DIR / "output" / "executions" / runid
     jsonl_path = out_dir / "results.jsonl"
     lock_path = out_dir / "results.LOCK"
 

@@ -58,8 +58,8 @@ class RepositoryTests(unittest.TestCase):
 
     def test_analysis_inputs_exist(self):
         config = json.loads((ROOT / "analysis/configs/paper_inputs.json").read_text())
-        for path in config.values():
-            self.assertTrue((ROOT / path).is_file(), path)
+        for spec in config.values():
+            self.assertTrue((ROOT / spec["path"]).is_file(), spec)
 
     def test_preserved_noncode_assets(self):
         manifest = json.loads((ROOT / "docs/migration_manifest.json").read_text())

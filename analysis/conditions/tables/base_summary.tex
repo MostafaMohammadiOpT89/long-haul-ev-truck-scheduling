@@ -1,0 +1,24 @@
+\begin{table}[htbp]
+\centering
+\begin{threeparttable}
+\caption{Draft base-case comparison of partial-charging electric schedules with the diesel reference.}
+\label{tab:conditions_base}
+\small\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrr}
+\toprule
+Route & Pairs & Diesel & Electric & Mean gap & P90 gap & Mean gap & Max. gap \\
+class & & (h) & (h) & (\%) & (\%) & (min) & (min) \\
+\midrule
+Short & 13 & 34.00 & 34.12 & 0.40 & 0.84 & 7.4 & 35.5 \\
+Medium & 15 & 73.13 & 73.67 & 0.82 & 0.93 & 32.2 & 180.0 \\
+Long & 15 & 130.47 & 131.62 & 0.87 & 1.52 & 69.0 & 153.5 \\
+\midrule
+All routes & 43 & 81.30 & 81.93 & 0.71 & 1.20 & 37.5 & 180.0 \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Pairs reports available historical paired records; final benchmark membership remains unresolved. All available pairs are reported feasible; missing records have unknown status. Durations and percentage gaps are averaged over routes, with each route weighted equally. P90 is the empirical 90th percentile of paired percentage gaps (linear interpolation).
+\item Saved base settings: 750~kWh, 350~kW, 60~km station spacing, and 1.49~kWh/km. Historical input hashes and solver termination status are unavailable.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

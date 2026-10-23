@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "model_run_count": 8100,
+  "observation_count": 3986,
+  "stored_instance_count": 45,
+  "parameter_policy_template_count": 180,
+  "records_available": 3868,
+  "records_missing": 4232,
+  "configurations_with_conflicts": 0,
+  "confirmed_paper_base_count": 225,
+  "selection_rule": "Latest recorded source timestamp, then source priority. Review conflicts before analysis.",
+  "historical_input_version": "Unverified; grouping by recorded settings does not prove identical input files or code.",
+  "sources": [
+    {
+      "id": "base",
+      "path": "legacy/results/raw_runs/imported/paper_base/unified_results_20260408_135323.json",
+      "sha256": "6ceb645b77a207723423d812086d38bf3fe2433fc7dcf5238b70505c7786dac0",
+      "record_count": 172
+    },
+    {
+      "id": "greedy",
+      "path": "legacy/results/raw_runs/imported/paper_base/greedy_results_20260407_005701.json",
+      "sha256": "b06141990bad89547689e60a06774f7998a711631639d425c8ee5dd607a4b539",
+      "record_count": 88
+    },
+    {
+      "id": "driver_headline",
+      "path": "legacy/results/raw_runs/imported/paper_base/driver_heuristic_results_20261016_213428.json",
+      "sha256": "83b1a78ebe8e2d62fb9dcad1c2a052732bc68baf5d043daf5958721bedd9864d",
+      "record_count": 90
+    },
+    {
+      "id": "driver_sync",
+      "path": "legacy/results/raw_runs/imported/paper_base/driver_heuristic_results_tsync_sweep_20261016_213428.json",
+      "sha256": "d8e76dbb3629504a0591747b40d6f1673966615d1aea6e88d1f61a21eb84beb3",
+      "record_count": 720
+    },
+    {
+      "id": "sweep",
+      "path": "legacy/results/raw_runs/imported/parameter_sweep/unified_results_20260407_174118.json",
+      "sha256": "e667909a8dfcbc28ad9fbdf477301bfea8ef6d73468eb9f469b12bbeebaac63c",
+      "record_count": 2529
+    },
+    {
+      "id": "sweep_diesel",
+      "path": "legacy/results/raw_runs/imported/parameter_sweep/diesel_lb_results_20260210_140456.json",
+      "sha256": "ae41dc70749d2fd24200b3105ac4e903e94fe371e0155502270db1cd66dde332",
+      "record_count": 84
+    },
+    {
+      "id": "spacing",
+      "path": "legacy/results/raw_runs/imported/station_spacing/output_cs_spacing_s1_full.jsonl",
+      "sha256": "d67dac58b3f4772c705daf4ed010b1f2873e9cff264510be5432806e375017bf",
+      "record_count": 303
+    }
+  ],
+  "outputs": {
+    "summary.csv": "376eb70bd744259a4914c108ba43b902d564f6048603f94c4a9f1b83c015724d",
+    "details.jsonl": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+  }
+}

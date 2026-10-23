@@ -1,0 +1,14 @@
+{
+  "job_id": "000001",
+  "algorithm": "driver_heuristic",
+  "tag": "",
+  "instance_name": "short_cl1_cu2",
+  "instance_path": "instances\\benchmark_v1\\short_cl1_cu2\\short_cl1_cu2.txt",
+  "consumption": 1.49,
+  "distance_per_cs": 60.0,
+  "battery_cap": 750.0,
+  "charging_power": 350.0,
+  "safety_buffer_frac": null,
+  "policy": "full",
+  "t_sync_hours": null
+}

@@ -70,7 +70,7 @@ def main() -> int:
     _run(merge_cmd, cwd=ROOT_DIR)
 
     print(f"Pipeline finished. Runid: {runid}")
-    print(f"Results: output/runs/{runid}/")
+    print(f"Results: output/executions/{runid}/")
     return 0
 
 

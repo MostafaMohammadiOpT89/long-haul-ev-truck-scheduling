@@ -1,0 +1,131 @@
+{
+  "config": "C:\\Users\\steffejb\\Github\\long-haul-ev-truck-scheduling\\analysis\\configs\\paper_inputs.json",
+  "inputs": {
+    "base_unified": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "base"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "base_greedy": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "greedy"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "base_partial_json": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "base",
+        "algorithm": "partial_labeling"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "base_full_json": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "base",
+        "algorithm": "full_labeling"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "driver_headline": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "driver_headline"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "driver_sync": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "driver_sync"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "sweep_unified": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "sweep"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "sweep_diesel": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "sweep_diesel"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    },
+    "spacing": {
+      "selection": {
+        "path": "output/runs/details.jsonl",
+        "source_id": "spacing"
+      },
+      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    }
+  },
+  "code": {
+    "revision": "83ce1004d962ec21a685d28647cc4bc3aa1a569d",
+    "working_tree_dirty": true,
+    "source_sha256": {
+      "common/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "common/arcs.py": "c5f76e1b94fcbbb297e4a2a677351e9705f7db4a786b94cffb5e04accaf794b5",
+      "common/csv_reader.py": "2052c1d0f9d84a01fe506e494de2a2c5d40e096dae4720e6204e23cd3d756bc3",
+      "common/instance_io.py": "c3743f7c4ecdc85057c47dc8881205dc3aaadc331f61503f2f17727c72b32eef",
+      "common/metrics.py": "abf027e72d0d10da11427aa1e7ebd20e5c3af05a1ac454ccdf9a4fb045303b8c",
+      "common/paths.py": "dc7ead693d627d00bcd6b9aee1bb04c9ff71250d0d110ce88a6195817d06bf20",
+      "common/results.py": "05191398b033af3a46feb1abc83d99b61ec80b32d1212aa71f6de1cf19315c82",
+      "policies/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policies/heuristics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policies/heuristics/driver.py": "8e217d5e5a15f8116be86c16d7ca21b545bbf32f7aafdffaded6c46837939251",
+      "policies/heuristics/driver_runner.py": "c396f283d55310f7420f753dcc59b55492162cb5f8694e4cf561611f24276a2b",
+      "policies/heuristics/old/greedy.py": "5cf842da6e8b5eb02875663d3b7a13e7855bae1ae186a4678397237d960051d9",
+      "policies/labeling/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policies/labeling/full_recharge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policies/labeling/full_recharge/dominate.py": "a891fd4b678eb8c23b14b704b64354df3439abb20de609ec6ffc15e5844fba09",
+      "policies/labeling/full_recharge/instanceResultClass.py": "95b2b375490f18d73cd7b4971c2d01893ac49f804581303e8e47b01d798bb0f5",
+      "policies/labeling/full_recharge/isFeasible.py": "b241017f2bf473f27265b523e0bcf6992ddef1302c9f5d5c48036e435c64e519",
+      "policies/labeling/full_recharge/label.py": "57c2cb6a47646b5c9f4926b3bb606acea4777bc13dabff7ebf4c0b738c14bf0e",
+      "policies/labeling/full_recharge/network.py": "5808ce5934517c4d48614df9c83aa4adc115815d0b0e01ea42e34f11214b5c4e",
+      "policies/labeling/full_recharge/optAlgo.py": "ac1a531f2737c327b891157fa8aa1d5c26a7e7f99acb944933e21e6e1111e7d4",
+      "policies/labeling/full_recharge/single_scenario_runner.py": "b740e6274600fefd88c6435d097705bb6ac2aca87b583560f2eeecf51e93e7eb",
+      "policies/labeling/partial_recharge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "policies/labeling/partial_recharge/dominate.py": "a32a5d00bab3150d4d7c02e170c1d7afc74c03e8f3fed76fcb3e1c71bfb43ea9",
+      "policies/labeling/partial_recharge/instanceResultClass.py": "c7b58cf84fa0a2b3427f2987f02bf1a9d11e58251e935a5e811678b67d911e40",
+      "policies/labeling/partial_recharge/isFeasible.py": "0bbdb7897a4856d3711a3fbd2815ad3a9d9de7b242d244ed05d74acb3390daf2",
+      "policies/labeling/partial_recharge/label.py": "6357dbdba5f0351b29dead52f2196a6d96f24f78bb4023793b8da23952ab1450",
+      "policies/labeling/partial_recharge/network.py": "a08a355d5847ac776d59f1d9b5868fb371112cb201ff33c508894f1383778ff3",
+      "policies/labeling/partial_recharge/optAlgo.py": "5fc26d5de8739a19e62d269203626546b1a52efe0fecf393a0b7e77953ee6116",
+      "policies/labeling/partial_recharge/single_scenario_runner.py": "dbe7f263e8fee03eb9ad797c0e0635667e59a4f9af18570baae79aa24cc988a3",
+      "experiments/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "experiments/cluster/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "experiments/cluster/create_jobs.py": "4d6be5e37a2235a0bc42b3f238e36c0907bf28c3cf9d6951408fe791a1834c26",
+      "experiments/cluster/merge_results.py": "492e4840e285392a6466f033cddf70308d0be9598d85a030708bc444c2aab2b6",
+      "experiments/cluster/run_job.py": "056315f1740ec42b9f3182809dafe820cda11b0cc8c4a00b2177e5c06c2cc14f",
+      "experiments/cluster/run_pipeline.py": "d5d271d6bdabaa87b83514437a2b72d85d367f992329536f25ff2c60e24f2b24",
+      "experiments/consolidate.py": "a02ef2741870b33160229736d66bcae3458bbf006684e29c905b11beab0e70d5",
+      "experiments/export.py": "a4ea402849e338c2e2a904657298114ffad3ef03ace36aab8944f82bd0a367a8",
+      "experiments/provenance.py": "0ccf64a14a1e1e9f1296ca14f71622bfa4e48274b5042c3ff48cde140d71010d",
+      "experiments/run.py": "c3a5ded08a3e04a7255ac6608830a3bd13961170d60ad777070afd6f69f2cc19",
+      "analysis/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/charging_strategies/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/charging_strategies/diagnostic_tables.py": "b346862adc0ef6863e4efd287fba56d922216ae2878e419237d9141cbe20397a",
+      "analysis/charging_strategies/paper_tables.py": "b154ca9ff1f03221b05770fd7bfc456cc418578a81fcb7b284eadc53efcf2915",
+      "analysis/charging_strategies/run.py": "3c7504d305241f11424dfceec681ebea24368a3ae9b8a6bb63c7a704c3bc02ff",
+      "analysis/charging_strategies/sensitivity/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/charging_strategies/sensitivity/run.py": "fd2cbad1f86ba03e8647d907d27acf5acdbf70d5134f9d4891fde758bdceea54",
+      "analysis/common/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/common/inputs.py": "6fdbf93c0722431b4de7e629ae4f73f6c2d388894640019fb6771f697347d8f0",
+      "analysis/conditions/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/conditions/run.py": "b3f167b8040454feae0c8a3d5baa9039c96726b6ef5ce23bd57ecd15472aea4d",
+      "analysis/historical/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/historical/post_analysis_utils.py": "249363ad1342303e1d65ece1d152014e9c0d8354443f24f69cb1b4d4706cf53e",
+      "analysis/instance_visualization.py": "87c2f1056bbf8b0a60088f77cad3958ed4655c7d86ecdabe8b2c7543a4b29e1e",
+      "analysis/scheduling_rules/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "analysis/scheduling_rules/run.py": "eef4e84d972f5e74893bd799c3e3c83118aa0b2e008c755dc34bc8e4fb4ade88"
+    }
+  }
+}

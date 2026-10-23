@@ -15,8 +15,10 @@ Scheduling along prescribed routes, coordinating charging, driver breaks and dai
 | `common/` | Shared input loading, paths, and analysis metrics |
 | `experiments/` | Local execution, explicit JSON configurations, exports, provenance, and cluster execution |
 | `analysis/` | Base-case, sensitivity, heuristic comparison, instance visualization, and paper tables |
-| `output/runs/` | Canonical results and metadata, one folder per run |
-| `output/analyses/` | Derived figures, tables, and reports |
+| `output/runs/` | Consolidated summary CSV, detailed JSONL and provenance catalog |
+| `output/executions/` | Raw records, metadata and jobs for new experiment batches |
+| `legacy/results/raw_runs/` | Archived inherited results and validation batches |
+| `analysis/<question>/figures/`, `tables/` | Generated outputs beside the corresponding analysis code |
 | `tests/` | Dataset integrity, orchestration, policy tests, and pre-migration fixtures |
 | `docs/` | Methods, migration record, and research decisions still to resolve |
 | `legacy/` | Retained older scripts and historical artifacts; not supported entry points |
@@ -37,7 +39,7 @@ Start with one short instance across all methods (five EV schedules):
 python -m experiments.run --preset paper_base --instances short_cl1_cu2 --no_diesel
 ```
 
-Results go to `output/runs/paper_base_<timestamp>/`. Each run contains `manifest.json`, canonical `results.jsonl` with complete timelines/decisions, and a generated flat summary at `exports/results.csv`, which can be opened in Excel. No Excel workbook is generated automatically.
+New batches go to `output/executions/paper_base_<timestamp>/`. Each contains `manifest.json`, raw `results.jsonl` with complete timelines/decisions, and `exports/results.csv`. After a batch completes, run `python -m experiments.consolidate` to refresh `output/runs/summary.csv`, `details.jsonl`, and `catalog.json`. Active analyses read explicit source cohorts from the consolidated details file; see [result files](docs/result_files.md). No Excel workbook is generated automatically.
 
 ```sh
 python -m experiments.run --preset paper_base --algorithms driver_heuristic
@@ -52,18 +54,19 @@ The diesel reference uses existing methods with the inherited large-battery conf
 
 ## Reproduce the inherited paper analyses
 
-`analysis/configs/paper_inputs.json` pins exact saved inputs. It does not select the newest file. By default, new figures and tables are written under `output/analyses/paper_reproduction/`; inherited assets remain under `output/analyses/imported/`.
+`analysis/configs/paper_inputs.json` pins exact saved inputs. It does not select the newest file. Each analysis writes figures and tables into its own folder under `analysis/`. Previous outputs are archived in `legacy/results/analyses/`. See [analysis layout](analysis/README.md).
 
 ```sh
-python -m analysis.base_case
-python -m analysis.sensitivity
-python -m analysis.heuristic_comparison
+python -m analysis.conditions.run
+python -m analysis.charging_strategies.run
+python -m analysis.charging_strategies.sensitivity.run
+python -m analysis.scheduling_rules.run
 python -m analysis.instance_visualization
-python -m analysis.paper_tables
-python -m analysis.diagnostic_tables
+python -m analysis.charging_strategies.paper_tables
+python -m analysis.charging_strategies.diagnostic_tables
 ```
 
-Set `EV_TRUCK_ANALYSIS_INPUTS` to another JSON input manifest and `EV_TRUCK_ANALYSIS_OUTPUT` to another output directory to analyze a different selection. Input paths are relative to the repository root (or absolute). The analysis readers accept both inherited CSV/JSON bundles and new canonical `results.jsonl` files. Point the relevant manifest entries directly to JSONL to analyze new runs without copying results. A combined JSONL may serve multiple roles: readers select the relevant algorithms. The flat `exports/results.csv` omits timelines and should be used for summaries, not synchronization analysis. For base-case analyses, provide a run at the documented `paper_base` settings; sensitivity readers apply the inherited study filters.
+Set `EV_TRUCK_ANALYSIS_INPUTS` to another JSON input manifest and `EV_TRUCK_ANALYSIS_OUTPUT` to another output directory to analyze a different selection. Default entries specify `path`, `source_id`, and optionally `algorithm`, selecting observations from consolidated `details.jsonl`. Analysis manifests record these selections and the input hash. Plain paths to raw CSV/JSON/JSONL remain supported for custom inputs; a consolidated details file requires a source selection. The flat batch export omits timelines and should be used for summaries, not synchronization analysis. Existing analyses retain the inherited 750 kWh / 60 km filters; the confirmed 500 kWh / 50 km paper base still awaits results.
 
 ## Datasets and generation
 
@@ -91,7 +94,7 @@ Or use `python -m experiments.cluster.run_pipeline --preset paper_base`. Cluster
 ```sh
 python -m unittest tests.test_repository
 python -m tests.test_driver_heuristic
-python -m tests.verify_run output/runs/paper_base_<timestamp>
+python -m tests.verify_run output/executions/paper_base_<timestamp>
 ```
 
 The last command checks the five-scenario short-instance run above against pre-migration results, excluding execution-time/profiling fields. The driver tests replay both policies on all 45 instances.

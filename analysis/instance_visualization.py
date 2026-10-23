@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import FancyArrowPatch, Rectangle
 
 from common.paths import BENCHMARK
-from analysis.inputs import ANALYSIS_OUTPUT
+from analysis.common.inputs import ANALYSIS_OUTPUT
 ROOT = BENCHMARK
 OUT_DIR = ANALYSIS_OUTPUT / "instance_visualization"
 

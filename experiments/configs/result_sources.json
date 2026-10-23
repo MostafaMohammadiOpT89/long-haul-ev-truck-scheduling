@@ -1,0 +1,11 @@
+{
+  "sources": [
+    {"id": "base", "path": "legacy/results/raw_runs/imported/paper_base/unified_results_20260408_135323.json"},
+    {"id": "greedy", "path": "legacy/results/raw_runs/imported/paper_base/greedy_results_20260407_005701.json"},
+    {"id": "driver_headline", "path": "legacy/results/raw_runs/imported/paper_base/driver_heuristic_results_20261016_213428.json"},
+    {"id": "driver_sync", "path": "legacy/results/raw_runs/imported/paper_base/driver_heuristic_results_tsync_sweep_20261016_213428.json"},
+    {"id": "sweep", "path": "legacy/results/raw_runs/imported/parameter_sweep/unified_results_20260407_174118.json"},
+    {"id": "sweep_diesel", "path": "legacy/results/raw_runs/imported/parameter_sweep/diesel_lb_results_20260210_140456.json"},
+    {"id": "spacing", "path": "legacy/results/raw_runs/imported/station_spacing/output_cs_spacing_s1_full.jsonl"}
+  ]
+}

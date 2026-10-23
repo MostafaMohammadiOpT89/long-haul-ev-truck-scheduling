@@ -53,7 +53,7 @@ if [ -z "${RUNID}" ]; then
   exit 1
 fi
 
-JOBS_DIR="${PROJECT_DIR}/output/runs/${RUNID}/jobs"
+JOBS_DIR="${PROJECT_DIR}/output/executions/${RUNID}/jobs"
 if [ ! -d "${JOBS_DIR}" ]; then
   echo "ERROR: jobs dir not found: ${JOBS_DIR}"
   exit 1
@@ -135,7 +135,7 @@ node_counter=0
 job_counter=0
 
 # Clean previous node logs for this runid (local)
-mkdir -p "output/runs/${RUNID}/logs"
+mkdir -p "output/executions/${RUNID}/logs"
 pids=()
 
 while [ ${job_counter} -lt ${num_jobs} ]; do
@@ -159,8 +159,8 @@ while [ ${job_counter} -lt ${num_jobs} ]; do
 
   # Run remotely
   ssh "${node}" "cd \"${PROJECT_DIR}\"; shopt -s huponexit; timeout \"${TIMEOUT}\" python3 -m experiments.cluster.run_job --runid \"${RUNID}\" ${args[*]}" \
-    > "output/runs/${RUNID}/logs/${node}.out" \
-    2> "output/runs/${RUNID}/logs/${node}.err" &
+    > "output/executions/${RUNID}/logs/${node}.out" \
+    2> "output/executions/${RUNID}/logs/${node}.err" &
 
   pids+=("$!")
   echo
@@ -179,6 +179,6 @@ fi
 
 echo "All nodes finished."
 echo "Raw outputs:"
-echo "  output/runs/${RUNID}/results.jsonl"
-echo "  output/runs/${RUNID}/exports/results.csv"
+echo "  output/executions/${RUNID}/results.jsonl"
+echo "  output/executions/${RUNID}/exports/results.csv"
 
