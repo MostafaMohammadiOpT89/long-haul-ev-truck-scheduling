@@ -22,8 +22,7 @@
     },
     "diesel_lower_bound": {
       "enabled": true,
-      "battery_cap": 100000000,
-      "greedy_safety_buffer_frac": 0.0
+      "battery_cap": 100000000
     },
     "specific_instances_to_run": [
       "short_cl1_cu2"

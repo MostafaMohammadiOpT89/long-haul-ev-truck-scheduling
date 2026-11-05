@@ -85,7 +85,7 @@ def load_csv(filepath):
     from common.results import read_frame
     df = read_frame(filepath)
     if Path(filepath).suffix in (".jsonl", ".json") and "_runner_algorithm" in df:
-        df = df[df["_runner_algorithm"].isin(["partial_labeling", "full_labeling", "greedy"])].copy()
+        df = df[df["_runner_algorithm"].isin(["partial_labeling", "full_labeling"])].copy()
     df = df.loc[:, ~df.columns.duplicated()]
     col_map = {
         'computation_time_seconds': 'computation_time_sec',
@@ -145,8 +145,6 @@ def get_strategy(row):
         if b is not None and b >= DIESEL_PROXY_BATTERY_KWH_MIN:
             return 'Diesel'
         return 'Partial'
-    if 'greedy' in algo:
-        return 'Greedy'
     return 'Other'
 
 

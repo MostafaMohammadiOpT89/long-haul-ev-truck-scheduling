@@ -18,12 +18,6 @@
       "record_count": 172
     },
     {
-      "id": "greedy",
-      "path": "legacy/results/raw_runs/imported/paper_base/greedy_results_20260407_005701.json",
-      "sha256": "b06141990bad89547689e60a06774f7998a711631639d425c8ee5dd607a4b539",
-      "record_count": 88
-    },
-    {
       "id": "driver_headline",
       "path": "legacy/results/raw_runs/imported/paper_base/driver_heuristic_results_20261016_213428.json",
       "sha256": "83b1a78ebe8e2d62fb9dcad1c2a052732bc68baf5d043daf5958721bedd9864d",

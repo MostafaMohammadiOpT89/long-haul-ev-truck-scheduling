@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unified single-thread experiment runner for TDSPEVRP (Partial + Full + Greedy + Driver heuristic + Diesel/LB).
+Unified single-thread experiment runner for TDSPEVRP (Partial + Full + Driver heuristic + Diesel/LB).
 
 Goal: keep algorithm logic unchanged; this runner only orchestrates parameter grids and
 collects results in one place, using subprocesses to avoid module-name collisions between
@@ -36,7 +36,7 @@ PRESETS["full"] = PRESETS["parameter_sweep"]
 DEFAULT_PRESET = "paper_base"
 
 # Algorithms orchestrated by this runner (CLI --algorithms selects a subset).
-ALL_ALGORITHMS = ("partial_labeling", "full_labeling", "greedy", "driver_heuristic")
+ALL_ALGORITHMS = ("partial_labeling", "full_labeling", "driver_heuristic")
 
 # Driver-inspired sequential heuristic (Partial Recharge/EVTDSPalgorithmmain/driver_heuristic.py).
 # One scenario per policy. t_sync_hours=None -> driver_heuristic.T_SYNC_HOURS default.
@@ -60,7 +60,6 @@ SPECIFIC_INSTANCES_TO_RUN: List[str] = []
 # Diesel / lower-bound: use the BASE CASE scenario but with huge battery → no recharging needed.
 RUN_DIESEL_LOWER_BOUND = True
 DIESEL_BATTERY_CAP = 100_000_000  # as requested
-# For diesel greedy, set buffer to 0 so buffer doesn't force any charging.
 DIESEL_SAFETY_BUFFER_FRAC = 0.0
 
 
@@ -181,14 +180,14 @@ def preset_snapshot_for_json(preset: Dict[str, Any]) -> Dict[str, Any]:
 
 @dataclass(frozen=True)
 class Scenario:
-    algorithm: str  # "partial_labeling" | "full_labeling" | "greedy" | "driver_heuristic"
+    algorithm: str  # "partial_labeling" | "full_labeling" | "driver_heuristic"
     instance_name: str
     instance_path: Path
     consumption: float
     distance_per_cs: float
     battery_cap: float
     charging_power: float
-    safety_buffer_frac: Optional[float] = None  # greedy only
+    safety_buffer_frac: Optional[float] = None
     tag: Optional[str] = None  # e.g. "diesel_lb"
     policy: Optional[str] = None  # driver_heuristic only: "full" | "overlap"
     t_sync_hours: Optional[float] = None  # driver_heuristic only (None -> default)
@@ -276,7 +275,6 @@ def _build_scenarios(
     algorithms: Tuple[str, ...] = ALL_ALGORITHMS,
 ) -> List[Scenario]:
     full_map = {name: path for name, path in full_instances}
-    safety_fracs = [float(x) for x in preset["safety_buffer_fracs"]]
     cons0, dcs0, cp0 = diesel_anchor_params(preset)
     algos = set(algorithms)
 
@@ -312,20 +310,6 @@ def _build_scenarios(
                         charging_power=cp,
                     )
                 )
-            if "greedy" in algos:
-                for sb in safety_fracs:
-                    scenarios.append(
-                        Scenario(
-                            algorithm="greedy",
-                            instance_name=instance_name,
-                            instance_path=partial_path,
-                            consumption=cons,
-                            distance_per_cs=dcs,
-                            battery_cap=bc,
-                            charging_power=cp,
-                            safety_buffer_frac=sb,
-                        )
-                    )
             if "driver_heuristic" in algos:
                 for pol, sync in driver_options(preset):
                     scenarios.append(
@@ -353,20 +337,6 @@ def _build_scenarios(
                         distance_per_cs=dcs0,
                         battery_cap=DIESEL_BATTERY_CAP,
                         charging_power=cp0,
-                        tag="diesel_lb",
-                    )
-                )
-            if "greedy" in algos:
-                scenarios.append(
-                    Scenario(
-                        algorithm="greedy",
-                        instance_name=instance_name,
-                        instance_path=partial_path,
-                        consumption=cons0,
-                        distance_per_cs=dcs0,
-                        battery_cap=DIESEL_BATTERY_CAP,
-                        charging_power=cp0,
-                        safety_buffer_frac=DIESEL_SAFETY_BUFFER_FRAC,
                         tag="diesel_lb",
                     )
                 )
@@ -421,7 +391,7 @@ def main() -> int:
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="Unified single-thread experiment runner (partial/full/greedy/driver heuristic + diesel LB)."
+        description="Unified single-thread experiment runner (partial/full/driver heuristic + diesel LB)."
     )
     parser.add_argument(
         "--preset",
@@ -526,10 +496,6 @@ def main() -> int:
             child = FULL_SINGLE_SCENARIO
             cwd = FULL_DIR
             mode = "labeling"
-        elif sc.algorithm == "greedy":
-            child = PARTIAL_SINGLE_SCENARIO
-            cwd = PARTIAL_DIR
-            mode = "greedy"
         elif sc.algorithm == "driver_heuristic":
             child = DRIVER_HEURISTIC_RUNNER
             cwd = PARTIAL_DIR
@@ -551,17 +517,13 @@ def main() -> int:
             "--charging_power",
             str(sc.charging_power),
         ]
-        if mode == "greedy":
-            child_args += ["--safety_buffer_frac", str(sc.safety_buffer_frac if sc.safety_buffer_frac is not None else 0.10)]
         if sc.algorithm == "driver_heuristic":
             child_args += ["--policy", sc.policy or "full"]
             if sc.t_sync_hours is not None:
                 child_args += ["--t_sync", str(sc.t_sync_hours)]
 
         extra = ""
-        if mode == "greedy":
-            extra = f" sb={sc.safety_buffer_frac}"
-        elif sc.algorithm == "driver_heuristic":
+        if sc.algorithm == "driver_heuristic":
             extra = f" policy={sc.policy} t_sync={sc.t_sync_hours if sc.t_sync_hours is not None else 'default'}"
         print(
             f"[{idx}/{len(scenarios)}] {sc.algorithm}"

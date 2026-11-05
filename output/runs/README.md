@@ -6,7 +6,7 @@
   available route schedules. Placeholder rows have empty observation lists.
 - `catalog.json`: source hashes, counts and export provenance.
 
-All 45 stored instances remain included pending benchmark confirmation.
+Paper instance set: 43 tests in `instances/PAPER_INSTANCE_SET_43.txt`. The stored generator pool has 45 folders.
 
 The old run folders are in `legacy/results/raw_runs/`. New experiment batches
 go to `output/executions/`. Rebuild these files with

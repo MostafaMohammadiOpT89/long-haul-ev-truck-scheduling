@@ -84,5 +84,5 @@ python3 cluster/merge_results.py --runid <runid>
 
 This creates:
 - `Results/Cluster/merged/<runid>/unified_results_<runid>.json/.csv`
-- per-algorithm bundles (partial/full/greedy) + diesel-only bundle
+- per-algorithm bundles (partial/full/driver) + diesel-only bundle
 

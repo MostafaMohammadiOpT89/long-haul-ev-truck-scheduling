@@ -2,12 +2,10 @@
 """
 Run exactly ONE scenario for the Partial Recharge codebase and print ONE JSON object to stdout.
 
-Modes:
+Mode:
   - labeling: runs the labeling algorithm (partial recharge variant)
-  - greedy: runs the greedy scheduler (latest version in Partial Recharge)
 
 Important: this script is intentionally self-contained and does not modify any algorithm logic.
-It mirrors the inner loop of enhanced_main.py / greedy_scheduler.py but parameterizes inputs.
 """
 
 from __future__ import annotations
@@ -144,70 +142,6 @@ def run_labeling_one(
     return result.to_dict()
 
 
-def run_greedy_one(
-    instance_name: str,
-    instance_path: str,
-    consumption: float,
-    distance_per_cs: float,
-    battery_cap: float,
-    charging_power: float,
-    safety_buffer_frac: float,
-) -> Dict[str, Any]:
-    # Import greedy pieces from the latest greedy in this folder
-    import policies.heuristics.greedy as gs
-    # Ensure child output remains pure JSON; suppress greedy_scheduler console logging
-    import logging
-    logging.disable(logging.CRITICAL)
-
-    citiesArcs = load_instance_matrices(instance_path)
-    depot, nodes = gs.read_test_instance(instance_path)
-    if not depot or not nodes:
-        return {
-            "instance_id": instance_name,
-            "feasible": False,
-            "reason_if_infeasible": "Could not read test instance",
-        }
-
-    route = gs.create_simple_route(depot, nodes, citiesArcs)
-    if not route:
-        return {
-            "instance_id": instance_name,
-            "feasible": False,
-            "reason_if_infeasible": "Could not create route",
-        }
-
-    service_time_map = {n["location"]: float(n.get("serviceTime", 0.0) or 0.0) for n in nodes}
-    out = gs.greedy_scheduler(
-        route,
-        consumption,
-        battery_cap,
-        charging_power,
-        distance_per_cs,
-        cs_positions_map=None,
-        service_time_map=service_time_map,
-        include_service_times=True,
-        safety_buffer_frac=safety_buffer_frac,
-    )
-
-    greedy_result = gs.GreedySchedulerResult(
-        instance_id=instance_name,
-        distance_per_cs=distance_per_cs,
-        battery_capacity=battery_cap,
-        charging_power=charging_power,
-        consumption_rate=consumption,
-        total_time=out["total_time"],
-        num_charges=out["charges"],
-        num_breaks=out["breaks"],
-        num_rests=out["rests"],
-        num_synchronized_events=out["synchronized_events"],
-        feasible=out["feasible"],
-        computation_time=out["computation_time"],
-        activity_list=out.get("activity_list"),
-        safety_buffer_frac=safety_buffer_frac,
-    )
-    return greedy_result.to_dict()
-
-
 def main() -> int:
     # Capture invocation cwd so we can resolve relative instance paths robustly
     invocation_cwd = os.getcwd()
@@ -215,14 +149,13 @@ def main() -> int:
     script_dir = os.path.dirname(os.path.abspath(__file__))
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=["labeling", "greedy"], required=True)
+    parser.add_argument("--mode", choices=["labeling"], required=True)
     parser.add_argument("--instance_name", required=True)
     parser.add_argument("--instance_path", required=True)
     parser.add_argument("--consumption", type=float, required=True)
     parser.add_argument("--distance_per_cs", type=float, required=True)
     parser.add_argument("--battery_cap", type=float, required=True)
     parser.add_argument("--charging_power", type=float, required=True)
-    parser.add_argument("--safety_buffer_frac", type=float, default=0.10)
     args = parser.parse_args()
 
     instance_path = args.instance_path
@@ -232,25 +165,14 @@ def main() -> int:
     # Switch to script directory after resolving instance path
     # Inputs are absolute paths; no process-wide directory change.
 
-    if args.mode == "labeling":
-        result = run_labeling_one(
-            instance_name=args.instance_name,
-            instance_path=instance_path,
-            consumption=args.consumption,
-            distance_per_cs=args.distance_per_cs,
-            battery_cap=args.battery_cap,
-            charging_power=args.charging_power,
-        )
-    else:
-        result = run_greedy_one(
-            instance_name=args.instance_name,
-            instance_path=instance_path,
-            consumption=args.consumption,
-            distance_per_cs=args.distance_per_cs,
-            battery_cap=args.battery_cap,
-            charging_power=args.charging_power,
-            safety_buffer_frac=args.safety_buffer_frac,
-        )
+    result = run_labeling_one(
+        instance_name=args.instance_name,
+        instance_path=instance_path,
+        consumption=args.consumption,
+        distance_per_cs=args.distance_per_cs,
+        battery_cap=args.battery_cap,
+        charging_power=args.charging_power,
+    )
 
     print(json.dumps(result))
     return 0

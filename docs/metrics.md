@@ -3,10 +3,10 @@
 # Metrics Calculation Rules for TDSPEVRP Algorithms
 
 ## Overview
-This document defines the rules for calculating activity and synchronization metrics consistently across all three algorithms:
-1. **Full Recharge** (enhanced_main.py)
-2. **Partial Recharge** (enhanced_main.py)  
-3. **Greedy Scheduler** (greedy_scheduler.py)
+This document defines the rules for calculating activity and synchronization metrics consistently across:
+1. **Full Recharge**
+2. **Partial Recharge**
+3. **Driver heuristic**
 
 ## Core Metrics
 
@@ -20,7 +20,7 @@ This document defines the rules for calculating activity and synchronization met
 
 **Implementation**: 
 - For Full/Partial: Parse `label.activityList` and count activity types
-- For Greedy: Count from `activity_list` returned by `greedy_scheduler()`
+- For the driver heuristic: count from the exported activity timeline
 
 ---
 
@@ -104,31 +104,9 @@ If `total_charges == 0`, then `percentage = 0.0`.
 
 ---
 
-### Greedy Scheduler
-
-**Source**: `activity_list` returned by `greedy_scheduler()` function
-
-**Current Implementation**:
-- Tracks `num_synchronized_events` when `enforce_with_sync_at_cs()` returns `True`
-- This happens when break/rest is applied overlapping with charging
-
-**What's Missing**:
-- `number_of_unsynchronized_charging_events`
-- `number_of_unsynchronized_breaks`
-- `number_of_unsynchronized_rests`
-- `total_idle_charging_time_minutes`
-- `percentage_of_charging_events_synchronized`
-
-**Recommended Fix**:
-- Post-process `activity_list` similar to Full/Partial algorithms
-- Build timeline and calculate overlaps
-- Add missing metrics to `GreedySchedulerResult` class
-
----
-
 ## Consistency Requirements
 
-All three algorithms must:
+The paper methods must:
 1. Use the **same time overlap definition** for synchronization
 2. Calculate metrics from the **actual activity timeline** (not assumptions)
 3. Report metrics in the **same units** (minutes for time, counts for events)

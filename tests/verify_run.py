@@ -15,8 +15,8 @@ def stable(row):
 def verify(folder):
     original = json.loads((ROOT / "tests/fixtures/policy_baseline.json").read_text(encoding="utf-8"))
     rows = [json.loads(line) for line in (Path(folder) / "results.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
-    assert len(rows) == 5, f"Expected five EV scenarios, got {len(rows)}"
-    names = {"partial_labeling": "Partial Recharge/labeling/None", "full_labeling": "Full Recharge/labeling/None", "greedy": "Partial Recharge/greedy/None"}
+    assert len(rows) == 4, f"Expected four EV scenarios, got {len(rows)}"
+    names = {"partial_labeling": "Partial Recharge/labeling/None", "full_labeling": "Full Recharge/labeling/None"}
     for row in rows:
         key = names.get(row["_runner_algorithm"], "Partial Recharge/driver/" + str(row.get("policy")))
         expected, actual = stable(original[key]), stable(row)

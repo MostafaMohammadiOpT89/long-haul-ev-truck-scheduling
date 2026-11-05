@@ -8,13 +8,6 @@
       },
       "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
     },
-    "base_greedy": {
-      "selection": {
-        "path": "output/runs/details.jsonl",
-        "source_id": "greedy"
-      },
-      "sha256": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
-    },
     "base_partial_json": {
       "selection": {
         "path": "output/runs/details.jsonl",
@@ -82,7 +75,6 @@
       "policies/heuristics/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "policies/heuristics/driver.py": "8e217d5e5a15f8116be86c16d7ca21b545bbf32f7aafdffaded6c46837939251",
       "policies/heuristics/driver_runner.py": "c396f283d55310f7420f753dcc59b55492162cb5f8694e4cf561611f24276a2b",
-      "policies/heuristics/old/greedy.py": "5cf842da6e8b5eb02875663d3b7a13e7855bae1ae186a4678397237d960051d9",
       "policies/labeling/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "policies/labeling/full_recharge/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "policies/labeling/full_recharge/dominate.py": "a891fd4b678eb8c23b14b704b64354df3439abb20de609ec6ffc15e5844fba09",

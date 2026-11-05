@@ -4,19 +4,13 @@ Start with `output/runs/summary.csv`. Each row describes one instance,
 vehicle/scenario parameterization, and policy parameterization. The readable
 `model_run_id` joins to one line in `output/runs/details.jsonl`.
 
-All 45 stored instances are included for every observed joint parameter/policy
-setting, plus five electric policy variants at the confirmed paper base. Those
-five placeholders use partial labeling, full labeling, greedy (0.1 safety
-buffer), and driver full/overlap (1-hour synchronization horizon); heuristic
-settings are provisional defaults. This is not a cross-product of arbitrary
-individual parameter values. `record_status=no_record_available` means that
-outcomes are blank and the details have no observations, not that a run failed
-or the instance is infeasible. Planned base rows have a separate input-version
-label and do not assert that historical inputs match today's files.
+The paper comparison uses 43 instances (`instances/PAPER_INSTANCE_SET_43.txt`).
+The stored generator pool has 45 folders; `short_cl2_cu2_Balanced` and
+`short_cl2_cu2_Unbalanced` are not in the paper. `record_status=no_record_available`
+means outcomes are blank, not that a run failed or the instance is infeasible.
 
-No instances have been excluded pending colleague confirmation. Membership
-flags describe the appendix and saved base case independently. See
-[benchmark_membership.md](benchmark_membership.md) for the unresolved problem.
+Paper methods: partial labeling, full labeling, driver heuristic (full / overlap).
+See [benchmark_membership.md](benchmark_membership.md).
 
 The summary contains battery capacity, charging power, station spacing, energy
 consumption, policy name, charging policy, synchronization horizon and safety

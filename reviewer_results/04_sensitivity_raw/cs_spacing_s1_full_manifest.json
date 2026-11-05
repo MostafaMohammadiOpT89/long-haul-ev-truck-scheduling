@@ -1,0 +1,13 @@
+{
+  "runid": "cs_spacing_s1_full",
+  "created_at": "2026-06-12T11:45:33",
+  "preset": "full",
+  "include_diesel_lb": false,
+  "instance_filter": [],
+  "algorithms": [
+    "full_labeling"
+  ],
+  "num_jobs": 405,
+  "jobs_dir": "cluster/jobs/cs_spacing_s1_full",
+  "project_root": "/home/mostafm/projects/EV_New_Project/Code_AllScenarios"
+}

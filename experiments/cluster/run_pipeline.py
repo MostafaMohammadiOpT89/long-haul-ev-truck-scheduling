@@ -34,7 +34,7 @@ def main() -> int:
         "--algorithms",
         default="",
         help=(
-            "Comma-separated subset passed to create_jobs.py: partial_labeling, full_labeling, greedy, driver_heuristic. "
+            "Comma-separated subset passed to create_jobs.py: partial_labeling, full_labeling, driver_heuristic. "
             "Default: all."
         ),
     )

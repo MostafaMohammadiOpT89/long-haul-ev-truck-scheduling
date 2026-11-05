@@ -1,17 +1,17 @@
 # Long-haul electric truck scheduling
 
-Scheduling along prescribed routes, coordinating charging, driver breaks and daily rests. The repository contains full- and partial-recharge labeling algorithms, a greedy baseline, a driver-inspired heuristic, and the experiments and analyses used in the manuscript.
+Scheduling along prescribed routes, coordinating charging, driver breaks and daily rests. The repository contains full- and partial-recharge labeling algorithms, a driver-inspired heuristic, and the experiments and analyses used in the manuscript.
 
 ## Repository layout
 
 | Directory | Contents |
 |---|---|
 | `manuscript/` | Manuscript PDF; editable manuscript sources were not present in the inherited checkout |
-| `instances/benchmark_v1/` | Authoritative inherited benchmark: 45 instances, 227 files |
+| `instances/benchmark_v1/` | Generated instance folders (45). Paper set is 43; see `instances/PAPER_INSTANCE_SET_43.txt` |
 | `instances/generator/` | Main clustered-route generator |
 | `legacy/instances/alternative_generator_output/` | Differing generator data; shared files are referenced through `instances/catalog.csv` |
 | `policies/labeling/` | Separate full- and partial-recharge implementations |
-| `policies/heuristics/` | Greedy and driver-inspired policies |
+| `policies/heuristics/` | Driver-inspired heuristic |
 | `common/` | Shared input loading, paths, and analysis metrics |
 | `experiments/` | Local execution, explicit JSON configurations, exports, provenance, and cluster execution |
 | `analysis/` | Base-case, sensitivity, heuristic comparison, instance visualization, and paper tables |
@@ -31,9 +31,13 @@ python -m pip install -e .
 
 This project is intended for an editable source checkout: inputs and output directories live alongside the Python packages.
 
+## Paper computational archive
+
+`reviewer_results/` is the locked paper comparison on 43 instances: Full recharge, Partial recharge, Driver heuristic (full-charge and overlap-only), and the diesel proxy. Use that folder for manuscript numbers.
+
 ## Run an experiment
 
-Start with one short instance across all methods (five EV schedules):
+Start with one short instance across the paper methods (Full, Partial, Driver_FC, Driver_OO):
 
 ```sh
 python -m experiments.run --preset paper_base --instances short_cl1_cu2 --no_diesel
@@ -97,7 +101,7 @@ python -m tests.test_driver_heuristic
 python -m tests.verify_run output/executions/paper_base_<timestamp>
 ```
 
-The last command checks the five-scenario short-instance run above against pre-migration results, excluding execution-time/profiling fields. The driver tests replay both policies on all 45 instances.
+The last command checks a short-instance paper-base run against pre-migration results, excluding execution-time/profiling fields. The driver tests replay both policies on the stored instances.
 
 Imported results and figures are preserved for traceability. New runs, generated analyses, and temporary reconstructions are ignored by Git by default; explicitly promote selected research artifacts when needed. Do not copy result files into the analysis source directory.
 

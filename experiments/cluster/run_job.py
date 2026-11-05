@@ -111,10 +111,6 @@ def _job_to_child_args(job: Job) -> tuple[Path, Path, List[str]]:
         child = FULL_SINGLE_SCENARIO
         cwd = FULL_DIR
         mode = "labeling"
-    elif job.algorithm == "greedy":
-        child = PARTIAL_SINGLE_SCENARIO
-        cwd = PARTIAL_DIR
-        mode = "greedy"
     elif job.algorithm == "driver_heuristic":
         child = DRIVER_HEURISTIC_RUNNER
         cwd = PARTIAL_DIR
@@ -137,8 +133,6 @@ def _job_to_child_args(job: Job) -> tuple[Path, Path, List[str]]:
         "--charging_power",
         str(job.charging_power),
     ]
-    if mode == "greedy":
-        args += ["--safety_buffer_frac", str(job.safety_buffer_frac if job.safety_buffer_frac is not None else 0.10)]
     if job.algorithm == "driver_heuristic":
         args += ["--policy", job.policy or "full"]
         if job.t_sync_hours is not None:

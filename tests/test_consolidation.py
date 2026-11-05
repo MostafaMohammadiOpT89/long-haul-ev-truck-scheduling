@@ -54,13 +54,15 @@ class ConsolidationTests(unittest.TestCase):
             for index, record in enumerate(original):
                 self.assertEqual(encode(record), restored[index])
 
-    def test_benchmark_disagreement_is_exposed(self):
+    def test_paper_instance_set_is_locked(self):
+        paper = {ln.strip() for ln in (ROOT / 'instances/PAPER_INSTANCE_SET_43.txt').read_text(encoding='utf-8').splitlines() if ln.strip()}
         appendix = {r['instance_id'] for r in self.summary if r['in_current_appendix'] == 'True'}
         base = {r['instance_id'] for r in self.summary if r['in_saved_base_case'] == 'True'}
-        self.assertEqual(len(appendix), 43)
-        self.assertEqual(len(base), 43)
-        self.assertEqual(len(appendix & base), 41)
-        self.assertEqual(len(appendix | base), 45)
+        self.assertEqual(paper, appendix)
+        self.assertEqual(paper, base)
+        self.assertEqual(len(paper), 43)
+        self.assertNotIn('short_cl2_cu2_Balanced', paper)
+        self.assertNotIn('short_cl2_cu2_Unbalanced', paper)
 
 
 if __name__ == '__main__':

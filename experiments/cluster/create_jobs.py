@@ -19,7 +19,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, FrozenSet, List, Optional, Tuple
 
-ALLOWED_ALGORITHMS: FrozenSet[str] = frozenset({"partial_labeling", "full_labeling", "greedy", "driver_heuristic"})
+ALLOWED_ALGORITHMS: FrozenSet[str] = frozenset({"partial_labeling", "full_labeling", "driver_heuristic"})
 
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
@@ -36,7 +36,7 @@ import experiments.run as U
 @dataclass(frozen=True)
 class Job:
     job_id: str
-    algorithm: str  # partial_labeling | full_labeling | greedy | driver_heuristic
+    algorithm: str  # partial_labeling | full_labeling | driver_heuristic
     tag: str  # "" or "diesel_lb"
     instance_name: str
     instance_path: str  # path relative to ROOT_DIR (portable on cluster)
@@ -88,8 +88,6 @@ def _build_jobs(
 ) -> List[Job]:
     jobs: List[Job] = []
 
-    safety_fracs = preset["safety_buffer_fracs"]
-
     # Main grid (same enumeration as unified_experiment_runner.iter_preset_parameter_combinations)
     for instance_name, partial_path, full_path in instance_pairs:
         for cons, dcs, bc, cp in U.iter_preset_parameter_combinations(preset):
@@ -121,22 +119,6 @@ def _build_jobs(
                         charging_power=float(cp),
                     )
                 )
-            if "greedy" in algorithms:
-                for sb in safety_fracs:
-                    jobs.append(
-                        Job(
-                            job_id="",
-                            algorithm="greedy",
-                            tag="",
-                            instance_name=instance_name,
-                            instance_path=_rel(partial_path),
-                            consumption=float(cons),
-                            distance_per_cs=float(dcs),
-                            battery_cap=float(bc),
-                            charging_power=float(cp),
-                            safety_buffer_frac=float(sb),
-                        )
-                    )
             if "driver_heuristic" in algorithms:
                 for pol, sync in U.driver_options(preset):
                     jobs.append(
@@ -170,21 +152,6 @@ def _build_jobs(
                         distance_per_cs=dcs0,
                         battery_cap=float(U.DIESEL_BATTERY_CAP),
                         charging_power=cp0,
-                    )
-                )
-            if "greedy" in algorithms:
-                jobs.append(
-                    Job(
-                        job_id="",
-                        algorithm="greedy",
-                        tag="diesel_lb",
-                        instance_name=instance_name,
-                        instance_path=_rel(partial_path),
-                        consumption=cons0,
-                        distance_per_cs=dcs0,
-                        battery_cap=float(U.DIESEL_BATTERY_CAP),
-                        charging_power=cp0,
-                        safety_buffer_frac=float(U.DIESEL_SAFETY_BUFFER_FRAC),
                     )
                 )
             if "driver_heuristic" in algorithms:
@@ -229,7 +196,7 @@ def main() -> int:
         "--algorithms",
         default="",
         help=(
-            "Comma-separated subset of: partial_labeling, full_labeling, greedy, driver_heuristic. "
+            "Comma-separated subset of: partial_labeling, full_labeling, driver_heuristic. "
             "Default: all."
         ),
     )

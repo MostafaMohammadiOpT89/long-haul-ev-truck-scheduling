@@ -22,8 +22,7 @@
     },
     "diesel_lower_bound": {
       "enabled": true,
-      "battery_cap": 100000000,
-      "greedy_safety_buffer_frac": 0.0
+      "battery_cap": 100000000
     },
     "specific_instances_to_run": [
       "short_cl1_cu2"
@@ -249,115 +248,6 @@
       "percentage_of_charging_events_synchronized": 0.0,
       "_runner_timestamp": "20260208_131459",
       "_runner_algorithm": "partial_labeling",
-      "_runner_tag": "diesel_lb",
-      "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
-    },
-    {
-      "instance_id": "short_cl1_cu2",
-      "distance_per_cs": 60.0,
-      "battery_capacity": 100000000.0,
-      "charging_power": 350.0,
-      "consumption_rate": 1.49,
-      "total_time": 44.1499786563859,
-      "num_charges": 0,
-      "num_breaks": 5,
-      "num_rests": 2,
-      "num_synchronized_events": 0,
-      "num_unsynchronized_charging_events": 0,
-      "num_unsynchronized_breaks": 5,
-      "num_unsynchronized_rests": 2,
-      "total_idle_charging_time_minutes": 0.0,
-      "percentage_of_charging_events_synchronized": 0.0,
-      "feasible": true,
-      "computation_time": 7.748603820800781e-05,
-      "safety_buffer_frac": 0.0,
-      "synchronization_enabled": false,
-      "activity_timeline": [
-        {
-          "type": "break",
-          "start_time": 0.0,
-          "end_time": 0.75,
-          "duration_minutes": 45.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "break",
-          "start_time": 0.75,
-          "end_time": 1.5,
-          "duration_minutes": 45.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "drive",
-          "start_time": 1.5,
-          "end_time": 9.867337507141825,
-          "duration_minutes": 502.04025042850947,
-          "distance_km": 502.04025042850947
-        },
-        {
-          "type": "service",
-          "start_time": 9.867337507141825,
-          "end_time": 10.299037507141824,
-          "duration_minutes": 25.901999999999997
-        },
-        {
-          "type": "break",
-          "start_time": 10.299037507141824,
-          "end_time": 11.049037507141824,
-          "duration_minutes": 45.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "rest",
-          "start_time": 11.049037507141824,
-          "end_time": 22.049037507141826,
-          "duration_minutes": 660.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "drive",
-          "start_time": 22.049037507141826,
-          "end_time": 22.68186994817583,
-          "duration_minutes": 37.9699464620403,
-          "distance_km": 37.9699464620403
-        },
-        {
-          "type": "service",
-          "start_time": 22.68186994817583,
-          "end_time": 23.05396994817583,
-          "duration_minutes": 22.326
-        },
-        {
-          "type": "break",
-          "start_time": 23.05396994817583,
-          "end_time": 23.80396994817583,
-          "duration_minutes": 45.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "rest",
-          "start_time": 23.80396994817583,
-          "end_time": 34.80396994817583,
-          "duration_minutes": 660.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "break",
-          "start_time": 34.80396994817583,
-          "end_time": 35.55396994817583,
-          "duration_minutes": 45.0,
-          "location": "Rest Area"
-        },
-        {
-          "type": "drive",
-          "start_time": 35.55396994817583,
-          "end_time": 44.1499786563859,
-          "duration_minutes": 515.7605224926036,
-          "distance_km": 515.7605224926036
-        }
-      ],
-      "_runner_timestamp": "20260208_131459",
-      "_runner_algorithm": "greedy",
       "_runner_tag": "diesel_lb",
       "_runner_source_dir": "C:\\Users\\mostafm\\OneDrive - NTNU\\Desktop\\MyFiles\\TDSPEVRP\\Code_AllScenarios\\Partial Recharge\\EVTDSPalgorithmmain"
     }

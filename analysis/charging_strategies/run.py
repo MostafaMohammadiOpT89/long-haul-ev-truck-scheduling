@@ -4,7 +4,7 @@ Analyzes only the base scenario. No sensitivity analysis.
 Output: figures/, tables/, Post_Analysis_Report_BaseScenario.md
 
 Data structure (unified_results_*.csv):
-- _runner_algorithm: greedy | partial_labeling | full_labeling
+- _runner_algorithm: partial_labeling | full_labeling
 - _runner_tag: nan | diesel_lb (Diesel LB when tag=diesel_lb)
 - instance_id / test_bed_id: instance identifier (TB_ prefix stripped for instance_clean)
 - Route time: total_route_time_hours (Full, Partial, Diesel) OR total_time (Greedy)
@@ -101,13 +101,13 @@ DIAG_NEAR_DIESEL_MAX_COUNT = 6
 ROUTE_SUMMARY_STRAT_PREFIX = {
     "Full": "full",
     "Partial": "partial",
-    "Greedy": "greedy",
     "Partial_Diesel_LB": "diesel_proxy",
 }
 
-# Drop these instances after load (same strings as instance_clean, i.e. instance_id with TB_ removed).
-# Edit this tuple to control which tests are excluded from figures, tables, and the report.
-EXCLUDED_INSTANCE_IDS: tuple[str, ...] = ()
+EXCLUDED_INSTANCE_IDS: tuple[str, ...] = (
+    "short_cl2_cu2_Unbalanced",
+    "short_cl2_cu2_Balanced",
+)
 # (
 #     "short_cl2_cu2_Unbalanced",
 #     "short_cl2_cu2_Balanced",
@@ -134,7 +134,7 @@ def load_csv(filepath):
     from common.results import read_frame
     df = read_frame(filepath)
     if Path(filepath).suffix in (".jsonl", ".json") and "_runner_algorithm" in df:
-        df = df[df["_runner_algorithm"].isin(["partial_labeling", "full_labeling", "greedy"])].copy()
+        df = df[df["_runner_algorithm"].isin(["partial_labeling", "full_labeling"])].copy()
     df = df.loc[:, ~df.columns.duplicated()]
     col_map = {
         'computation_time_seconds': 'computation_time_sec',
@@ -153,7 +153,7 @@ def get_strategy(row):
     algo = str(row.get('_runner_algorithm', '')).lower()
     tag = str(row.get('_runner_tag', '')).lower()
     if tag == 'diesel_lb':
-        return 'Partial_Diesel_LB' if 'partial' in algo else 'Greedy_Diesel_LB'
+        return 'Partial_Diesel_LB'
     if 'full' in algo:
         return 'Full'
     if 'partial' in algo:
@@ -161,8 +161,6 @@ def get_strategy(row):
         if b is not None and b >= DIESEL_PROXY_BATTERY_KWH_MIN:
             return 'Partial_Diesel_LB'
         return 'Partial'
-    if 'greedy' in algo:
-        return 'Greedy'
     return 'Other'
 
 
@@ -256,9 +254,6 @@ def attach_instance_ids_to_comparisons(comp: dict, id_map_df: pd.DataFrame) -> d
 def load_base_data():
     """Load base scenario only."""
     base = load_csv(input_source("base_unified"))
-    if not base.empty and '_runner_algorithm' in base.columns:
-        if not base['_runner_algorithm'].astype(str).str.contains('greedy', case=False).any():
-            base = pd.concat([base, load_csv(input_source("base_greedy"))], ignore_index=True, sort=False)
 
     if base.empty:
         return base
@@ -306,8 +301,8 @@ def exclude_instances_from_base(base: pd.DataFrame) -> pd.DataFrame:
 
 
 # --- Four main strategies for analysis ---
-STRATEGIES = ['Full', 'Partial', 'Greedy', 'Partial_Diesel_LB']
-STRATEGY_LABELS = {'Full': 'Full Recharge', 'Partial': 'Partial Recharge', 'Greedy': 'Greedy',
+STRATEGIES = ['Full', 'Partial', 'Partial_Diesel_LB']
+STRATEGY_LABELS = {'Full': 'Full Recharge', 'Partial': 'Partial Recharge',
                    'Partial_Diesel_LB': 'Diesel proxy (high battery)'}
 
 
@@ -369,7 +364,7 @@ def build_strat_data(base: pd.DataFrame) -> dict[str, pd.DataFrame]:
     ev_mask = base_scenario_ev_mask(base)
     base_ev = base.loc[ev_mask]
     out: dict[str, pd.DataFrame] = {}
-    for s in ("Full", "Partial", "Greedy"):
+    for s in ("Full", "Partial"):
         sub = base_ev[base_ev["strategy"] == s].drop_duplicates("instance_clean", keep="first")
         out[s] = sub
     sub = base.loc[base["strategy"] == "Partial_Diesel_LB"].drop_duplicates(
@@ -400,8 +395,7 @@ def route_summary_config_caption() -> str:
         f"battery {BASE_SCENARIO_BATTERY_KWH:g} kWh, CS spacing {BASE_SCENARIO_CS_INTERVAL_KM:g} km, "
         f"charging power {BASE_SCENARIO_CHARGING_POWER_KW:g} kW, consumption "
         f"{BASE_SCENARIO_CONSUMPTION_KWH_PER_KM:g} kWh/km. "
-        "Diesel proxy = partial_labeling with very large battery (unconstrained lower bound). "
-        "Greedy uses the appended/unified greedy run parameters (may differ if greedy comes from another export)."
+        "Diesel proxy = partial_labeling with very large battery (unconstrained lower bound)."
     )
 
 
@@ -1867,7 +1861,7 @@ def write_report(comp, size_df, balance_df, report_path):
     lines = []
     lines.append("# Base-Scenario Post-Analysis: EV Routing Strategies")
     lines.append("")
-    lines.append("Solution time and optimality: Full vs Partial vs Greedy vs Diesel LB.")
+    lines.append("Solution time and optimality: Full vs Partial vs diesel proxy.")
     lines.append("")
     lines.append("---")
     lines.append("")
@@ -1938,7 +1932,7 @@ def write_report(comp, size_df, balance_df, report_path):
     lines.append("---")
     lines.append("")
 
-    lines.append("## 4. Comparisons: Full vs Partial, Partial vs Greedy, Partial vs Diesel LB")
+    lines.append("## 4. Comparisons: Full vs Partial, Partial vs diesel proxy")
     lines.append("")
     if any(k in comp for k in ['full_vs_partial', 'partial_vs_greedy', 'partial_vs_diesel']):
         lines.append("**Figure 2a â€” Mean route time (aggregated)**")

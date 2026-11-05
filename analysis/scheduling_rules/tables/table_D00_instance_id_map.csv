@@ -1,8 +1,6 @@
 id,instance_clean
 S_cl1_cu2_B,short_cl1_cu2
 S_cl1_cu4_B,short_cl1_cu4
-S_cl2_cu2_B,short_cl2_cu2_Balanced
-S_cl2_cu2_U,short_cl2_cu2_Unbalanced
 S_cl2_cu3_B,short_cl2_cu3_Balanced
 S_cl2_cu4_B,short_cl2_cu4_Balanced
 S_cl2_cu4_U,short_cl2_cu4_Unbalanced

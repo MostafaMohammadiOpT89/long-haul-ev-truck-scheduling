@@ -1,21 +1,20 @@
 """
 Driver-heuristic post-analysis (base scenario).
 
-Compares the driver-inspired sequential heuristic (two charging policies) with the existing strategies:
-Full recharge (labeling), Partial recharge (labeling), Greedy scheduler and the diesel proxy
-(partial labeling with a very large battery).
+Compares the driver-inspired sequential heuristic (two charging policies) with
+Full recharge, Partial recharge, and the diesel proxy.
 
 Inputs pinned by analysis/configs/paper_inputs.json:
-  - unified_results_*.csv (+ greedy_results_*.csv)            -> loaded through analyze.py (unchanged logic)
-  - driver_heuristic_results_<timestamp>.csv                    -> latest headline run (default t_sync)
-  - driver_heuristic_results_tsync_sweep_<timestamp>.csv        -> optional t_sync sensitivity sweep
+  - unified_results / details.jsonl -> Full, Partial, diesel
+  - driver_heuristic_results        -> headline run (default t_sync)
+  - driver_heuristic_results_tsync_sweep -> optional t_sync sweep
 
 Outputs:
   analysis/scheduling_rules/figures/*.png
   analysis/scheduling_rules/tables/*.csv
   analysis/scheduling_rules/report.md
 
-Strategy keys used here: Full, Partial, Greedy, Driver_FC (full-charge policy), Driver_OO (overlap-only policy),
+Strategy keys used here: Full, Partial, Driver_FC (full-charge policy), Driver_OO (overlap-only policy),
 Partial_Diesel_LB. Driver rows are restricted to the EV base configuration (battery/CS spacing/power/consumption
 equal to analyze.BASE_SCENARIO_*) and to HEADLINE_T_SYNC_HOURS when the file contains several t_sync values.
 
@@ -49,11 +48,10 @@ TBL_DIR.mkdir(parents=True, exist_ok=True)
 # distance_per_cs / 60 km/h (= 1.0 h at the base scenario).
 HEADLINE_T_SYNC_HOURS: float | None = None
 
-STRATEGIES = ["Full", "Partial", "Greedy", "Driver_FC", "Driver_OO", "Partial_Diesel_LB"]
+STRATEGIES = ["Full", "Partial", "Driver_FC", "Driver_OO", "Partial_Diesel_LB"]
 LABELS = {
     "Full": "Full Recharge",
     "Partial": "Partial Recharge",
-    "Greedy": "Greedy",
     "Driver_FC": "Driver heuristic (full charge)",
     "Driver_OO": "Driver heuristic (overlap-only)",
     "Partial_Diesel_LB": "Diesel proxy (high battery)",
@@ -61,14 +59,13 @@ LABELS = {
 COLORS = {
     "Full": "#5B8FA3",
     "Partial": "#E07B4D",
-    "Greedy": "#4A7C59",
     "Driver_FC": "#6B3FA0",
     "Driver_OO": "#B98BD1",
     "Partial_Diesel_LB": "#C9A227",
 }
 POLICY_TO_STRATEGY = {"full": "Driver_FC", "overlap": "Driver_OO"}
 
-# metric name candidates per strategy family (labeling / greedy / driver)
+# metric name candidates per strategy family (labeling / driver)
 METRIC_CANDIDATES = {
     "n_charges": ("number_of_cs_stops", "num_charges"),
     "n_breaks": ("number_of_breaks", "num_breaks"),
@@ -226,12 +223,9 @@ COMPARISON_PAIRS = [
     ("Driver_OO", "Partial", "Partial vs Driver (overlap-only)"),
     ("Driver_FC", "Full", "Full vs Driver (full charge)"),
     ("Driver_OO", "Full", "Full vs Driver (overlap-only)"),
-    ("Greedy", "Driver_FC", "Driver (full charge) vs Greedy"),
-    ("Greedy", "Driver_OO", "Driver (overlap-only) vs Greedy"),
     ("Driver_FC", "Driver_OO", "Driver overlap-only vs Driver full charge"),
     ("Driver_FC", "Partial_Diesel_LB", "Diesel proxy vs Driver (full charge)"),
     ("Driver_OO", "Partial_Diesel_LB", "Diesel proxy vs Driver (overlap-only)"),
-    ("Greedy", "Partial", "Partial vs Greedy (reference)"),
     ("Partial", "Partial_Diesel_LB", "Diesel proxy vs Partial (reference)"),
 ]
 
@@ -269,13 +263,12 @@ def table_per_instance(rt: pd.DataFrame, id_by: dict[str, str]) -> pd.DataFrame:
     df.insert(2, "problem_size", [A.get_problem_size(i) for i in df.index])
     df.insert(3, "balance", [A.get_balance(i) for i in df.index])
     df = df.rename(columns={s: f"{s.lower()}_route_h" for s in STRATEGIES})
-    p, f, g, d = (df["partial_route_h"], df["full_route_h"], df["greedy_route_h"], df["partial_diesel_lb_route_h"])
+    p, f, d = (df["partial_route_h"], df["full_route_h"], df["partial_diesel_lb_route_h"])
     for key in ("driver_fc", "driver_oo"):
         x = df[f"{key}_route_h"]
         df[f"{key}_minus_partial_min"] = (x - p) * 60.0
         df[f"{key}_pct_slower_than_partial"] = (x - p) / p * 100.0
         df[f"{key}_pct_slower_than_full"] = (x - f) / f * 100.0
-        df[f"{key}_pct_faster_than_greedy"] = (g - x) / g * 100.0
         df[f"{key}_ev_gap_pct_vs_diesel"] = (x - d) / d * 100.0
     df["driver_oo_pct_faster_than_fc"] = (df["driver_fc_route_h"] - df["driver_oo_route_h"]) / df["driver_fc_route_h"] * 100.0
     num = df.select_dtypes(include=[float]).columns
@@ -297,10 +290,6 @@ def table_by_group(rt: pd.DataFrame, group_fn, group_col: str, order: list[str])
             m = sub[[key, "Partial"]].dropna()
             row[f"{key.lower()}_pct_slower_than_partial"] = (
                 round(float(((m[key] - m["Partial"]) / m["Partial"] * 100).mean()), 3) if not m.empty else np.nan
-            )
-            m = sub[[key, "Greedy"]].dropna()
-            row[f"{key.lower()}_pct_faster_than_greedy"] = (
-                round(float(((m["Greedy"] - m[key]) / m["Greedy"] * 100).mean()), 3) if not m.empty else np.nan
             )
             m = sub[[key, "Partial_Diesel_LB"]].dropna()
             row[f"{key.lower()}_ev_gap_pct_vs_diesel"] = (
@@ -357,15 +346,13 @@ def table_driver_rules(driver: pd.DataFrame, id_by: dict[str, str]) -> pd.DataFr
 
 
 def table_tsync_sensitivity(sweep: pd.DataFrame, rt: pd.DataFrame) -> pd.DataFrame:
-    """Mean route time per t_sync and policy over the instances common with Partial; gaps vs Partial / Greedy."""
+    """Mean route time per t_sync and policy over the instances common with Partial."""
     sweep = sweep[sweep["feasible"]] if "feasible" in sweep.columns else sweep
     rows = []
     partial = rt["Partial"].dropna()
-    greedy = rt["Greedy"].dropna()
     for (t, pol), g in sweep.groupby(["t_sync_hours", "policy"]):
         s = g.set_index("instance_clean")["route_time"]
         common_p = s.index.intersection(partial.index)
-        common_g = s.index.intersection(greedy.index)
         rows.append(
             {
                 "t_sync_hours": float(t),
@@ -376,11 +363,6 @@ def table_tsync_sensitivity(sweep: pd.DataFrame, rt: pd.DataFrame) -> pd.DataFra
                 "mean_pct_slower_than_partial": (
                     round(float(((s.loc[common_p] - partial.loc[common_p]) / partial.loc[common_p] * 100).mean()), 3)
                     if len(common_p)
-                    else np.nan
-                ),
-                "mean_pct_faster_than_greedy": (
-                    round(float(((greedy.loc[common_g] - s.loc[common_g]) / greedy.loc[common_g] * 100).mean()), 3)
-                    if len(common_g)
                     else np.nan
                 ),
                 "mean_charges": round(float(g["num_charges"].mean()), 3),
@@ -458,13 +440,11 @@ def fig_per_instance_gaps(rt: pd.DataFrame, id_by: dict[str, str]) -> None:
     instances = list(rt.index)
     x = np.arange(len(instances))
     w = 0.38
-    fig, axes = plt.subplots(3, 1, figsize=(max(10, len(instances) * 0.3), 12.5), gridspec_kw={"hspace": 0.45})
+    fig, axes = plt.subplots(2, 1, figsize=(max(10, len(instances) * 0.3), 8.5), gridspec_kw={"hspace": 0.45})
 
     panels = [
         ("Per-instance: driver heuristic time relative to Partial (positive = slower than Partial)",
          "% slower than Partial", lambda s: (rt[s] - rt["Partial"]) / rt["Partial"] * 100.0),
-        ("Per-instance: driver heuristic improvement over Greedy (positive = faster than Greedy)",
-         "Improvement % vs Greedy", lambda s: (rt["Greedy"] - rt[s]) / rt["Greedy"] * 100.0),
         ("Per-instance: EV time gap vs diesel proxy (positive = slower than diesel proxy)",
          "EV gap % vs diesel proxy", lambda s: (rt[s] - rt["Partial_Diesel_LB"]) / rt["Partial_Diesel_LB"] * 100.0),
     ]
@@ -492,19 +472,15 @@ def fig_boxplots(rt: pd.DataFrame) -> None:
     panels = [
         ("Driver FC\nvs Partial", (rt["Driver_FC"] - rt["Partial"]) / rt["Partial"] * 100, COLORS["Driver_FC"]),
         ("Driver OO\nvs Partial", (rt["Driver_OO"] - rt["Partial"]) / rt["Partial"] * 100, COLORS["Driver_OO"]),
-        ("Greedy\nvs Partial", (rt["Greedy"] - rt["Partial"]) / rt["Partial"] * 100, COLORS["Greedy"]),
-        ("Driver FC\nvs Greedy", (rt["Greedy"] - rt["Driver_FC"]) / rt["Greedy"] * 100, COLORS["Driver_FC"]),
-        ("Driver OO\nvs Greedy", (rt["Greedy"] - rt["Driver_OO"]) / rt["Greedy"] * 100, COLORS["Driver_OO"]),
         ("Driver FC\nvs diesel", (rt["Driver_FC"] - rt["Partial_Diesel_LB"]) / rt["Partial_Diesel_LB"] * 100, COLORS["Driver_FC"]),
         ("Driver OO\nvs diesel", (rt["Driver_OO"] - rt["Partial_Diesel_LB"]) / rt["Partial_Diesel_LB"] * 100, COLORS["Driver_OO"]),
         ("Partial\nvs diesel", (rt["Partial"] - rt["Partial_Diesel_LB"]) / rt["Partial_Diesel_LB"] * 100, COLORS["Partial"]),
     ]
     groups = [
-        ("% slower than Partial (positive = slower)", panels[0:3]),
-        ("Improvement % over Greedy (positive = faster)", panels[3:5]),
-        ("EV gap % vs diesel proxy (positive = slower)", panels[5:8]),
+        ("% slower than Partial (positive = slower)", panels[0:2]),
+        ("EV gap % vs diesel proxy (positive = slower)", panels[2:5]),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(13, 4.8))
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8))
     for ax, (ylabel, items) in zip(axes, groups):
         data = [p[1].dropna().to_numpy(dtype=float) for p in items]
         bp = ax.boxplot(data, widths=0.5, patch_artist=True, showfliers=True,
@@ -623,8 +599,7 @@ def fig_tsync_sensitivity(tsync: pd.DataFrame, rt: pd.DataFrame, t_used: float |
     for key in ("Driver_FC", "Driver_OO"):
         d = tsync[tsync["policy"] == key].sort_values("t_sync_hours")
         ax.plot(d["t_sync_hours"], d["mean_route_h_common_with_partial"], marker="o", color=COLORS[key], label=LABELS[key])
-    common = rt[["Partial", "Greedy", "Full"]].dropna()
-    for key, ls in (("Partial", "--"), ("Full", ":"), ("Greedy", "-.")):
+    for key, ls in (("Partial", "--"), ("Full", ":")):
         if key in rt.columns and rt[key].notna().any():
             ax.axhline(rt[key].mean(), color=COLORS[key], linestyle=ls, linewidth=1.3, label=f"{LABELS[key]} (mean)")
     if t_used is not None:
@@ -641,8 +616,7 @@ def fig_tsync_sensitivity(tsync: pd.DataFrame, rt: pd.DataFrame, t_used: float |
 
 # ----------------------------------------------------------------------------- report
 def write_report(comps: pd.DataFrame, by_size: pd.DataFrame, summary: pd.DataFrame, tsync: pd.DataFrame,
-                 headline_file: Path, t_used: float | None, n_instances: int, n_driver_infeasible: int,
-                 greedy_note: str) -> None:
+                 headline_file: Path, t_used: float | None, n_instances: int, n_driver_infeasible: int) -> None:
     L: list[str] = []
     L.append("# Base-scenario post-analysis: driver-inspired sequential heuristic")
     L.append("")
@@ -650,9 +624,6 @@ def write_report(comps: pd.DataFrame, by_size: pd.DataFrame, summary: pd.DataFra
              f"policies: full charge = `Driver_FC`, overlap-only = `Driver_OO`).")
     L.append(f"EV configuration: {A.route_summary_config_caption()}")
     L.append(f"Instances compared: {n_instances}. Infeasible driver-heuristic rows dropped: {n_driver_infeasible}.")
-    if greedy_note:
-        L.append("")
-        L.append(f"**Note on Greedy:** {greedy_note}")
     L.append("")
     L.append("## 1. Summary of comparisons (candidate advantage over reference = (ref - cand)/ref)")
     L.append("")
@@ -667,9 +638,9 @@ def write_report(comps: pd.DataFrame, by_size: pd.DataFrame, summary: pd.DataFra
     L.append("## 2. By problem size")
     L.append("")
     if not by_size.empty:
-        cols = ["problem_size", "n_instances", "mean_full_h", "mean_partial_h", "mean_greedy_h", "mean_driver_fc_h",
+        cols = ["problem_size", "n_instances", "mean_full_h", "mean_partial_h", "mean_driver_fc_h",
                 "mean_driver_oo_h", "mean_partial_diesel_lb_h", "driver_fc_pct_slower_than_partial",
-                "driver_oo_pct_slower_than_partial", "driver_fc_pct_faster_than_greedy", "driver_oo_pct_faster_than_greedy"]
+                "driver_oo_pct_slower_than_partial"]
         slim = by_size[[c for c in cols if c in by_size.columns]]
         try:
             L.append(slim.to_markdown(index=False))
@@ -758,19 +729,6 @@ def main() -> int:
     id_by = dict(zip(id_map["instance_clean"].astype(str), id_map["id"].astype(str)))
     rt = route_time_matrix(sd, instances)
 
-    # Greedy configuration note (greedy rows may come from a different run / charging power)
-    greedy_note = ""
-    g = sd.get("Greedy")
-    if g is not None and not g.empty:
-        cp = pd.to_numeric(g.get("charging_power"), errors="coerce") if "charging_power" in g.columns else None
-        if cp is not None and cp.notna().any() and not np.isclose(cp.dropna().unique(), A.BASE_SCENARIO_CHARGING_POWER_KW).all():
-            greedy_note = (
-                f"the Greedy rows in the base-scenario folder were run with charging power "
-                f"{sorted(cp.dropna().unique().tolist())} kW, not {A.BASE_SCENARIO_CHARGING_POWER_KW:g} kW; "
-                "Greedy comparisons are therefore not at identical charging power."
-            )
-            print("Note: " + greedy_note)
-
     # Tables
     A._safe_dataframe_to_csv(id_map, TBL_DIR / "table_D00_instance_id_map.csv")
     comps = table_combined_comparisons(rt)
@@ -806,7 +764,7 @@ def main() -> int:
     fig_tsync_sensitivity(tsync, rt, t_used)
     print(f"Figures: {FIG_DIR}")
 
-    write_report(comps, by_size, summary, tsync, headline_file, t_used, len(instances), n_driver_infeasible, greedy_note)
+    write_report(comps, by_size, summary, tsync, headline_file, t_used, len(instances), n_driver_infeasible)
 
     # Console summary
     if not comps.empty:

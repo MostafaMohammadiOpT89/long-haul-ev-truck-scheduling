@@ -10,7 +10,7 @@ The initial inventory covered 2,426 files, excluding Git internals, caches, loca
 - Current local and cluster entry points use the same benchmark and experiment configurations. Subprocesses remain to isolate algorithm global state. The inherited computational runtime limits are preserved.
 - New results have one canonical JSONL store; flat CSV is a derived export. Completed scenarios are saved incrementally, and failure metadata is retained.
 - Analysis inputs are pinned explicitly. Imported result bytes, figures and tables remain historical snapshots. Paths embedded in their contents describe the original environment and are intentionally preserved; the migration manifest resolves original file locations.
-- Older `main.py`, debugging/batch runners, old test drivers, mapping tools and differing greedy code are retained under `legacy/code/`. These may contain obsolete paths and are not supported runnable commands. The Git history and manifest preserve their origins. Archived text excerpts retain removed standalone orchestration without another full copy of each policy.
+- Older `main.py`, debugging/batch runners, old test drivers and mapping tools are retained under `legacy/code/`. These may contain obsolete paths and are not supported runnable commands. The Git history and manifest preserve their origins. Archived text excerpts retain removed standalone orchestration without another full copy of each policy.
 - Existing result JSON/CSV representations were preserved. Semantically overlapping historical bundles were not deleted merely because one might contain a subset of another.
 - No commit, push, or remote repository update is part of this migration.
 
@@ -26,7 +26,7 @@ Remaining scientific choices are listed in `research_decisions.md`.
 
 ## Verification results
 
-- Five methods on `short_cl1_cu2` match pre-migration schedules and scientific metrics exactly (full labeling, partial labeling, greedy, driver full, driver overlap). Only timing/profiling and runner metadata are excluded.
+- Paper methods on `short_cl1_cu2` match pre-migration schedules and scientific metrics (full labeling, partial labeling, driver full, driver overlap). Only timing/profiling and runner metadata are excluded.
 - All 15 existing driver test functions pass, including both policies on all 45 instances.
 - Base-case, heuristic, sensitivity, paper-table, diagnostic-table and instance-visualization commands completed locally.
 - Cluster jobs were generated, executed locally and merged successfully. SSH dispatch itself was not run.

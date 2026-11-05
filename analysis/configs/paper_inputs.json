@@ -3,10 +3,6 @@
     "path": "output/runs/details.jsonl",
     "source_id": "base"
   },
-  "base_greedy": {
-    "path": "output/runs/details.jsonl",
-    "source_id": "greedy"
-  },
   "base_partial_json": {
     "path": "output/runs/details.jsonl",
     "source_id": "base",

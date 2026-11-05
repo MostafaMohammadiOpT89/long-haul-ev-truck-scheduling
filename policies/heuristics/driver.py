@@ -3,7 +3,7 @@
 Driver-inspired sequential heuristic (TDSPEVRP, Partial Recharge codebase).
 
 Stand-alone, self-contained module. It reads the SAME instance files and matrices as the
-labeling algorithms and the greedy scheduler (instances/<name>/<name>.txt plus
+labeling algorithms (instances/<name>/<name>.txt plus
 <name>_DistanceMatrix.csv / <name>_TimeMatrix.csv, falling back to the master matrices),
 places charging stations (CS) along each arc exactly like network.py does, and then builds
 a feasible schedule sequentially along the prescribed route.
@@ -56,7 +56,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
-# HoS parameters (identical to network.py / greedy_scheduler.py)
+# HoS parameters (identical to network.py)
 # ---------------------------------------------------------------------------
 driving_speed = 60.0   # km/h
 maxElapsed_R = 13.0    # h elapsed since last daily rest
@@ -84,7 +84,7 @@ SPECIFIC_INSTANCES_TO_RUN: List[str] = []   # [] = all discovered instances
 
 
 # ===========================================================================
-# Instance reading (mirrors greedy_scheduler.read_test_instance / create_simple_route)
+# Instance reading (mirrors labeling instance loaders)
 # ===========================================================================
 def read_test_instance(filename: str) -> Tuple[Optional[dict], List[dict]]:
     """Read an instance file (VehicleId / NodeId sections) -> (depot, nodes in route order)."""
@@ -150,7 +150,7 @@ def create_simple_route(depot: dict, nodes: List[dict], city_arcs) -> List[dict]
 
 
 # ===========================================================================
-# Stop sequence: CS placement identical to network._generateCS / greedy expand_route_with_cs
+# Stop sequence: CS placement identical to network._generateCS
 # ===========================================================================
 def cs_positions_for_arc(distance_km: float, interval_km: float) -> List[float]:
     """CS positions (km from arc start). >interval: at k*interval (k=1..floor); else one at the midpoint."""
@@ -605,7 +605,7 @@ def validate_schedule(
 
 
 # ===========================================================================
-# Result container (same metric definitions as GreedySchedulerResult / METRICS_CALCULATION_RULES.md)
+# Result container (metric definitions in METRICS_CALCULATION_RULES.md)
 # ===========================================================================
 class DriverHeuristicResult:
     def __init__(

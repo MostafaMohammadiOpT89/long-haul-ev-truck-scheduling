@@ -74,7 +74,7 @@ def configuration(row, spec):
         raise ValueError(f'Missing algorithm in {spec["id"]}')
     battery = number(row, 'battery_capacity_kWh', 'battery_capacity')
     diesel = row.get('_runner_tag') == 'diesel_lb' or (battery is not None and battery >= 1e7)
-    charging_policy = row.get('policy') or {'partial_labeling': 'partial', 'full_labeling': 'full', 'greedy': 'greedy_default'}.get(algorithm)
+    charging_policy = row.get('policy') or {'partial_labeling': 'partial', 'full_labeling': 'full'}.get(algorithm)
     return dict(instance_id=row['instance_id'], input_version=spec.get('input_version', 'historical_unverified'),
                 policy=algorithm, charging_policy=charging_policy,
                 vehicle_type='diesel_proxy' if diesel else 'electric', battery_kwh=battery,
@@ -118,9 +118,8 @@ def metrics(row):
 
 
 def appendix_ids():
-    text = (ROOT / 'manuscript/synch_paper_latex/main.tex').read_text(encoding='utf-8')
-    section = text.split(r'\section{Summary of benchmark instances}', 1)[1].split(r'\end{longtable}', 1)[0]
-    return {s.replace(r'\_', '_').strip() for s in re.findall(r'(?m)^\s*((?:short|med|long)(?:\\_|_)[^&\n]+?)\s*&', section)}
+    path = ROOT / 'instances/PAPER_INSTANCE_SET_43.txt'
+    return {ln.strip() for ln in path.read_text(encoding='utf-8').splitlines() if ln.strip() and not ln.startswith('#')}
 
 
 def read_source(path):
@@ -176,7 +175,6 @@ def consolidate(destination=DESTINATION):
     for policy, charging, sync, buffer in [
         ('partial_labeling', 'partial', None, None),
         ('full_labeling', 'full', None, None),
-        ('greedy', 'greedy_default', None, .1),
         ('driver_heuristic', 'full', 1., None),
         ('driver_heuristic', 'overlap', 1., None),
     ]:

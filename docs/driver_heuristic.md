@@ -1,17 +1,15 @@
 # Driver-inspired sequential heuristic
 
-A fifth algorithm variant next to the existing ones. It is kept in **separate files** so that every
-run can be traced independently of the labeling algorithms and the greedy scheduler.
+A sequential heuristic kept in **separate files** so that every run can be traced independently of the labeling algorithms.
 
 | Variant | What it is | Where it lives |
 |---|---|---|
 | Partial recharge (labeling) | Exact SPPRC labeling; charging amount is a decision | `policies/labeling/partial_recharge/` |
 | Full recharge (labeling) | Exact SPPRC labeling; each charge restores battery to full | `policies/labeling/full_recharge/` |
-| Greedy heuristic | Sequential baseline scheduler (myopic HoS + energy) | `policies/heuristics/greedy.py` |
 | **Driver heuristic** | Sequential driver-inspired rules; two charging policies (`full`, `overlap`) | `policies/heuristics/driver.py` |
-| Diesel proxy | Labeling / heuristics with a very large battery (`diesel_lb` tag) | same runners |
+| Diesel proxy | Labeling with a very large battery (`diesel_lb` tag) | same runners |
 
-Runner modes: `partial_labeling`, `full_labeling`, `greedy`, `driver_heuristic` (+ `diesel_lb` tagged runs).
+Runner modes: `partial_labeling`, `full_labeling`, `driver_heuristic` (+ `diesel_lb` tagged runs).
 
 ## Files
 
@@ -20,7 +18,7 @@ Runner modes: `partial_labeling`, `full_labeling`, `greedy`, `driver_heuristic` 
 | `policies/heuristics/driver.py` | Heuristic (rules 1-4, both policies), result class with the same sync metrics as the other variants (`docs/metrics.md`), an independent schedule validator, and a stand-alone batch `main()` |
 | `policies/heuristics/driver_runner.py` | One-scenario child process printing one JSON (used by `experiments/run.py` and `experiments/cluster/run_job.py`) |
 | `tests/test_driver_heuristic.py` | Unit tests for CS placement, each rule, both policies, validator, and all instances at the base configuration |
-| `analysis/heuristic_comparison.py` | New figures/tables comparing the heuristic with Full, Partial, Greedy and the diesel proxy |
+| `analysis/scheduling_rules/` | Figures/tables comparing the heuristic with Full, Partial, and the diesel proxy |
 | `Post_Analysis/analysis_output_driverHeuristic/` | Output figures (`D01`..`D06`) and tables (`table_D00`..`table_D06`) |
 | `legacy/results/analyses/imported/Post_Analysis_Report_DriverHeuristic.md` | Archived summary report |
 
