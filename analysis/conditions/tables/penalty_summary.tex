@@ -1,0 +1,26 @@
+\begin{table}[tbp]
+    \centering
+    \begin{threeparttable}
+    \caption{Base-case sources of additional route time relative to diesel, by route class.}
+    \label{tab:penalty_summary}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{@{}lrrrrrr@{}}
+    \toprule
+    Route class & $n$ & \multicolumn{2}{c}{Instances with} & \multicolumn{3}{c}{Mean additional time (min)} \\
+    \cmidrule(lr){3-4}\cmidrule(l){5-7}
+     & & No penalty & Extra breaks & Charging & Breaks & Total \\
+    \midrule
+    Short & 13 & 8 & 0 & 7.4 & 0.0 & 7.4 \\
+    Medium & 15 & 3 & 3 & 14.2 & 18.0 & 32.2 \\
+    Long & 15 & 0 & 8 & 42.0 & 27.0 & 69.0 \\
+    \midrule
+    \textbf{All instances} & \textbf{43} & \textbf{11} & \textbf{11} & \textbf{21.8} & \textbf{15.7} & \textbf{37.5} \\
+    \bottomrule
+    \end{tabular}
+    \begin{tablenotes}[flushleft]\footnotesize
+    \item Charging denotes time spent charging outside breaks and daily rests; Breaks denotes additional break time relative to diesel. Their sum equals the total penalty. Driving, customer-service, and daily-rest durations are identical within each electric--diesel pair.
+    \item Means include every instance in the indicated class, including zero penalties. The overall row weights all 43 instances equally. Extra breaks counts instances with at least one additional break, including those that also incur uncovered charging time.
+    \end{tablenotes}
+    \end{threeparttable}
+\end{table}

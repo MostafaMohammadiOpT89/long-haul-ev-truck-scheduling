@@ -63,10 +63,28 @@ class RepositoryTests(unittest.TestCase):
 
     def test_preserved_noncode_assets(self):
         manifest = json.loads((ROOT / "docs/migration_manifest.json").read_text())
+        cleanup = json.loads((ROOT / "docs/analysis_cleanup.json").read_text())
+        retired = {r['path']: r for r in cleanup['removed_files']}
         for record in manifest["files"]:
             if Path(record["original"]).suffix in (".py", ".md", ".sh") or record["original"] in (".gitignore", "requirements.txt"):
                 continue
-            self.assertEqual(hashlib.sha256((ROOT / record["destination"]).read_bytes()).hexdigest(), record["sha256"], record["original"])
+            if record['destination'] in retired:
+                # The archive ledger records the bytes removed and, for text,
+                # an LF digest so Windows checkout line endings are tolerated.
+                entry = retired[record['destination']]
+                self.assertIn(record['sha256'], (entry['sha256'], entry.get('sha256_lf')),
+                              record['destination'])
+                self.assertFalse((ROOT / record['destination']).exists())
+                continue
+            if record['destination'] == 'manuscript/main_manuscript.pdf':
+                # The user renamed and revised this editable document after migration.
+                self.assertTrue((ROOT / 'manuscript/manuscript_main.pdf').read_bytes().startswith(b'%PDF-'))
+                continue
+            raw = (ROOT / record["destination"]).read_bytes()
+            digests = {hashlib.sha256(raw).hexdigest()}
+            if Path(record['destination']).suffix.lower() in ('.csv', '.json', '.jsonl', '.txt', '.tex'):
+                digests.add(hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest())
+            self.assertIn(record['sha256'], digests, record['original'])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,26 @@
+\begin{table}[tbp]
+\centering
+\begin{threeparttable}
+\caption{Base-case route-time comparison of partial-charging electric schedules with the diesel reference. The base configuration is 750~kWh battery capacity, 350~kW charging power, 60~km maximum charging-station spacing, and 1.49~kWh/km energy consumption.}
+\label{tab:conditions_base}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrrrrr@{}}
+\toprule
+Route class & $n$ & \multicolumn{2}{c}{Mean route time (h)} & \multicolumn{2}{c}{Penalty (\%)} & \multicolumn{2}{c}{Extra time (min)} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}
+ & & Diesel & Electric & Mean & P90 & Mean & Max. \\
+\midrule
+Short & 13 & 34.00 & 34.12 & 0.40 & 0.84 & 7.4 & 35.5 \\
+Medium & 15 & 73.13 & 73.67 & 0.82 & 0.93 & 32.2 & 180.0 \\
+Long & 15 & 130.47 & 131.62 & 0.87 & 1.52 & 69.0 & 153.5 \\
+\midrule
+\textbf{All instances} & \textbf{43} & \textbf{81.30} & \textbf{81.93} & \textbf{0.71} & \textbf{1.20} & \textbf{37.5} & \textbf{180.0} \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}[flushleft]\footnotesize
+\item Each instance receives equal weight. Percentage penalties are calculated as $100(T_i^{\mathrm{EV}}-T_i^{\mathrm{D}})/T_i^{\mathrm{D}}$ before averaging. Extra time is electric minus diesel duration.
+\item P90 denotes the empirical 90th percentile of instance-level percentage penalties, using linear interpolation.
+\end{tablenotes}
+\end{threeparttable}
+\end{table}

@@ -1,0 +1,30 @@
+\begin{figure}[tbp]
+    \centering
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim=0 20bp 0 0,clip]{figures/conditions/rest_overlap.pdf}
+        \caption{Charging within daily rests (\texttt{short\_cl2\_cu4\_Balanced}).}
+        \label{fig:rest_overlap}
+    \end{subfigure}
+    \medskip
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim=0 20bp 0 0,clip]{figures/conditions/early_charge.pdf}
+        \caption{Charging outside breaks and rests (\texttt{short\_cl1\_cu4}).}
+        \label{fig:early_charge}
+    \end{subfigure}
+    \medskip
+    \begin{subfigure}{\linewidth}
+        \centering
+        \includegraphics[width=\linewidth,trim=0 20bp 0 0,clip]{figures/conditions/extra_breaks.pdf}
+        \caption{Charging within additional breaks (\texttt{med\_cl3\_cu13\_Balanced}).}
+        \label{fig:extra_breaks}
+    \end{subfigure}
+    \medskip
+    % One shared legend: retain only the legend band from the final PDF.
+    % All three schedule PDFs are 151.2bp tall; their bottom 20bp contain the legend.
+    \includegraphics[width=\linewidth,trim=0 8bp 0 131.2bp,clip]{figures/conditions/extra_breaks.pdf}\par
+    \smallskip
+    \caption{Three illustrative electric--diesel schedule pairs. The base configuration is 750~kWh battery capacity, 350~kW charging power, 60~km maximum charging-station spacing, and 1.49~kWh/km energy consumption. Dark teal regions with diagonal hatching show physical charging time reconstructed from charged energy and power. These regions cover most of the activity-bar height while retaining the actual charging duration on the time axis. Charging during daily rest is placed at the end of that rest for display; its exact position within the rest is not unique. All panels use the same time scale. The plots follow the recorded minimum-time paths; interval maxima are not combined with them. Examples illustrate observed mechanisms and are not representative frequency estimates.}
+    \label{fig:operations}
+\end{figure}

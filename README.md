@@ -6,7 +6,7 @@ Scheduling along prescribed routes, coordinating charging, driver breaks and dai
 
 | Directory | Contents |
 |---|---|
-| `manuscript/` | Manuscript PDF; editable manuscript sources were not present in the inherited checkout |
+| `manuscript/` | Current manuscript PDF and local LaTeX sources |
 | `instances/benchmark_v1/` | Generated instance folders (45). Paper set is 43; see `instances/PAPER_INSTANCE_SET_43.txt` |
 | `instances/generator/` | Main clustered-route generator |
 | `legacy/instances/alternative_generator_output/` | Differing generator data; shared files are referenced through `instances/catalog.csv` |
@@ -14,14 +14,14 @@ Scheduling along prescribed routes, coordinating charging, driver breaks and dai
 | `policies/heuristics/` | Driver-inspired heuristic |
 | `common/` | Shared input loading, paths, and analysis metrics |
 | `experiments/` | Local execution, explicit JSON configurations, exports, provenance, and cluster execution |
-| `analysis/` | Base-case, sensitivity, heuristic comparison, instance visualization, and paper tables |
+| `analysis/` | Current base-case and sensitivity figures/tables, plus instance visualization |
 | `output/runs/` | Consolidated summary CSV, detailed JSONL and provenance catalog |
 | `output/executions/` | Raw records, metadata and jobs for new experiment batches |
 | `legacy/results/raw_runs/` | Archived inherited results and validation batches |
 | `analysis/<question>/figures/`, `tables/` | Generated outputs beside the corresponding analysis code |
 | `tests/` | Dataset integrity, orchestration, policy tests, and pre-migration fixtures |
 | `docs/` | Methods, migration record, and research decisions still to resolve |
-| `legacy/` | Retained older scripts and historical artifacts; not supported entry points |
+| `legacy/` | Archived raw results and alternate datasets; superseded plotting code/outputs removed |
 
 Run commands from the repository root, using Python 3.10 or newer. Install with:
 
@@ -33,7 +33,7 @@ This project is intended for an editable source checkout: inputs and output dire
 
 ## Paper computational archive
 
-`reviewer_results/` is the locked paper comparison on 43 instances: Full recharge, Partial recharge, Driver heuristic (full-charge and overlap-only), and the diesel proxy. Use that folder for manuscript numbers.
+`reviewer_results/` retains the raw paper comparison on 43 instances: Full recharge, Partial recharge, Driver heuristic (full-charge and overlap-only), and the diesel proxy. These results are included in `output/runs/`; current figures and tables are generated under `analysis/conditions/`.
 
 ## Run an experiment
 
@@ -52,25 +52,21 @@ python -m experiments.run --preset driver_sync_sweep --algorithms driver_heurist
 python -m experiments.run --preset station_spacing --algorithms full_labeling --no_diesel
 ```
 
-`--preset` is required. `paper_base` preserves the existing code's 750 kWh / 60 km / 350 kW / 1.49 kWh/km settings. `legacy_base` preserves the old default experiment; `base` is its compatibility alias. `full` aliases `parameter_sweep`. These names do not resolve the manuscript's different base values: see [open research decisions](docs/research_decisions.md).
+`--preset` is required. `paper_base` uses the confirmed 750 kWh / 60 km / 350 kW / 1.49 kWh/km settings. `legacy_base` preserves the old default experiment; `base` is its compatibility alias. `full` aliases `parameter_sweep`.
 
 The diesel reference uses existing methods with the inherited large-battery configuration. Algorithm identity and the driver's `full`/`overlap` charging policy remain distinct result fields.
 
-## Reproduce the inherited paper analyses
+## Generate the current paper figures
 
-`analysis/configs/paper_inputs.json` pins exact saved inputs. It does not select the newest file. Each analysis writes figures and tables into its own folder under `analysis/`. Previous outputs are archived in `legacy/results/analyses/`. See [analysis layout](analysis/README.md).
+The current generator reads the scoped `output/runs/summary.csv` and selected schedules in `details.jsonl`. It writes descriptively named base, sensitivity, and operational PDF/PNG panels, supporting tables, and an Overleaf bundle. See [analysis layout](analysis/README.md).
 
 ```sh
 python -m analysis.conditions.run
-python -m analysis.charging_strategies.run
-python -m analysis.charging_strategies.sensitivity.run
-python -m analysis.scheduling_rules.run
+python -m analysis.conditions.audit
 python -m analysis.instance_visualization
-python -m analysis.charging_strategies.paper_tables
-python -m analysis.charging_strategies.diagnostic_tables
 ```
 
-Set `EV_TRUCK_ANALYSIS_INPUTS` to another JSON input manifest and `EV_TRUCK_ANALYSIS_OUTPUT` to another output directory to analyze a different selection. Default entries specify `path`, `source_id`, and optionally `algorithm`, selecting observations from consolidated `details.jsonl`. Analysis manifests record these selections and the input hash. Plain paths to raw CSV/JSON/JSONL remain supported for custom inputs; a consolidated details file requires a source selection. The flat batch export omits timelines and should be used for summaries, not synchronization analysis. Existing analyses retain the inherited 750 kWh / 60 km filters; the confirmed 500 kWh / 50 km paper base still awaits results.
+Set `EV_TRUCK_ANALYSIS_OUTPUT` to redirect generated outputs. The figures use the confirmed 750 kWh / 60 km base, 43 paper instances, and fixed matched cohorts for one-at-a-time sensitivities. The four sensitivity bar charts share a vertical scale. Common loaders still support explicitly selected observations through `analysis/configs/paper_inputs.json` for schedule-level investigation. Superseded scripts and generated outputs were removed; their checksums and recovery archive are recorded in `docs/analysis_cleanup.json`.
 
 ## Datasets and generation
 

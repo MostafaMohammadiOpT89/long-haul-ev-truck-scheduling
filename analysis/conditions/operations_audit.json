@@ -1,0 +1,331 @@
+{
+  "details_sha256": "a76ea70de37a0dc13dd28df15ab3e010809cebfe8e2722f5a37a24672e58362c",
+  "code_sha256": "7e9e0679d3463d37ae07f22dc3daff75fb35704137d4fe7aad001bfc211709c1",
+  "base_n": 43,
+  "charging_stops": 324,
+  "physical_charging_minutes": 20086.61443897474,
+  "penalty_minutes": 1614.46060537729,
+  "outside_minutes": 939.4606053772948,
+  "extra_break_minutes": 675.0,
+  "categories": {
+    "charging only": 21,
+    "no penalty": 11,
+    "extra breaks only": 7,
+    "both": 4
+  },
+  "provenance": [
+    {
+      "instance_id": "long_cl1_cu2",
+      "electric_run": "long_cl1_cu2__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__af78ad2f9f22",
+      "diesel_run": "long_cl1_cu2__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__fe1a75688780",
+      "electric_observation": "3c5ce254e17b32ea44be",
+      "diesel_observation": "8cd0484eb8fd615ad6cd"
+    },
+    {
+      "instance_id": "long_cl1_cu4",
+      "electric_run": "long_cl1_cu4__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__dc989e28d0ff",
+      "diesel_run": "long_cl1_cu4__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__6119b968723a",
+      "electric_observation": "5853b9cff5b61be4624e",
+      "diesel_observation": "4eff9612c2d3d8613308"
+    },
+    {
+      "instance_id": "long_cl2_cu2_Balanced",
+      "electric_run": "long_cl2_cu2_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__efc34e3c1557",
+      "diesel_run": "long_cl2_cu2_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__bc671a39aaec",
+      "electric_observation": "1501748910a8c051a5df",
+      "diesel_observation": "db512ca7ea275e92c249"
+    },
+    {
+      "instance_id": "long_cl2_cu2_Unbalanced",
+      "electric_run": "long_cl2_cu2_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__486ba3774cf0",
+      "diesel_run": "long_cl2_cu2_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__37c29df444ac",
+      "electric_observation": "bc3415e89921ab857d7a",
+      "diesel_observation": "67d39b98e17ca2344cf0"
+    },
+    {
+      "instance_id": "long_cl2_cu3_Balanced",
+      "electric_run": "long_cl2_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__2b3bdab8ae24",
+      "diesel_run": "long_cl2_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__640520aa9af4",
+      "electric_observation": "db8fe4d82a71cfcf9b3f",
+      "diesel_observation": "b81a1623f4da1ad5a333"
+    },
+    {
+      "instance_id": "long_cl2_cu4_Balanced",
+      "electric_run": "long_cl2_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__383f2a03d256",
+      "diesel_run": "long_cl2_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__2e0eff2eaea8",
+      "electric_observation": "ca3c901d8f7af02c3ab9",
+      "diesel_observation": "31084e8bb188129cfac0"
+    },
+    {
+      "instance_id": "long_cl2_cu4_Unbalanced",
+      "electric_run": "long_cl2_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__63af58c321bb",
+      "diesel_run": "long_cl2_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__29c2f7c84f36",
+      "electric_observation": "ce30e16b12c329373471",
+      "diesel_observation": "c59647d3498741da6a89"
+    },
+    {
+      "instance_id": "long_cl2_cu5_Balanced",
+      "electric_run": "long_cl2_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__ba3ec329b06a",
+      "diesel_run": "long_cl2_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__04f9b18051fa",
+      "electric_observation": "2ee1b4ba3581639e6eee",
+      "diesel_observation": "4710a4a3233fa1f2bd67"
+    },
+    {
+      "instance_id": "long_cl3_cu12_Balanced",
+      "electric_run": "long_cl3_cu12_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__9047b389ea80",
+      "diesel_run": "long_cl3_cu12_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__15de727c0d9f",
+      "electric_observation": "bf2a0e5e1235cda2e6c7",
+      "diesel_observation": "036ea6215875d15497b6"
+    },
+    {
+      "instance_id": "long_cl3_cu12_Unbalanced",
+      "electric_run": "long_cl3_cu12_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__1202bcb872a0",
+      "diesel_run": "long_cl3_cu12_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__e549d5382b28",
+      "electric_observation": "736f389e2a73f6ea12cb",
+      "diesel_observation": "14133fc4f833c581ce53"
+    },
+    {
+      "instance_id": "long_cl3_cu14_Balanced",
+      "electric_run": "long_cl3_cu14_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__882b595f2bf5",
+      "diesel_run": "long_cl3_cu14_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__ec0b83307b12",
+      "electric_observation": "42bd55e9565064bfdba4",
+      "diesel_observation": "6486d3ca7815814f4439"
+    },
+    {
+      "instance_id": "long_cl3_cu3_Balanced",
+      "electric_run": "long_cl3_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__6467dacf6654",
+      "diesel_run": "long_cl3_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__c6cfe256c63e",
+      "electric_observation": "fcc4508536c50fb22988",
+      "diesel_observation": "2923e1f11b124177af3f"
+    },
+    {
+      "instance_id": "long_cl3_cu4_Balanced",
+      "electric_run": "long_cl3_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__b07cf95a087a",
+      "diesel_run": "long_cl3_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__ffcd17f848e6",
+      "electric_observation": "d29a69fafaff3d63a3f5",
+      "diesel_observation": "e4fc43f25acec7e944a8"
+    },
+    {
+      "instance_id": "long_cl3_cu4_Unbalanced",
+      "electric_run": "long_cl3_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__9fa6800a6598",
+      "diesel_run": "long_cl3_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__7f1df95fe8b4",
+      "electric_observation": "f32c91e5077896fd1f40",
+      "diesel_observation": "37f24a8884714e1410a8"
+    },
+    {
+      "instance_id": "long_cl3_cu5_Balanced",
+      "electric_run": "long_cl3_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__7bcda6e0067f",
+      "diesel_run": "long_cl3_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__9ed6b51f7ca4",
+      "electric_observation": "1406f15e4252de175099",
+      "diesel_observation": "f97e24db79df6c4b6fbf"
+    },
+    {
+      "instance_id": "med_cl1_cu2",
+      "electric_run": "med_cl1_cu2__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__b25c2756ee3c",
+      "diesel_run": "med_cl1_cu2__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__76ad48256562",
+      "electric_observation": "e19c12c62769ee3ee540",
+      "diesel_observation": "c152bc8e834906c3188e"
+    },
+    {
+      "instance_id": "med_cl1_cu4",
+      "electric_run": "med_cl1_cu4__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__084759f0e5fd",
+      "diesel_run": "med_cl1_cu4__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__c7bef68b658c",
+      "electric_observation": "a4779a19cf39dbacaaa6",
+      "diesel_observation": "be101fbfb748a97a23e8"
+    },
+    {
+      "instance_id": "med_cl2_cu2_Balanced",
+      "electric_run": "med_cl2_cu2_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__50e81f397511",
+      "diesel_run": "med_cl2_cu2_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__0e1477ea61f9",
+      "electric_observation": "8938875a494016a39386",
+      "diesel_observation": "864923f5c92f89983b67"
+    },
+    {
+      "instance_id": "med_cl2_cu2_Unbalanced",
+      "electric_run": "med_cl2_cu2_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__b432fd8147ed",
+      "diesel_run": "med_cl2_cu2_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__fd158e495d08",
+      "electric_observation": "c416c8449b113cc90684",
+      "diesel_observation": "d73a1c05e37274be3570"
+    },
+    {
+      "instance_id": "med_cl2_cu3_Balanced",
+      "electric_run": "med_cl2_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__34a101597923",
+      "diesel_run": "med_cl2_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__166219a47481",
+      "electric_observation": "f872e92e3070a0c282ab",
+      "diesel_observation": "532c0a5d52f87693f538"
+    },
+    {
+      "instance_id": "med_cl2_cu4_Balanced",
+      "electric_run": "med_cl2_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__fc920513794d",
+      "diesel_run": "med_cl2_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__9796753b7255",
+      "electric_observation": "ca649c94f84b40b96a22",
+      "diesel_observation": "f8cf70dbae8e45bb0834"
+    },
+    {
+      "instance_id": "med_cl2_cu4_Unbalanced",
+      "electric_run": "med_cl2_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__a4acfdbae31b",
+      "diesel_run": "med_cl2_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__2bec5f0e3942",
+      "electric_observation": "961e0dbb973114c1d97f",
+      "diesel_observation": "cee5f8d4da523a2bf6e8"
+    },
+    {
+      "instance_id": "med_cl2_cu5_Balanced",
+      "electric_run": "med_cl2_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__afac326f730d",
+      "diesel_run": "med_cl2_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__1ff76c9cb386",
+      "electric_observation": "1b54f290d33ce218bdb6",
+      "diesel_observation": "741bd5294cda5e96db0e"
+    },
+    {
+      "instance_id": "med_cl3_cu11_Balanced",
+      "electric_run": "med_cl3_cu11_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__380afe4e9898",
+      "diesel_run": "med_cl3_cu11_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__e903f77e1325",
+      "electric_observation": "7411e8362499724fb594",
+      "diesel_observation": "1c004d3c35dd6855784e"
+    },
+    {
+      "instance_id": "med_cl3_cu13_Balanced",
+      "electric_run": "med_cl3_cu13_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__6dc400c5bfbb",
+      "diesel_run": "med_cl3_cu13_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__29a993c911fe",
+      "electric_observation": "2f56b0f67bfd13a1d0c2",
+      "diesel_observation": "6db4fa34487038721b8b"
+    },
+    {
+      "instance_id": "med_cl3_cu13_Unbalanced",
+      "electric_run": "med_cl3_cu13_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__a0252a2aa165",
+      "diesel_run": "med_cl3_cu13_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__08a955e9d64f",
+      "electric_observation": "854bfabc735673c01d4f",
+      "diesel_observation": "a4ba0267baeed6e0ff70"
+    },
+    {
+      "instance_id": "med_cl3_cu3_Balanced",
+      "electric_run": "med_cl3_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__a307528cf652",
+      "diesel_run": "med_cl3_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__32e7e7b21bf6",
+      "electric_observation": "970d9f97d8e85e26ad5c",
+      "diesel_observation": "ddae958375755c978790"
+    },
+    {
+      "instance_id": "med_cl3_cu4_Balanced",
+      "electric_run": "med_cl3_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__0a9d3e9d8c33",
+      "diesel_run": "med_cl3_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__b136c2f11b8c",
+      "electric_observation": "f00732c3b659cf2b890b",
+      "diesel_observation": "a1f83608b7d08307e01f"
+    },
+    {
+      "instance_id": "med_cl3_cu4_Unbalanced",
+      "electric_run": "med_cl3_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__28a2e3c634a9",
+      "diesel_run": "med_cl3_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__285192cc1822",
+      "electric_observation": "87a5adc94c156977e1f3",
+      "diesel_observation": "fc6e191af5fdbe0b36a5"
+    },
+    {
+      "instance_id": "med_cl3_cu5_Balanced",
+      "electric_run": "med_cl3_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__f7e1795fcf5e",
+      "diesel_run": "med_cl3_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__622f7921960b",
+      "electric_observation": "4f093c9db3122994c9e5",
+      "diesel_observation": "c9955b9cb5b7ee5334a5"
+    },
+    {
+      "instance_id": "short_cl1_cu2",
+      "electric_run": "short_cl1_cu2__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__8e48aee609ef",
+      "diesel_run": "short_cl1_cu2__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__f46a8d9d8fc9",
+      "electric_observation": "668f660a288e5976e253",
+      "diesel_observation": "eb55ae9a1abc79e1c29a"
+    },
+    {
+      "instance_id": "short_cl1_cu4",
+      "electric_run": "short_cl1_cu4__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__32a5f9c96579",
+      "diesel_run": "short_cl1_cu4__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__bc9215846552",
+      "electric_observation": "9dfb17c01543ec52b1fa",
+      "diesel_observation": "16bee114141da248b882"
+    },
+    {
+      "instance_id": "short_cl2_cu3_Balanced",
+      "electric_run": "short_cl2_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__74b4746b7ba8",
+      "diesel_run": "short_cl2_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__f86949a34ee4",
+      "electric_observation": "bca5045bc0fb2583574e",
+      "diesel_observation": "61829923875be7f0b936"
+    },
+    {
+      "instance_id": "short_cl2_cu4_Balanced",
+      "electric_run": "short_cl2_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__da654fe0e632",
+      "diesel_run": "short_cl2_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__5be87a425925",
+      "electric_observation": "0eabbee7145cbb20ddc6",
+      "diesel_observation": "e53b65d7ac76d151486c"
+    },
+    {
+      "instance_id": "short_cl2_cu4_Unbalanced",
+      "electric_run": "short_cl2_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__f964013aa51f",
+      "diesel_run": "short_cl2_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__786a965b4350",
+      "electric_observation": "eb0eca13dfd9588d02d7",
+      "diesel_observation": "847d3f842e5b925a1bdf"
+    },
+    {
+      "instance_id": "short_cl2_cu5_Balanced",
+      "electric_run": "short_cl2_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__cbed5eb7b153",
+      "diesel_run": "short_cl2_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__1545e8a6e11b",
+      "electric_observation": "919d4c5d0d909b0d6674",
+      "diesel_observation": "272c11ca24e325e6733c"
+    },
+    {
+      "instance_id": "short_cl3_cu10_Balanced",
+      "electric_run": "short_cl3_cu10_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__ebf17894251b",
+      "diesel_run": "short_cl3_cu10_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__3069c34ed3c6",
+      "electric_observation": "3ef3ab8d2081ab2f3c27",
+      "diesel_observation": "f07631b1fe86b2f3fc10"
+    },
+    {
+      "instance_id": "short_cl3_cu12_Balanced",
+      "electric_run": "short_cl3_cu12_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__04fd7ea64288",
+      "diesel_run": "short_cl3_cu12_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__12f0e07d813d",
+      "electric_observation": "86afbcc9e2dbb4aaa20f",
+      "diesel_observation": "6b6c93b899a4c822c699"
+    },
+    {
+      "instance_id": "short_cl3_cu12_Unbalanced",
+      "electric_run": "short_cl3_cu12_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__51f80d478495",
+      "diesel_run": "short_cl3_cu12_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__ca704cdf4881",
+      "electric_observation": "254b42bdc67fc0f27530",
+      "diesel_observation": "bc3b9b0ceab03f874a2f"
+    },
+    {
+      "instance_id": "short_cl3_cu3_Balanced",
+      "electric_run": "short_cl3_cu3_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__5fa8ca316e1b",
+      "diesel_run": "short_cl3_cu3_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__16c71acfcf54",
+      "electric_observation": "997315ff50180853ce11",
+      "diesel_observation": "fa797e4cb60644603ea1"
+    },
+    {
+      "instance_id": "short_cl3_cu4_Balanced",
+      "electric_run": "short_cl3_cu4_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__9765cf81c19f",
+      "diesel_run": "short_cl3_cu4_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__def6f8161b13",
+      "electric_observation": "7500b8c110bb754ea31f",
+      "diesel_observation": "17e1f4fd001933fdf7b1"
+    },
+    {
+      "instance_id": "short_cl3_cu4_Unbalanced",
+      "electric_run": "short_cl3_cu4_Unbalanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__78c48dd1dc0e",
+      "diesel_run": "short_cl3_cu4_Unbalanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__6ad8763ccb77",
+      "electric_observation": "6ff89f72318db519afed",
+      "diesel_observation": "3782d9df900964b605ab"
+    },
+    {
+      "instance_id": "short_cl3_cu5_Balanced",
+      "electric_run": "short_cl3_cu5_Balanced__partial_labeling__partial__electric__B750_P350_D60_E1p49_syncunknown__88a0dd56d715",
+      "diesel_run": "short_cl3_cu5_Balanced__partial_labeling__partial__diesel_proxy__B1e+10_P350_D60_E1p49_syncunknown__399bf9b0d310",
+      "electric_observation": "fb819392284fbc2ad60f",
+      "diesel_observation": "b5c25e19906b8c26f119"
+    }
+  ],
+  "checks": [
+    "Paired duration decomposition reconciles for all 43 instances.",
+    "Chronological battery balance and stop energy reconcile on minimum-time paths.",
+    "Charging overlays lie within the stated break/rest or additional-time window.",
+    "Repeated saved electric observations agree on time components."
+  ],
+  "conventions": [
+    "Pooled energy and stop shares, not equal-weight instance shares.",
+    "Rest charging right-aligned for display; within-rest timing is not uniquely observed.",
+    "Diesel proxy charge actions omitted from timeline.",
+    "No optimality or inevitability claim is inferred from the decomposition."
+  ]
+}

@@ -1,5 +1,6 @@
 """Check coverage and lossless preservation of the exported research catalog."""
 import csv
+import hashlib
 import json
 import unittest
 from collections import defaultdict
@@ -11,13 +12,18 @@ class ConsolidationTests(unittest.TestCase):
     def setUpClass(cls):
         with (DESTINATION / 'summary.csv').open(encoding='utf-8', newline='') as f:
             cls.summary = list(csv.DictReader(f))
+        with (DESTINATION / 'summary_all.csv').open(encoding='utf-8', newline='') as f:
+            cls.all_summary = list(csv.DictReader(f))
         with (DESTINATION / 'details.jsonl').open(encoding='utf-8') as f:
             cls.details = [json.loads(line) for line in f]
 
     def test_complete_grid_and_one_to_one_join(self):
         ids = [r['model_run_id'] for r in self.summary]
         self.assertEqual(len(ids), len(set(ids)))
-        self.assertEqual(set(ids), {r['model_run_id'] for r in self.details})
+        self.assertTrue(set(ids) <= {r['model_run_id'] for r in self.details})
+        all_ids = [r['model_run_id'] for r in self.all_summary]
+        self.assertEqual(len(all_ids), len(set(all_ids)))
+        self.assertEqual(set(all_ids), {r['model_run_id'] for r in self.details})
         templates = defaultdict(set)
         for row in self.details:
             config = row['configuration'].copy()
@@ -27,6 +33,44 @@ class ConsolidationTests(unittest.TestCase):
         self.assertEqual(len(expected), 45)
         for instances in templates.values():
             self.assertEqual(instances, expected)
+
+    def test_summary_is_one_at_a_time_and_covers_missing_partial_runs(self):
+        fields = ['battery_kwh', 'charging_power_kw', 'station_spacing_km', 'consumption_kwh_per_km']
+        expected = {
+            (350., 350., 60., 1.49), (750., 350., 60., 1.49),
+            (500., 350., 60., 1.49), (1000., 350., 60., 1.49),
+            (750., 1000., 60., 1.49),
+            (750., 350., 40., 1.49), (750., 350., 80., 1.49), (750., 350., 100., 1.49),
+            (750., 350., 60., 1.12), (750., 350., 60., 2.08),
+        }
+        partial = defaultdict(set)
+        for row in self.summary:
+            self.assertEqual(row['in_current_appendix'], 'True')
+            if row['vehicle_type'] == 'diesel_proxy':
+                continue
+            values = tuple(float(row[k]) for k in fields)
+            self.assertIn(values, expected)
+            self.assertEqual(row['matches_confirmed_paper_base'] == 'True', values == (750., 350., 60., 1.49))
+            if row['policy'] == 'partial_labeling':
+                partial[values].add(row['instance_id'])
+        self.assertEqual(set(partial), expected)
+        self.assertTrue(all(len(instances) == 43 for instances in partial.values()))
+        self.assertTrue(any(r['vehicle_type'] == 'electric' and
+                            tuple(float(r[k]) for k in fields) not in expected for r in self.all_summary))
+
+    def test_coverage_and_catalog_match_exports(self):
+        with (DESTINATION / 'missing_partial_runs.csv').open(newline='', encoding='utf-8') as f:
+            missing = list(csv.DictReader(f))
+        with (DESTINATION / 'one_at_a_time_coverage.csv').open(newline='', encoding='utf-8') as f:
+            coverage = list(csv.DictReader(f))
+        self.assertEqual(len(coverage), 10)
+        self.assertEqual(sum(int(r['missing_instances']) for r in coverage), len(missing))
+        self.assertTrue(all(int(r['available_instances']) + int(r['missing_instances']) == 43 for r in coverage))
+        catalog = json.loads((DESTINATION / 'catalog.json').read_text())
+        self.assertEqual(catalog['summary_row_count'], len(self.summary))
+        self.assertEqual(catalog['model_run_count'], len(self.all_summary))
+        for name, expected_hash in catalog['outputs'].items():
+            self.assertEqual(hashlib.sha256((DESTINATION / name).read_bytes()).hexdigest(), expected_hash)
 
     def test_missing_results_are_not_infeasible(self):
         missing = [r for r in self.summary if r['record_status'] == 'no_record_available']

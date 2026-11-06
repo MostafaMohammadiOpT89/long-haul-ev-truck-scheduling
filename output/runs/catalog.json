@@ -1,15 +1,88 @@
 {
   "schema_version": 1,
-  "model_run_count": 8100,
-  "observation_count": 3986,
+  "model_run_count": 7830,
+  "observation_count": 3856,
   "stored_instance_count": 45,
-  "parameter_policy_template_count": 180,
-  "records_available": 3868,
-  "records_missing": 4232,
+  "parameter_policy_template_count": 174,
+  "records_available": 3738,
+  "records_missing": 4092,
   "configurations_with_conflicts": 0,
-  "confirmed_paper_base_count": 225,
+  "confirmed_paper_base_count": 810,
   "selection_rule": "Latest recorded source timestamp, then source priority. Review conflicts before analysis.",
   "historical_input_version": "Unverified; grouping by recorded settings does not prove identical input files or code.",
+  "summary_scope": "43 paper instances; base and one-at-a-time EV settings; diesel references; all policies retained",
+  "paper_base": {
+    "battery_kwh": 750.0,
+    "charging_power_kw": 350.0,
+    "station_spacing_km": 60.0,
+    "consumption_kwh_per_km": 1.49
+  },
+  "one_at_a_time_configurations": [
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 350.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 500.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 1000.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 1000.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 40.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 80.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 100.0,
+      "consumption_kwh_per_km": 1.49
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 1.12
+    },
+    {
+      "battery_kwh": 750.0,
+      "charging_power_kw": 350.0,
+      "station_spacing_km": 60.0,
+      "consumption_kwh_per_km": 2.08
+    }
+  ],
+  "summary_row_count": 1591,
+  "summary_records_available": 1117,
+  "summary_records_missing": 474,
+  "missing_partial_runs": 278,
   "sources": [
     {
       "id": "base",
@@ -38,8 +111,8 @@
     {
       "id": "sweep_diesel",
       "path": "legacy/results/raw_runs/imported/parameter_sweep/diesel_lb_results_20260210_140456.json",
-      "sha256": "ae41dc70749d2fd24200b3105ac4e903e94fe371e0155502270db1cd66dde332",
-      "record_count": 84
+      "sha256": "928f4bf3b01b2b642810c2af05cd8c481eb81658aea5c620dc9f02a6119df0b6",
+      "record_count": 42
     },
     {
       "id": "spacing",
@@ -49,7 +122,10 @@
     }
   ],
   "outputs": {
-    "summary.csv": "376eb70bd744259a4914c108ba43b902d564f6048603f94c4a9f1b83c015724d",
-    "details.jsonl": "3af9e9abd385ba9d1ee1b75ebc08593db0384f3a24ae54330c37b3c63fb57db7"
+    "summary.csv": "002905b9487573972e956def36cae50f6583edc27e07dcd28eff7b60312a00fd",
+    "summary_all.csv": "ccd90d893ccb95a41eea5068d15d1a21459da8ca8b26951cdf90597e11fbf729",
+    "details.jsonl": "a76ea70de37a0dc13dd28df15ab3e010809cebfe8e2722f5a37a24672e58362c",
+    "one_at_a_time_coverage.csv": "affd3d60f6f920e3d4267b6f035b7dbeea5a54ede88071b57aff2a97cdfb95de",
+    "missing_partial_runs.csv": "64c0a21087b98b453c8bf5305285fba6553a3ac8f655bd30898510dc2f9f4c61"
   }
 }

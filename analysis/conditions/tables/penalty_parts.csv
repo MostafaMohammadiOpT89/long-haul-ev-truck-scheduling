@@ -1,0 +1,44 @@
+instance_id,route_class,label,penalty_minutes,outside_minutes,extra_break_minutes,extra_breaks,ev_breaks,diesel_breaks,ev_rests,diesel_rests,category
+long_cl1_cu2,long,cl1_cu2,43.79221263030075,43.79221263030202,0.0,0,6,6,6,6,charging only
+long_cl1_cu4,long,cl1_cu4,45.0,0.0,45.0,1,7,6,6,6,extra breaks only
+long_cl2_cu2_Balanced,long,cl2_cu2 B,153.51415082336302,108.51415082336467,45.0,1,8,7,6,6,both
+long_cl2_cu2_Unbalanced,long,cl2_cu2 U,75.65142857142973,30.65142857142856,45.0,1,8,7,7,7,both
+long_cl2_cu3_Balanced,long,cl2_cu3 B,101.87231470510824,101.87231470510899,0.0,0,7,7,6,6,charging only
+long_cl2_cu4_Balanced,long,cl2_cu4 B,45.977142857142894,45.97714285714284,0.0,0,7,7,6,6,charging only
+long_cl2_cu4_Unbalanced,long,cl2_cu4 U,45.0,0.0,45.0,1,7,6,6,6,extra breaks only
+long_cl2_cu5_Balanced,long,cl2_cu5 B,75.65142857142803,30.65142857142856,45.0,1,8,7,7,7,both
+long_cl3_cu12_Balanced,long,cl3_cu12 B,45.0,0.0,45.0,1,7,6,6,6,extra breaks only
+long_cl3_cu12_Unbalanced,long,cl3_cu12 U,53.639999999999475,53.639999999999986,0.0,0,6,6,5,5,charging only
+long_cl3_cu14_Balanced,long,cl3_cu14 B,45.0,0.0,45.0,1,7,6,6,6,extra breaks only
+long_cl3_cu3_Balanced,long,cl3_cu3 B,45.97714285714119,45.97714285714284,0.0,0,7,7,6,6,charging only
+long_cl3_cu4_Balanced,long,cl3_cu4 B,45.977142857142894,45.97714285714284,0.0,0,6,6,5,5,charging only
+long_cl3_cu4_Unbalanced,long,cl3_cu4 U,135.9771428571429,45.97714285714284,90.0,2,9,7,6,6,both
+long_cl3_cu5_Balanced,long,cl3_cu5 B,76.62857142857092,76.6285714285714,0.0,0,7,7,6,6,charging only
+med_cl1_cu2,med,cl1_cu2,28.76618291898467,28.766182918983965,0.0,0,4,4,4,4,charging only
+med_cl1_cu4,med,cl1_cu4,22.988571428570594,22.98857142857143,0.0,0,4,4,4,4,charging only
+med_cl2_cu2_Balanced,med,cl2_cu2 B,15.325714285714014,15.32571428571428,0.0,0,4,4,3,3,charging only
+med_cl2_cu2_Unbalanced,med,cl2_cu2 U,0.0,0.0,0.0,0,4,4,3,3,no penalty
+med_cl2_cu3_Balanced,med,cl2_cu3 B,44.99999999999915,0.0,45.0,1,5,4,4,4,extra breaks only
+med_cl2_cu4_Balanced,med,cl2_cu4 B,30.651428571428028,30.65142857142856,0.0,0,3,3,3,3,charging only
+med_cl2_cu4_Unbalanced,med,cl2_cu4 U,30.65142857142888,30.65142857142856,0.0,0,4,4,4,4,charging only
+med_cl2_cu5_Balanced,med,cl2_cu5 B,23.73827192087873,23.73827192087817,0.0,0,4,4,3,3,charging only
+med_cl3_cu11_Balanced,med,cl3_cu11 B,30.225310644790966,30.22531064479082,0.0,0,3,3,2,2,charging only
+med_cl3_cu13_Balanced,med,cl3_cu13 B,180.0,0.0,180.0,4,7,3,2,2,extra breaks only
+med_cl3_cu13_Unbalanced,med,cl3_cu13 U,15.32571428571572,15.32571428571428,0.0,0,4,4,3,3,charging only
+med_cl3_cu3_Balanced,med,cl3_cu3 B,15.325714285714014,15.32571428571428,0.0,0,4,4,4,4,charging only
+med_cl3_cu4_Balanced,med,cl3_cu4 B,0.0,0.0,0.0,0,3,3,3,3,no penalty
+med_cl3_cu4_Unbalanced,med,cl3_cu4 U,0.0,0.0,0.0,0,3,3,3,3,no penalty
+med_cl3_cu5_Balanced,med,cl3_cu5 B,45.0,0.0,45.0,1,5,4,4,4,extra breaks only
+short_cl1_cu2,short,cl1_cu2,35.50073316243797,35.500733162437704,0.0,0,2,2,1,1,charging only
+short_cl1_cu4,short,cl1_cu4,15.325714285714227,15.32571428571428,0.0,0,2,2,1,1,charging only
+short_cl2_cu3_Balanced,short,cl2_cu3 B,0.0,0.0,0.0,0,2,2,1,1,no penalty
+short_cl2_cu4_Balanced,short,cl2_cu4 B,0.0,0.0,0.0,0,2,2,2,2,no penalty
+short_cl2_cu4_Unbalanced,short,cl2_cu4 U,0.0,0.0,0.0,0,2,2,1,1,no penalty
+short_cl2_cu5_Balanced,short,cl2_cu5 B,15.325714285714227,15.32571428571428,0.0,0,2,2,1,1,charging only
+short_cl3_cu10_Balanced,short,cl3_cu10 B,0.0,0.0,0.0,0,2,2,2,2,no penalty
+short_cl3_cu12_Balanced,short,cl3_cu12 B,0.0,0.0,0.0,0,2,2,2,2,no penalty
+short_cl3_cu12_Unbalanced,short,cl3_cu12 U,0.0,0.0,0.0,0,2,2,1,1,no penalty
+short_cl3_cu3_Balanced,short,cl3_cu3 B,15.325714285714227,15.32571428571428,0.0,0,2,2,1,1,charging only
+short_cl3_cu4_Balanced,short,cl3_cu4 B,15.32571428571444,15.32571428571428,0.0,0,2,2,1,1,charging only
+short_cl3_cu4_Unbalanced,short,cl3_cu4 U,0.0,0.0,0.0,0,2,2,1,1,no penalty
+short_cl3_cu5_Balanced,short,cl3_cu5 B,0.0,0.0,0.0,0,2,2,2,2,no penalty
