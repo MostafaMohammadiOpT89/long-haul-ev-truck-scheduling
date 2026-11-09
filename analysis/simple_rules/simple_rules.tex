@@ -1,0 +1,26 @@
+Figure~\ref{fig:heuristic_premiums} shows the route-time premium of each heuristic relative to partial-charging labeling, overall and by route class.
+
+\begin{figure}[tbp]
+    \centering
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/simple_rules/full_premium.pdf}
+        \caption{Full-charge}\label{fig:full_premium}
+    \end{subfigure}\hfill
+    \begin{subfigure}[b]{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/simple_rules/overlap_premium.pdf}
+        \caption{Overlap-only}\label{fig:overlap_premium}
+    \end{subfigure}
+    \caption{Route-time premiums on 43 base-case routes at $t^{\mathrm{sync}}=1$~h. Each premium is $100(T_{\mathrm{heuristic}}-T_{\mathrm{partial}})/T_{\mathrm{partial}}$, where $T_{\mathrm{partial}}$ is the partial-charging labeling time for the same route. Diamonds and labels give the mean route-level premium. Boxes span the interquartile range, with a line at the median. Whiskers extend to the most extreme observation within 1.5 interquartile ranges of the box. Open circles mark observations beyond the whiskers. The base settings are 750~kWh, 350~kW, 60~km, and 1.49~kWh/km.}
+    \label{fig:heuristic_premiums}
+\end{figure}
+
+Figure~\ref{fig:sync_horizon} shows how the mean premium and its variation across routes change with the synchronization horizon.
+
+\begin{figure}[tbp]
+    \centering
+    \includegraphics[width=\linewidth]{figures/simple_rules/sync_horizon.pdf}
+    \caption{Mean route-time premium across the same 43 routes at each synchronization horizon, relative to partial-charging labeling for each route. Markers show tested horizons. Shaded bands extend one sample standard deviation above and below each policy mean. Both policies produced validated schedules for all 43 instances at every tested horizon.}
+    \label{fig:sync_horizon}
+\end{figure}

@@ -31,7 +31,7 @@ TABLE = OUT / "tables"
 LATEX = OUT / "latex"
 PREVIEW = OUT / "previews"
 KEYS = ["battery", "power", "spacing", "consumption"]
-LABELS = ["Battery capacity (kWh)", "Charging power (kW)", "Station spacing (km)", "Energy consumption (kWh/km)"]
+UNITS = ["kWh", "kW", "km", "kWh/km"]
 BASE_CAPTION = ("The base configuration is 750~kWh battery capacity, 350~kW charging power, "
                 "60~km maximum charging-station spacing, and 1.49~kWh/km energy consumption.")
 
@@ -67,13 +67,18 @@ def draw_sensitivity(ax, parameter, stats, cohort, index, ymax):
         ax.scatter(x[zero], means[zero], marker="_", s=65, color=color,
                    linewidth=2.2, zorder=5, clip_on=False)
         handles.append(Patch(facecolor=color, alpha=.86, label=f"{NAMES[route]} (n = {n})"))
-    ax.set_xticks(ticks, [f"{v:g}" + ("\n(base)" if v == BASE[index] else "") for v in levels])
-    ax.set_xlim(-.6, len(levels) - .4)
-    ax.set_xlabel(LABELS[index])
+    ax.set_xticks(ticks, [f"{v:g}" + ("\n(base)" if v == BASE[index] else "")
+                          for v in levels])
+    ax.set_xlim(-.6, len(levels) - .15)
     ax.set_ylabel("Electric minus diesel (%)")
     ax.set_ylim(0, ymax)
     ax.set_yticks(np.arange(0, ymax + .1, max(1, math.ceil(ymax / 5))))
     clean(ax)
+    # Use the tick-label transform so the unit follows the same baseline and padding.
+    tick_label = ax.get_xticklabels()[-1]
+    ax.text(ax.get_xlim()[1], 0, UNITS[index], transform=tick_label.get_transform(),
+            ha="right", va=tick_label.get_va(), fontproperties=tick_label.get_fontproperties(),
+            color=tick_label.get_color())
     ax.legend(handles=handles, loc="upper right" if index < 2 else "upper left",
               frameon=False, fontsize=9.5, handlelength=1.6, labelspacing=.35, borderaxespad=.5)
 
@@ -103,8 +108,8 @@ def write_latex(summary, cohorts):
     (LATEX / "base_comparison.tex").write_text("\n".join(base), encoding="utf-8")
 
     sensitivity = [r"\begin{figure}[tbp]", r"    \centering"]
-    for i, (key, label) in enumerate(zip(KEYS, LABELS)):
-        sensitivity += panel(key, label.split(" (")[0], f"fig:conditions_{key}")
+    for i, key in enumerate(KEYS):
+        sensitivity += panel(key, "", f"fig:conditions_{key}")
         if i % 2 == 0:
             sensitivity[-1] += r"\hfill"
         elif i == 1:
@@ -116,7 +121,8 @@ def write_latex(summary, cohorts):
     missing_text = (" Battery capacities of " + ", ".join(f"{x:g}" for x in missing) +
                     "~kWh are unavailable and omitted.") if missing else ""
     sensitivity += [r"    \caption{One-at-a-time sensitivity of the electric--diesel route-time penalty,",
-                    "    separated by route class. " + BASE_CAPTION,
+                    "    separated by route class. Panels (a)--(d) vary battery capacity, charging power,",
+                    "    station spacing, and energy consumption, respectively. " + BASE_CAPTION,
                     "    All parameters other than the one shown remain at base values. Bars show class means;",
                     "    whiskers span the 25th to 75th percentiles, describing variation across instances,",
                     "    not confidence intervals. A fixed matched set is used within each panel: " + sample_text + ".",
@@ -181,13 +187,13 @@ def main():
     for i, (parameter, key) in enumerate(zip(PARAMETERS, KEYS)):
         fig, ax = plt.subplots(figsize=(4.25, 3.5))
         draw_sensitivity(ax, parameter, stats, cohorts[parameter], i, ymax)
-        fig.subplots_adjust(left=.17, right=.98, bottom=.24, top=.98)
+        fig.subplots_adjust(left=.17, right=.98, bottom=.15, top=.98)
         save_panel(fig, key)
-    fig, axes = plt.subplots(2, 2, figsize=(8.5, 7.5))
+    fig, axes = plt.subplots(2, 2, figsize=(8.5, 6.5))
     for i, (ax, parameter) in enumerate(zip(axes.flat, PARAMETERS)):
         draw_sensitivity(ax, parameter, stats, cohorts[parameter], i, ymax)
-        ax.text(.5, -.40, f"({chr(97+i)}) {LABELS[i].split(' (')[0]}", ha="center", va="top", transform=ax.transAxes, fontsize=11)
-    fig.subplots_adjust(left=.08, right=.99, bottom=.19, top=.99, hspace=.70, wspace=.30)
+        ax.text(.5, -.23, f"({chr(97+i)})", ha="center", va="top", transform=ax.transAxes, fontsize=11)
+    fig.subplots_adjust(left=.08, right=.99, bottom=.12, top=.99, hspace=.43, wspace=.30)
     fig.savefig(PREVIEW / "sensitivities.png", dpi=190, facecolor="white")
     plt.close(fig)
     summary = pd.DataFrame([dict(route_class=c, **summarize(base if c == "all" else base[base.route_class.eq(c)]))
