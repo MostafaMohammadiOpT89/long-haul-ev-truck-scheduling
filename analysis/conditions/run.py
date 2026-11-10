@@ -1,227 +1,292 @@
-"""Current paper figures: base comparison and class-specific sensitivity bars.
+"""Draft Section 5.1 figures from explicitly matched inherited results.
 
 Run: python -m analysis.conditions.run
-Base, sensitivity and operational panels, tables and Overleaf snippets.
+The archive does not establish solver termination status or overall feasibility.
+Missing records are never treated as infeasible. No optimization is run here.
 """
+from __future__ import annotations
+
+import hashlib
+import itertools
 import json
-import math
-import zipfile
 from pathlib import Path
-from shutil import copyfile
 
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
+from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 
-from analysis.common.inputs import ANALYSIS_OUTPUT
-from analysis.conditions.data import (
-    ROOT, SOURCE, MEMBERS, BASE, PARAMETERS, CLASSES, NAMES, sha,
-    load_pairs, matched_slices, summarize,
-)
-from analysis.conditions.plot_helpers import COLORS, INK, clean, draw_base, class_statistics
-from analysis.conditions.operations import generate as generate_operations
+from common.paths import ROOT, BENCHMARK
+from common.results import read_frame
+from analysis.common.inputs import INPUTS, input_source, ANALYSIS_OUTPUT
 
 OUT = ANALYSIS_OUTPUT / "conditions"
 FIG = OUT / "figures"
 TABLE = OUT / "tables"
-LATEX = OUT / "latex"
-PREVIEW = OUT / "previews"
-KEYS = ["battery", "power", "spacing", "consumption"]
-UNITS = ["kWh", "kW", "km", "kWh/km"]
-BASE_CAPTION = ("The base configuration is 750~kWh battery capacity, 350~kW charging power, "
-                "60~km maximum charging-station spacing, and 1.49~kWh/km energy consumption.")
+PARAMS = {
+    "battery_capacity_kWh": (750., "Battery capacity (kWh)"),
+    "charging_power_kW": (350., "Charging power (kW)"),
+    "charging_station_interval_km": (60., "Station spacing (km)"),
+    "energy_consumption_rate_kWh_per_km": (1.49, "Energy consumption (kWh/km)"),
+}
+COLORS = ["#26758A", "#BF7332", "#766399"]
+CLASSES = ["short", "med", "long"]
+NAMES = {"short": "Short", "med": "Medium", "long": "Long", "all": "All routes"}
+TOL_HOURS = 1e-7
 
 
-def shared_limit(stats):
-    return max(1, math.ceil(1.08 * max(stats.q75.max(), stats.mean_gap_pct.max())))
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def draw_sensitivity(ax, parameter, stats, cohort, index, ymax):
-    selected = stats[stats.parameter.eq(parameter)]
-    levels = sorted(selected.level.unique())
-    present = [route for route in CLASSES if cohort["route_classes"][route] > 0]
-    ticks = np.arange(len(levels))
-    handles = []
-    for route, color in zip(CLASSES, COLORS):
-        n = cohort["route_classes"][route]
-        if n == 0:
-            handles.append(Line2D([], [], color="#ADB5BA", marker="x", ls="",
-                                  label=f"{NAMES[route]}: no matched data", markersize=5))
-            continue
-        values = selected[selected.route_class.eq(route)].sort_values("level")
-        assert list(values.level) == levels and values.n.eq(n).all()
-        means, q25, q75 = values.mean_gap_pct.to_numpy(), values.q25.to_numpy(), values.q75.to_numpy()
-        width = .70 / len(present)
-        x = ticks + (present.index(route) - (len(present) - 1) / 2) * width
-        ax.bar(x, means, width=width * .90, color=color, alpha=.86,
-               edgecolor=color, linewidth=.6, zorder=3)
-        # IQR endpoints, not confidence intervals or errors around the mean.
-        ax.vlines(x, q25, q75, colors=INK, linewidth=1.05, zorder=4)
-        for quantile in (q25, q75):
-            ax.hlines(quantile, x - width * .16, x + width * .16, color=INK, linewidth=1.05, zorder=4)
-        zero = np.isclose(means, 0, atol=1e-12)
-        ax.scatter(x[zero], means[zero], marker="_", s=65, color=color,
-                   linewidth=2.2, zorder=5, clip_on=False)
-        handles.append(Patch(facecolor=color, alpha=.86, label=f"{NAMES[route]} (n = {n})"))
-    ax.set_xticks(ticks, [f"{v:g}" + ("\n(base)" if v == BASE[index] else "")
-                          for v in levels])
-    ax.set_xlim(-.6, len(levels) - .15)
-    ax.set_ylabel("Electric minus diesel (%)")
-    ax.set_ylim(0, ymax)
-    ax.set_yticks(np.arange(0, ymax + .1, max(1, math.ceil(ymax / 5))))
-    clean(ax)
-    # Use the tick-label transform so the unit follows the same baseline and padding.
-    tick_label = ax.get_xticklabels()[-1]
-    ax.text(ax.get_xlim()[1], 0, UNITS[index], transform=tick_label.get_transform(),
-            ha="right", va=tick_label.get_va(), fontproperties=tick_label.get_fontproperties(),
-            color=tick_label.get_color())
-    ax.legend(handles=handles, loc="upper right" if index < 2 else "upper left",
-              frameon=False, fontsize=9.5, handlelength=1.6, labelspacing=.35, borderaxespad=.5)
+def load(path):
+    frame = read_frame(path)
+    frame = frame.loc[frame._runner_algorithm.eq("partial_labeling")].copy()
+    frame["feasible"] = frame.feasible.astype(str).str.lower().map({"true": True, "false": False})
+    if frame.feasible.isna().any():
+        raise ValueError(f"Unknown feasibility encoding: {path}")
+    if frame.loc[frame.feasible, "total_route_time_hours"].isna().any():
+        raise ValueError(f"Feasible record without route duration: {path}")
+    return frame
 
 
-def save_panel(fig, name):
-    fig.savefig(FIG / f"{name}.pdf", facecolor="white")
-    fig.savefig(FIG / f"{name}.png", dpi=220, facecolor="white")
+def pair(ev, refs):
+    result = ev.merge(refs, on="instance_id", how="left", validate="many_to_one")
+    if result.diesel_hours.isna().any():
+        raise ValueError("Missing diesel reference")
+    result["gap_hours"] = result.total_route_time_hours - result.diesel_hours
+    if result.loc[result.feasible, "gap_hours"].lt(-TOL_HOURS).any():
+        raise ValueError("EV result improves on its diesel lower bound; investigate before plotting")
+    # Only remove floating-point noise, never substantive negative observations.
+    result.loc[result.gap_hours.abs().le(TOL_HOURS), "gap_hours"] = 0.
+    result["gap_minutes"] = 60 * result.gap_hours
+    result["gap_pct"] = 100 * result.gap_hours / result.diesel_hours
+    result["route_class"] = result.instance_id.str.split("_").str[0]
+    return result
+
+
+def summarize(frame):
+    return {
+        "n": int(len(frame)), "diesel_hours": frame.diesel_hours.mean(),
+        "ev_hours": frame.total_route_time_hours.mean(),
+        "mean_gap_pct": frame.gap_pct.mean(), "median_gap_pct": frame.gap_pct.median(),
+        "p90_gap_pct": frame.gap_pct.quantile(.9), "max_gap_pct": frame.gap_pct.max(),
+        "mean_gap_minutes": frame.gap_minutes.mean(), "max_gap_minutes": frame.gap_minutes.max(),
+        "within_1pct": int(frame.gap_pct.le(1).sum()), "within_5pct": int(frame.gap_pct.le(5).sum()),
+    }
+
+
+def clean_axes(ax):
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.grid(axis="y", color="#DDE1E4", linewidth=.6, zorder=0)
+    ax.set_axisbelow(True)
+
+
+def save(fig, name):
+    fig.savefig(FIG / f"{name}.pdf", bbox_inches="tight")
+    fig.savefig(FIG / f"{name}.png", dpi=220, bbox_inches="tight")
     plt.close(fig)
 
 
-def write_latex(summary, cohorts):
-    def panel(file, caption, label):
-        return [r"    \begin{subfigure}[t]{0.49\linewidth}", r"        \centering",
-                f"        \\includegraphics[width=\\linewidth]{{figures/conditions/{file}.pdf}}",
-                f"        \\caption{{{caption}}}", f"        \\label{{{label}}}", r"    \end{subfigure}"]
+def base_figure(frame):
+    fig, axes = plt.subplots(1, 2, figsize=(8.4, 3.65))
+    for ax, field, title, ylabel in zip(axes, ["gap_pct", "gap_minutes"],
+            ["(a) Relative time penalty", "(b) Additional route time"],
+            ["EV minus diesel (%)", "EV minus diesel (minutes)"]):
+        for index, (route, color) in enumerate(zip(CLASSES, COLORS), 1):
+            values = frame.loc[frame.route_class.eq(route)].sort_values("instance_id")[field].to_numpy()
+            ax.boxplot(values, positions=[index], widths=.5, showfliers=False, patch_artist=True,
+                       boxprops={"facecolor": color, "alpha": .18, "edgecolor": color},
+                       medianprops={"color": color, "linewidth": 1.8},
+                       whiskerprops={"color": color}, capprops={"color": color})
+            # Deterministic spread shows each of the few benchmark observations.
+            jitter = np.random.default_rng(42 + index).uniform(-.15, .15, len(values))
+            ax.scatter(index + jitter, values, s=21, color=color, alpha=.85, linewidths=.4,
+                       edgecolors="white", zorder=3)
+            ax.scatter(index, values.mean(), marker="D", s=36, color="white", edgecolor="#222222", zorder=5)
+        ax.set_xticks([1, 2, 3], [f"{NAMES[c]}\n(n={sum(frame.route_class.eq(c))})" for c in CLASSES])
+        ax.set_title(title, loc="left", pad=9)
+        ax.set_ylabel(ylabel)
+        ax.set_ylim(bottom=-.03 * frame[field].max())
+        clean_axes(ax)
+    fig.legend(handles=[Line2D([], [], marker="o", color="#555555", linestyle="none", label="Individual route"),
+                        Line2D([], [], marker="D", markerfacecolor="white", color="#222222", linestyle="none", label="Mean")],
+               loc="upper center", ncol=2, bbox_to_anchor=(.5, 1.03), frameon=False)
+    fig.tight_layout(rect=(0, 0, 1, .94), w_pad=2)
+    save(fig, "base_case")
 
-    base = [r"\begin{figure}[tbp]", r"    \centering"]
-    base += panel("time_penalty", "Relative time penalty", "fig:conditions_base_relative")
-    base[-1] += r"\hfill"
-    base += panel("extra_time", "Additional route time", "fig:conditions_base_additional")
-    base += [r"    \caption{Route-time penalties of partial-charging electric schedules relative to diesel",
-             "    for all 43 instances (13 short, 15 medium, and 15 long). " + BASE_CAPTION,
-             "    Dots show individual instances and diamonds show means. Boxes span the interquartile",
-             "    range, with the median shown inside. Whiskers extend to the most extreme observations",
-             "    within 1.5 interquartile ranges; all observations are shown.}",
-             r"    \label{fig:conditions_base}", r"\end{figure}", ""]
-    (LATEX / "base_comparison.tex").write_text("\n".join(base), encoding="utf-8")
 
-    sensitivity = [r"\begin{figure}[tbp]", r"    \centering"]
-    for i, key in enumerate(KEYS):
-        sensitivity += panel(key, "", f"fig:conditions_{key}")
-        if i % 2 == 0:
-            sensitivity[-1] += r"\hfill"
-        elif i == 1:
-            sensitivity += ["", r"    \medskip", ""]
-    sample_text = "; ".join(f"({chr(97+i)}) " + ", ".join(
-        f"{cohorts[p]['route_classes'][c]} {NAMES[c].lower()}" for c in CLASSES)
-        for i, p in enumerate(PARAMETERS))
-    missing = cohorts["battery_kwh"]["unavailable_levels"]
-    missing_text = (" Battery capacities of " + ", ".join(f"{x:g}" for x in missing) +
-                    "~kWh are unavailable and omitted.") if missing else ""
-    sensitivity += [r"    \caption{One-at-a-time sensitivity of the electric--diesel route-time penalty,",
-                    "    separated by route class. Panels (a)--(d) vary battery capacity, charging power,",
-                    "    station spacing, and energy consumption, respectively. " + BASE_CAPTION,
-                    "    All parameters other than the one shown remain at base values. Bars show class means;",
-                    "    whiskers span the 25th to 75th percentiles, describing variation across instances,",
-                    "    not confidence intervals. A fixed matched set is used within each panel: " + sample_text + ".",
-                    "    Sets can differ between panels. Unavailable classes are not plotted as zero." + missing_text,
-                    "    All four panels use the same vertical scale.}", r"    \label{fig:conditions_sensitivity}",
-                    r"\end{figure}", ""]
-    (LATEX / "sensitivities.tex").write_text("\n".join(sensitivity), encoding="utf-8")
+def sensitivity_figure(slices, cohort):
+    fig, axes = plt.subplots(2, 2, figsize=(8.4, 5.6), sharey=True)
+    stats = []
+    for ax, (param, (default, xlabel)), letter in zip(axes.flat, PARAMS.items(), "abcd"):
+        frame = slices[param].loc[lambda x: x.instance_id.isin(cohort)]
+        wide = frame.pivot(index="instance_id", columns=param, values="gap_pct").sort_index(axis=1)
+        assert wide.notna().all().all() and len(wide) == len(cohort)
+        levels = wide.columns.to_numpy()
+        means, p90 = wide.mean().to_numpy(), wide.quantile(.9).to_numpy()
+        q25, q75 = wide.quantile(.25).to_numpy(), wide.quantile(.75).to_numpy()
+        ax.fill_between(levels, q25, q75, color="#26758A", alpha=.16, label="Interquartile range")
+        ax.plot(levels, means, "o-", color="#26758A", linewidth=1.8, markersize=4, label="Mean")
+        ax.plot(levels, p90, "s--", color="#BF7332", linewidth=1.3, markersize=4, label="90th percentile")
+        ax.axvline(default, color="#777777", linestyle=":", linewidth=1, label="Base setting")
+        ax.set_xticks(levels, [f"{x:g}" for x in levels])
+        ax.set_xlabel(xlabel)
+        ax.set_title(f"({letter}) {xlabel.split(' (')[0]}", loc="left")
+        clean_axes(ax)
+        for level in levels:
+            stats.append({"parameter": param, "level": level, **summarize(frame[frame[param].eq(level)])})
+    for ax in axes[:, 0]:
+        ax.set_ylabel("EV minus diesel (%)")
+    handles, labels = axes[0, 0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=4, frameon=False, bbox_to_anchor=(.5, 1.01))
+    fig.text(.5, .005, f"Exploratory subset: the same {len(cohort)} short routes at every setting; other parameters held at base values.",
+             ha="center", fontsize=8.5, color="#555555")
+    fig.tight_layout(rect=(0, .045, 1, .94), h_pad=1.7)
+    save(fig, "sensitivities")
+    return pd.DataFrame(stats)
 
-    table = [r"\begin{table}[tbp]", r"\centering", r"\begin{threeparttable}",
-             r"\caption{Base-case route-time comparison of partial-charging electric schedules with the diesel reference. " + BASE_CAPTION + "}",
-             r"\label{tab:conditions_base}", r"\small", r"\setlength{\tabcolsep}{4pt}",
-             r"\begin{tabular}{@{}lrrrrrrr@{}}", r"\toprule",
-             r"Route class & $n$ & \multicolumn{2}{c}{Mean route time (h)} & \multicolumn{2}{c}{Penalty (\%)} & \multicolumn{2}{c}{Extra time (min)} \\",
-             r"\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(l){7-8}",
-             r" & & Diesel & Electric & Mean & P90 & Mean & Max. \\", r"\midrule"]
-    for row in summary.itertuples():
-        cells = [NAMES[row.route_class], str(row.n), f"{row.diesel_hours:.2f}", f"{row.electric_hours:.2f}",
-                 f"{row.mean_gap_pct:.2f}", f"{row.p90_gap_pct:.2f}", f"{row.mean_gap_minutes:.1f}", f"{row.max_gap_minutes:.1f}"]
-        if row.route_class == "all":
-            table.append(r"\midrule")
-            cells = [r"\textbf{" + value + "}" for value in cells]
-        table.append(" & ".join(cells) + r" \\")
-    table += [r"\bottomrule", r"\end{tabular}", r"\begin{tablenotes}[flushleft]\footnotesize",
-              r"\item Each instance receives equal weight. Percentage penalties are calculated as $100(T_i^{\mathrm{EV}}-T_i^{\mathrm{D}})/T_i^{\mathrm{D}}$ before averaging. Extra time is electric minus diesel duration.",
-              r"\item P90 denotes the empirical 90th percentile of instance-level percentage penalties, using linear interpolation.",
-              r"\end{tablenotes}", r"\end{threeparttable}", r"\end{table}", ""]
-    (TABLE / "base_case.tex").write_text("\n".join(table), encoding="utf-8")
-    (LATEX / "packages.tex").write_text("\n".join(r"\usepackage{" + p + "}" for p in
-        ["graphicx", "subcaption", "booktabs", "threeparttable"]) + "\n", encoding="utf-8")
-    (LATEX / "preview.tex").write_text("\n".join([
-        r"\documentclass{article}", r"\usepackage[a4paper,margin=20mm]{geometry}", r"\input{packages}",
-        r"\begin{document}", r"\input{operational_paragraph}", r"\end{document}", ""]), encoding="utf-8")
+
+def heatmap_figure(sweep, cohort):
+    frame = sweep[sweep.charging_station_interval_km.eq(60) & sweep.instance_id.isin(cohort)]
+    groupcols = ["energy_consumption_rate_kWh_per_km", "battery_capacity_kWh", "charging_power_kW"]
+    rows = [{**dict(zip(groupcols, key)), **summarize(group)} for key, group in frame.groupby(groupcols)]
+    stats = pd.DataFrame(rows)
+    assert stats.n.eq(len(cohort)).all()
+    fig, axes = plt.subplots(1, 3, figsize=(8.4, 2.75), sharey=True, layout="constrained")
+    for ax, (consumption, group) in zip(axes, stats.groupby(groupcols[0])):
+        matrix = group.pivot(index=groupcols[1], columns=groupcols[2], values="mean_gap_pct").sort_index(ascending=False)
+        im = ax.imshow(matrix.values, cmap="YlGnBu", vmin=0, vmax=stats.mean_gap_pct.max(), aspect="auto")
+        for (row, col), value in np.ndenumerate(matrix.values):
+            ax.text(col, row, f"{value:.2f}", ha="center", va="center",
+                    color="white" if value > .55 * stats.mean_gap_pct.max() else "#222222", fontsize=10)
+        ax.set_xticks(range(len(matrix.columns)), [f"{x:g}" for x in matrix.columns])
+        ax.set_yticks(range(len(matrix.index)), [f"{x:g}" for x in matrix.index])
+        ax.set_xlabel("Charging power (kW)")
+        ax.set_title(f"Consumption: {consumption:g} kWh/km", fontsize=10)
+        ax.set_xticks(np.arange(-.5, len(matrix.columns), 1), minor=True)
+        ax.set_yticks(np.arange(-.5, len(matrix.index), 1), minor=True)
+        ax.grid(which="minor", color="white", linewidth=2)
+        ax.tick_params(which="minor", bottom=False, left=False)
+        if np.isclose(consumption, 1.49):
+            row = list(matrix.index).index(750.)
+            col = list(matrix.columns).index(350.)
+            ax.add_patch(Rectangle((col-.5, row-.5), 1, 1, fill=False, edgecolor="#222222", linewidth=2))
+    axes[0].set_ylabel("Battery capacity (kWh)")
+    bar = fig.colorbar(im, ax=axes, fraction=.035, pad=.02)
+    bar.set_label("Mean EV minus diesel (%)")
+    fig.suptitle(f"Exploratory interaction: {len(cohort)} matched short routes; station spacing 60 km", fontsize=10)
+    save(fig, "battery_power")
+    return stats
 
 
 def main():
-    for folder in (FIG, TABLE, LATEX, PREVIEW):
+    for folder in (OUT, FIG, TABLE):
         folder.mkdir(parents=True, exist_ok=True)
-    draft = Path(__file__).with_name("latex") / "operational_paragraph.tex"
-    if not (LATEX / draft.name).exists():
-        copyfile(draft, LATEX / draft.name)
-    assert BASE == (750., 350., 60., 1.49), "Update caption base values"
-    plt.rcParams.update({"font.family": "serif", "font.serif": ["DejaVu Serif"], "font.size": 10,
-                         "text.color": INK, "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK,
-                         "axes.edgecolor": "#86939A", "axes.linewidth": .65, "pdf.fonttype": 42})
-    ev, base = load_pairs()
-    frames, cohorts, _ = matched_slices(ev)
-    stats = class_statistics(frames)
-    ymax = shared_limit(stats)
-    for field, key in [("gap_pct", "time_penalty"), ("gap_minutes", "extra_time")]:
-        fig, ax = plt.subplots(figsize=(4.25, 3.5))
-        draw_base(ax, base, field)
-        fig.subplots_adjust(left=.18, right=.98, bottom=.22, top=.98)
-        save_panel(fig, key)
-    fig, axes = plt.subplots(1, 2, figsize=(8.5, 3.7))
-    for ax, field in zip(axes, ["gap_pct", "gap_minutes"]):
-        draw_base(ax, base, field)
-    fig.subplots_adjust(left=.08, right=.99, bottom=.25, top=.98, wspace=.34)
-    for x, label in [(.29, "(a) Relative time penalty"), (.79, "(b) Additional route time")]:
-        fig.text(x, .015, label, ha="center", fontsize=11)
-    fig.savefig(PREVIEW / "base_comparison.png", dpi=190, facecolor="white")
-    plt.close(fig)
-    for i, (parameter, key) in enumerate(zip(PARAMETERS, KEYS)):
-        fig, ax = plt.subplots(figsize=(4.25, 3.5))
-        draw_sensitivity(ax, parameter, stats, cohorts[parameter], i, ymax)
-        fig.subplots_adjust(left=.17, right=.98, bottom=.15, top=.98)
-        save_panel(fig, key)
-    fig, axes = plt.subplots(2, 2, figsize=(8.5, 6.5))
-    for i, (ax, parameter) in enumerate(zip(axes.flat, PARAMETERS)):
-        draw_sensitivity(ax, parameter, stats, cohorts[parameter], i, ymax)
-        ax.text(.5, -.23, f"({chr(97+i)})", ha="center", va="top", transform=ax.transAxes, fontsize=11)
-    fig.subplots_adjust(left=.08, right=.99, bottom=.12, top=.99, hspace=.43, wspace=.30)
-    fig.savefig(PREVIEW / "sensitivities.png", dpi=190, facecolor="white")
-    plt.close(fig)
-    summary = pd.DataFrame([dict(route_class=c, **summarize(base if c == "all" else base[base.route_class.eq(c)]))
-                            for c in [*CLASSES, "all"]])
-    write_latex(summary, cohorts)
-    summary.to_csv(TABLE / "base_case.csv", index=False)
-    stats.to_csv(TABLE / "sensitivity.csv", index=False)
-    base.to_csv(TABLE / "base_pairs.csv", index=False)
-    pd.concat([f.assign(varied_parameter=p) for p, f in frames.items()]).to_csv(TABLE / "sensitivity_pairs.csv", index=False)
-    pd.DataFrame([dict(parameter=p, instance_id=i) for p, c in cohorts.items() for i in c["instance_ids"]]).to_csv(TABLE / "matched_instances.csv", index=False)
-    audit = dict(source=str(SOURCE.relative_to(ROOT)), source_sha256=sha(SOURCE), membership_sha256=sha(MEMBERS),
-                 code_sha256={p.name: sha(p) for p in [Path(__file__), Path(__file__).with_name("data.py"), Path(__file__).with_name("plot_helpers.py")]},
-                 base_n=43, base_settings=dict(zip(PARAMETERS, BASE)), cohorts=cohorts,
-                 sensitivity_y_limits=[0, ymax], statistics="Equal-weight class means and empirical IQR; not confidence intervals.",
-                 limitations=["No long instances currently have complete matched results.",
-                              "Solver termination is not certified by the saved records.",
-                              "Changing station spacing can change candidate station locations; sets need not be nested."])
+    config = INPUTS
+    source_names = ["base_unified", "sweep_unified", "sweep_diesel"]
+    sources = {key: input_source(key) for key in source_names}
+    base_raw, sweep_raw, old_diesel = (load(sources[k]) for k in source_names)
+    expected = sorted(p.name for p in BENCHMARK.iterdir() if p.is_dir() and (p / f"{p.name}.txt").is_file())
+    ev = base_raw[base_raw.battery_capacity_kWh.eq(750)].copy()
+    refs = base_raw[base_raw.battery_capacity_kWh.gt(1e7)].copy()
+    assert not ev.duplicated("instance_id").any() and not refs.duplicated("instance_id").any()
+    assert not old_diesel.duplicated("instance_id").any()
+    assert refs.feasible.all() and old_diesel.feasible.all()
+    for param, (value, _) in PARAMS.items():
+        assert ev[param].eq(value).all()
+    overlap = refs.merge(old_diesel, on="instance_id", suffixes=("_base", "_older"))
+    assert np.allclose(overlap.total_route_time_hours_base, overlap.total_route_time_hours_older, atol=TOL_HOURS, rtol=0)
+    refs = refs[["instance_id", "total_route_time_hours"]].assign(diesel_source="base_unified")
+    additions = old_diesel.loc[~old_diesel.instance_id.isin(refs.instance_id), ["instance_id", "total_route_time_hours"]]
+    refs = pd.concat([refs, additions.assign(diesel_source="sweep_diesel")], ignore_index=True)
+    refs = refs.rename(columns={"total_route_time_hours": "diesel_hours"})
+    assert not sweep_raw.duplicated(["instance_id"] + list(PARAMS)).any()
+    base = pair(ev, refs)
+    sweep = pair(sweep_raw, refs)
+    assert set(base.instance_id) <= set(expected) and set(sweep.instance_id) <= set(expected)
+    overlap_ev = sweep.merge(base[["instance_id", "total_route_time_hours"]], on="instance_id", suffixes=("", "_base"))
+    mask = np.logical_and.reduce([overlap_ev[p].eq(v).to_numpy() for p, (v, _) in PARAMS.items()])
+    assert np.allclose(overlap_ev.loc[mask, "total_route_time_hours"], overlap_ev.loc[mask, "total_route_time_hours_base"], atol=TOL_HOURS, rtol=0)
+    # A common complete observed-feasible cohort prevents changing composition.
+    slices, sets = {}, []
+    for param in PARAMS:
+        subset = sweep.loc[sweep.feasible].copy()
+        for other, (value, _) in PARAMS.items():
+            if other != param:
+                subset = subset[subset[other].eq(value)]
+        slices[param] = subset
+        for _, group in subset.groupby(param):
+            sets.append(set(group.instance_id))
+    common = set.intersection(*sets)
+    interaction = sweep[sweep.feasible & sweep.charging_station_interval_km.eq(60)]
+    heat_common = set.intersection(*[set(g.instance_id) for _, g in interaction.groupby(
+        ["battery_capacity_kWh", "charging_power_kW", "energy_consumption_rate_kWh_per_km"])])
+    assert common and heat_common
+    assert all(x.startswith("short_") for x in common | heat_common), "Update figure cohort descriptions"
+    plt.rcParams.update({"font.family": "serif", "font.serif": ["DejaVu Serif"], "font.size": 9,
+                         "axes.titlesize": 10, "axes.labelsize": 9, "pdf.fonttype": 42,
+                         "axes.linewidth": .6, "savefig.facecolor": "white"})
+    base_figure(base.loc[base.feasible])
+    sens = sensitivity_figure(slices, common)
+    heat = heatmap_figure(sweep, heat_common)
+    summary = []
+    for cls in CLASSES + ["all"]:
+        subset = base if cls == "all" else base[base.route_class.eq(cls)]
+        intended = len(expected) if cls == "all" else sum(x.startswith(cls + "_") for x in expected)
+        summary.append({"route_class": cls, "stored_routes": intended, **summarize(subset[subset.feasible])})
+    summary = pd.DataFrame(summary)
+    for name, frame in [("base_pairs", base), ("base_summary", summary), ("sensitivity_summary", sens),
+                        ("interaction_summary", heat), ("diesel_references", refs)]:
+        # Export only analysis fields, not a duplicate of raw serialized timelines.
+        frame.drop(columns=["activity_timeline"], errors="ignore").to_csv(TABLE / f"{name}.csv", index=False)
+    table = [r"\begin{table}[htbp]", r"\centering", r"\begin{threeparttable}",
+             r"\caption{Draft base-case comparison of partial-charging electric schedules with the diesel reference.}",
+             r"\label{tab:conditions_base}", r"\small\setlength{\tabcolsep}{4pt}",
+             r"\begin{tabular}{lrrrrrrr}", r"\toprule",
+             r"Route & Pairs & Diesel & Electric & Mean gap & P90 gap & Mean gap & Max. gap \\",
+             r"class & & (h) & (h) & (\%) & (\%) & (min) & (min) \\", r"\midrule"]
+    for _, row in summary.iterrows():
+        if row.route_class == "all":
+            table.append(r"\midrule")
+        table.append(f"{NAMES[row.route_class]} & {int(row.n)} & {row.diesel_hours:.2f} & {row.ev_hours:.2f} & {row.mean_gap_pct:.2f} & {row.p90_gap_pct:.2f} & {row.mean_gap_minutes:.1f} & {row.max_gap_minutes:.1f}" + r" \\")
+    table += [r"\bottomrule", r"\end{tabular}", r"\begin{tablenotes}[flushleft]\footnotesize",
+              r"\item Pairs reports available historical paired records; final benchmark membership remains unresolved. All available pairs are reported feasible; missing records have unknown status. Durations and percentage gaps are averaged over routes, with each route weighted equally. P90 is the empirical 90th percentile of paired percentage gaps (linear interpolation).",
+              r"\item Saved base settings: 750~kWh, 350~kW, 60~km station spacing, and 1.49~kWh/km. Historical input hashes and solver termination status are unavailable.",
+              r"\end{tablenotes}", r"\end{threeparttable}", r"\end{table}"]
+    (TABLE / "base_summary.tex").write_text("\n".join(table) + "\n", encoding="utf-8")
+    levels = {p: sorted(float(x) for x in sweep[p].unique()) for p in PARAMS}
+    expected_grid = list(itertools.product(expected, *(levels[p] for p in PARAMS)))
+    present = set(sweep[["instance_id"] + list(PARAMS)].itertuples(index=False, name=None))
+    absent = [row for row in expected_grid if row not in present]
+    pd.DataFrame(absent, columns=["instance_id"] + list(PARAMS)).to_csv(TABLE / "absent_from_comparison_grid.csv", index=False)
+    audit = {
+        "status": "exploratory inherited data; not a verified complete experiment",
+        "sources": {k: {"path": str(Path(p).relative_to(ROOT)), "sha256": sha(p), "selection": config[k]} for k, p in sources.items()},
+        "analysis_sha256": sha(__file__), "base_settings": {p: v for p, (v, _) in PARAMS.items()},
+        "stored_routes": len(expected), "base_pairs": len(base),
+        "base_missing_routes": sorted(set(expected) - set(base.instance_id)),
+        "base_summary": summary.to_dict("records"), "partial_sweep_rows": len(sweep),
+        "partial_sweep_routes": int(sweep.instance_id.nunique()), "levels": levels,
+        "comparison_grid_size": len(expected_grid), "absent_records_unknown_status": len(absent),
+        "sensitivity_cohort": sorted(common), "interaction_cohort": sorted(heat_common),
+        "older_diesel_reference_additions": sorted(additions.instance_id),
+        "diesel_overlap_consistency_pairs": len(overlap), "base_sweep_consistency_pairs": int(mask.sum()),
+        "max_base_reported_computation_seconds": float(ev.computation_time_seconds.max()),
+        "limitations": ["Complete-case sensitivities cover short routes only and may be selected by solve difficulty.",
+                        "Missing rows do not establish infeasibility or timeout.",
+                        "No optimality/termination status is stored in the selected files.",
+                        "Station-spacing changes regenerate candidate locations; configurations need not be nested.",
+                        "Extended spacing archive contains full charging only and is excluded.",
+                        "The manuscript parameter table must be reconciled with saved base settings."]}
     (OUT / "audit.json").write_text(json.dumps(audit, indent=2) + "\n", encoding="utf-8")
-    generate_operations(base, OUT, BASE_CAPTION)
-    with zipfile.ZipFile(OUT / "conditions.zip", "w", zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(FIG.glob("*.pdf")):
-            archive.write(path, "figures/conditions/" + path.name)
-        for path in sorted(LATEX.glob("*.tex")):
-            archive.write(path, path.name)
-        for path in sorted(TABLE.glob("*.tex")):
-            archive.write(path, "tables/conditions/" + path.name)
-    print(f"Saved eleven panels; all sensitivity axes span 0--{ymax}%.")
-    print("Overleaf bundle:", OUT / "conditions.zip")
+    print(summary.to_string(index=False))
+    print("Sensitivity cohort:", len(common), "short routes; interaction cohort:", len(heat_common))
+    print(sens[["parameter", "level", "n", "mean_gap_pct", "p90_gap_pct"]].to_string(index=False))
+    print("Saved three figures (PDF/PNG), a LaTeX table, source hashes, paired data, and missing-grid diagnostics.")
 
 
 if __name__ == "__main__":

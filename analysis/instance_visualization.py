@@ -1,11 +1,16 @@
-"""Plot benchmark routes in visit order, using cumulative distance in kilometres.
+"""
+Predetermined customer-sequence route visualizations for test instances.
 
-Use --paper for the manuscript panels and the one-page overview of the paper cohort.
-The default command exports individual benchmark plots and the six-route overview.
+Single horizontal line (left → right): origin, corridor charging stations, customers
+in visit order, and destination. Segment lengths are proportional to leg distance
+(km) from each instance distance matrix; leg colour encodes within- / between-cluster
+travel.
+
+Writes one figure (PNG + PDF) per instance under figures_route_corridor/, plus a
+2×3 overview for the six cl3_cu4 balanced/unbalanced short/med/long cases.
 """
 from __future__ import annotations
 
-import argparse
 import csv
 import re
 from dataclasses import dataclass
@@ -14,21 +19,14 @@ from pathlib import Path
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.legend_handler import HandlerTuple
-from matplotlib.lines import Line2D
-from matplotlib.patches import Rectangle
-from matplotlib.ticker import MaxNLocator, StrMethodFormatter
+from matplotlib.patches import FancyArrowPatch, Rectangle
 
-from common.paths import BENCHMARK, ROOT as REPO_ROOT
+from common.paths import BENCHMARK
 from analysis.common.inputs import ANALYSIS_OUTPUT
-
 ROOT = BENCHMARK
 OUT_DIR = ANALYSIS_OUTPUT / "instance_visualization"
-PAPER_FIGURES = REPO_ROOT / "manuscript/synch_paper_latex/figures"
-PAPER_MEMBERS = REPO_ROOT / "instances/PAPER_INSTANCE_SET_43.txt"
-REPRESENTATIVE = ("short_cl2_cu3_Balanced", "med_cl3_cu13_Balanced", "med_cl3_cu13_Unbalanced")
+
 CS_INTERVAL_KM = 60.0
-ROUTE_COLOR = "#59636B"
 
 
 class NodeKind(Enum):
@@ -54,6 +52,20 @@ class SeqNode:
     cust_index: int | None = None
 
 
+@dataclass
+class LegStyle:
+    label: str
+    color: str
+    linestyle: str = "-"
+    linewidth: float = 1.4
+
+
+LEG_STYLES = {
+    "origin_departure": LegStyle("Origin → first customer", "#D55E00", "-", 1.6),
+    "intra_cluster": LegStyle("Within cluster", "#0072B2", "-", 1.4),
+    "inter_cluster": LegStyle("Between clusters", "#CC79A7", "-", 1.5),
+    "return": LegStyle("Last customer → destination", "#009E73", "-", 1.6),
+}
 
 ROUTE_Y = 0.0
 LABEL_Y_OFFSET_PT = 15
@@ -245,12 +257,42 @@ def build_sequence(rows: list[Row], dist: dict[tuple[str, str], float]) -> tuple
     return sequence, leg_lengths
 
 
-def load_route(instance_id: str) -> tuple[list[SeqNode], list[float]]:
-    folder = ROOT / instance_id
-    rows = read_diagnostics(folder / f"{instance_id}_Diagnostics.csv")
-    _, distances = read_distance_matrix(folder / f"{instance_id}_DistanceMatrix.csv")
-    sequence, legs = build_sequence(rows, distances)
-    return sequence, linear_x_positions(legs)
+def classify_leg(sequence: list[SeqNode], leg_idx: int) -> str:
+    if leg_idx >= len(sequence) - 1:
+        return "inter_cluster"
+    nxt = sequence[leg_idx + 1]
+    cur = sequence[leg_idx]
+
+    if cur.kind == NodeKind.ORIGIN:
+        return "origin_departure"
+    if nxt.kind == NodeKind.DESTINATION:
+        return "return"
+
+    if cur.kind == NodeKind.CUSTOMER and nxt.kind == NodeKind.CUSTOMER:
+        if cur.cluster_idx == nxt.cluster_idx:
+            return "intra_cluster"
+        return "inter_cluster"
+
+    prev_cust = None
+    for j in range(leg_idx, -1, -1):
+        if sequence[j].kind == NodeKind.CUSTOMER:
+            prev_cust = sequence[j]
+            break
+    next_cust = None
+    for j in range(leg_idx + 1, len(sequence)):
+        if sequence[j].kind == NodeKind.CUSTOMER:
+            next_cust = sequence[j]
+            break
+
+    if prev_cust and next_cust and prev_cust.cluster_idx == next_cust.cluster_idx:
+        return "intra_cluster"
+    if prev_cust and next_cust:
+        return "inter_cluster"
+    if prev_cust and nxt.kind == NodeKind.DESTINATION:
+        return "return"
+    if cur.kind == NodeKind.ORIGIN or prev_cust is None:
+        return "origin_departure"
+    return "inter_cluster"
 
 
 def linear_x_positions(leg_lengths: list[float]) -> list[float]:
@@ -334,6 +376,41 @@ def customer_label_offsets(
     return offsets
 
 
+def draw_route_segment(
+    ax: plt.Axes,
+    x0: float,
+    x1: float,
+    style_key: str,
+    *,
+    arrow: bool = False,
+) -> None:
+    style = LEG_STYLES[style_key]
+    p0 = (x0, ROUTE_Y)
+    p1 = (x1, ROUTE_Y)
+    if arrow:
+        arr = FancyArrowPatch(
+            p0,
+            p1,
+            arrowstyle="-|>",
+            mutation_scale=10,
+            color=style.color,
+            linewidth=style.linewidth,
+            linestyle=style.linestyle,
+            shrinkA=6,
+            shrinkB=6,
+            zorder=2,
+        )
+        ax.add_patch(arr)
+    else:
+        ax.plot(
+            [x0, x1],
+            [ROUTE_Y, ROUTE_Y],
+            color=style.color,
+            linewidth=style.linewidth,
+            linestyle=style.linestyle,
+            solid_capstyle="round",
+            zorder=2,
+        )
 
 
 def node_label(node: SeqNode) -> str:
@@ -364,8 +441,18 @@ def plot_one_instance(
     show_legend: bool = True,
     marker_size: float | None = None,
 ) -> None:
-    sequence, xs = load_route(instance_folder)
-    total_km = xs[-1]
+    diag = ROOT / instance_folder / f"{instance_folder}_Diagnostics.csv"
+    dist_path = ROOT / instance_folder / f"{instance_folder}_DistanceMatrix.csv"
+    if not diag.exists():
+        raise FileNotFoundError(diag)
+    if not dist_path.exists():
+        raise FileNotFoundError(dist_path)
+
+    rows = read_diagnostics(diag)
+    _, dist = read_distance_matrix(dist_path)
+    sequence, leg_lengths = build_sequence(rows, dist)
+    xs = linear_x_positions(leg_lengths)
+    total_km = xs[-1] if xs else 0.0
 
     customers = [n for n in sequence if n.kind == NodeKind.CUSTOMER]
     n_cust = len(customers)
@@ -386,7 +473,9 @@ def plot_one_instance(
                 zorder=0,
             )
         )
-    ax.plot([0, total_km], [ROUTE_Y, ROUTE_Y], color=ROUTE_COLOR, linewidth=1.3, zorder=2)
+    for i in range(len(sequence) - 1):
+        style_key = classify_leg(sequence, i)
+        draw_route_segment(ax, xs[i], xs[i + 1], style_key, arrow=(i == len(sequence) - 2))
 
     for i, (node, x) in enumerate(zip(sequence, xs)):
         y = ROUTE_Y
@@ -432,6 +521,7 @@ def plot_one_instance(
     ax.set_xlim(-pad_x, total_km + pad_x)
     ax.set_ylim(-0.10, 0.17)
     ax.margins(x=0)
+    ax.axhline(ROUTE_Y, color="0.82", linewidth=2.4, zorder=0, solid_capstyle="butt")
     ax.set_xlabel("")
     ax.set_ylabel("")
     ax.set_yticks([])
@@ -448,134 +538,104 @@ def plot_one_instance(
     )
 
     if show_legend:
-        marker_legend(ax, loc="upper center", bbox_to_anchor=(0.5, -0.14), fontsize=12)
+        from matplotlib.lines import Line2D
+
+        seen: set[str] = set()
+        leg_handles = []
+        for i in range(len(sequence) - 1):
+            key = classify_leg(sequence, i)
+            if key in seen:
+                continue
+            seen.add(key)
+            st = LEG_STYLES[key]
+            leg_handles.append(Line2D([0], [0], color=st.color, linewidth=st.linewidth, label=st.label))
+        leg_handles.extend(
+            [
+                Line2D(
+                    [0],
+                    [0],
+                    marker="s",
+                    linestyle="None",
+                    markerfacecolor=ORIGIN_DEST_FACE,
+                    markeredgecolor=ORIGIN_DEST_EDGE,
+                    markersize=7,
+                    label="Origin / destination",
+                ),
+                Line2D(
+                    [0],
+                    [0],
+                    marker="o",
+                    linestyle="None",
+                    markerfacecolor=CUSTOMER_FACE,
+                    markeredgecolor=CUSTOMER_EDGE,
+                    markersize=7,
+                    label="Customer (cluster colour)",
+                ),
+                Line2D(
+                    [0],
+                    [0],
+                    marker="s",
+                    linestyle="None",
+                    markerfacecolor=STATION_FACE,
+                    markeredgecolor=STATION_EDGE,
+                    markersize=5,
+                    label="Charging station",
+                ),
+            ]
+        )
+        ncols = 3 if len(leg_handles) > 4 else 2
+        ax.legend(
+            handles=leg_handles,
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.14),
+            ncol=ncols,
+            framealpha=0.95,
+            edgecolor="0.8",
+            columnspacing=1.0,
+            handletextpad=0.4,
+            borderpad=0.35,
+            labelspacing=0.3,
+        )
 
 
-def marker_legend(parent, *, fontsize, **placement):
-    def symbol(shape, face, edge, size):
-        return Line2D([], [], linestyle="none", marker=shape, markersize=size,
-                      markerfacecolor=face, markeredgecolor=edge, markeredgewidth=0.6)
+def save_standalone_legend() -> None:
+    """Save the shared legend once for inclusion as a manuscript subfigure."""
+    from matplotlib.lines import Line2D
 
     handles = [
-        symbol("s", ORIGIN_DEST_FACE, ORIGIN_DEST_EDGE, fontsize * 0.62),
-        symbol("s", STATION_FACE, STATION_EDGE, fontsize * 0.46),
-        tuple(symbol("o", cluster_color(k), CUSTOMER_EDGE, fontsize * 0.58) for k in range(3)),
+        Line2D([0], [0], color=style.color, linewidth=2.4, label=style.label)
+        for style in LEG_STYLES.values()
     ]
-    return parent.legend(handles, ["Origin / destination", "Charging station", "Customer (cluster colour)"],
-                         handler_map={tuple: HandlerTuple(ndivide=None, pad=0.13)}, ncol=3,
-                         frameon=False, handlelength=2.25, handletextpad=0.45,
-                         columnspacing=1.5, fontsize=fontsize, **placement)
-
-
-def save_standalone_legend(folder: Path = OUT_DIR) -> None:
-    fig = plt.figure(figsize=(11, 0.34))
-    marker_legend(fig, fontsize=14, loc="center")
-    # Preserve the panel width so legend type scales with the manuscript panels.
-    fig.add_axes([0, 0, 1, 1]).set_axis_off()
-    save_figure(fig, folder / "route_corridor_legend.pdf")
+    handles.extend(
+        [
+            Line2D(
+                [0], [0], marker="s", linestyle="None",
+                markerfacecolor=ORIGIN_DEST_FACE, markeredgecolor=ORIGIN_DEST_EDGE,
+                markersize=11, label=r"Origin / destination ($o$, $d$)",
+            ),
+            Line2D(
+                [0], [0], marker="o", linestyle="None",
+                markerfacecolor=CUSTOMER_FACE, markeredgecolor=CUSTOMER_EDGE,
+                markersize=11, label="Customer (cluster colour)",
+            ),
+            Line2D(
+                [0], [0], marker="s", linestyle="None",
+                markerfacecolor=STATION_FACE, markeredgecolor=STATION_EDGE,
+                markersize=8, label="Charging station",
+            ),
+        ]
+    )
+    fig = plt.figure(figsize=(11.0, 1.15))
+    fig.legend(
+        handles=handles, loc="center", ncol=4, frameon=False,
+        columnspacing=1.5, handletextpad=0.6,
+    )
+    save_figure(fig, OUT_DIR / "route_corridor_legend.pdf")
     plt.close(fig)
-
-
-def draw_overview_row(ax, y, sequence, xs, band_pad):
-    total = xs[-1]
-    ax.plot([0, total], [y, y], color=ROUTE_COLOR, linewidth=0.65, zorder=1)
-    for cluster, _, _, left, right in cluster_spans(sequence, xs):
-        ax.add_patch(Rectangle((left - band_pad, y - 0.31), right - left + 2 * band_pad,
-                               0.62, color=cluster_color(cluster), alpha=0.10, linewidth=0))
-    stations = [x for node, x in zip(sequence, xs) if node.kind == NodeKind.STATION]
-    ax.scatter(stations, [y] * len(stations), marker="s", s=3.5, facecolors=STATION_FACE,
-               edgecolors=STATION_EDGE, linewidths=0.28, zorder=2)
-    customers = [(x, cluster_color(node.cluster_idx)) for node, x in zip(sequence, xs)
-                 if node.kind == NodeKind.CUSTOMER]
-    ax.scatter([x for x, _ in customers], [y] * len(customers), s=15,
-               c=[color for _, color in customers], edgecolors=CUSTOMER_EDGE, linewidths=0.35, zorder=3)
-    ax.scatter([0, total], [y, y], marker="s", s=14, facecolors=ORIGIN_DEST_FACE,
-               edgecolors=ORIGIN_DEST_EDGE, linewidths=0.55, zorder=4, clip_on=False)
-
-
-def save_paper_overview(folder: Path) -> None:
-    members = PAPER_MEMBERS.read_text(encoding="utf-8").splitlines()
-    if len(members) != len(set(members)) or len(members) != 43:
-        raise ValueError(f"Expected 43 distinct paper instances in {PAPER_MEMBERS}")
-    classes = {"short": "Short", "med": "Medium", "long": "Long"}
-    groups = {key: [] for key in classes}
-    for name in members:
-        sequence, xs = load_route(name)
-        groups[name.split("_")[0]].append((name, sequence, xs))
-
-    fig = plt.figure(figsize=(6.4, 8.1))
-    left, right = 0.262, 0.897
-    grid = fig.add_gridspec(3, 1, left=left, right=right, top=0.92, bottom=0.018,
-                            hspace=0.19, height_ratios=[len(group) for group in groups.values()])
-    marker_legend(fig, loc="upper center", bbox_to_anchor=(0.5, 1.0), fontsize=8)
-    for x, label, align in [(0.005, "Instance", "left"),
-                            (left, "Distance from origin (km)", "left"),
-                            (0.995, "Total (km)", "right")]:
-        fig.text(x, 0.949, label, ha=align, va="bottom", fontsize=8.2, color="#414B52")
-
-    for grid_cell, (key, routes) in zip(grid, groups.items()):
-        routes.sort(key=lambda route: (route[2][-1], route[0]))
-        longest = routes[-1][2][-1]
-        ax = fig.add_subplot(grid_cell)
-        ax.set(xlim=(0, longest), ylim=(len(routes) - 0.5, -0.5))
-        ax.set_yticks([])
-        ax.xaxis.tick_top()
-        ax.xaxis.set_major_locator(MaxNLocator(nbins=5, steps=[1, 2, 2.5, 5, 10], integer=True))
-        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
-        ax.tick_params(axis="x", length=0, pad=3, labelsize=7.5, colors="#505B62")
-        ax.grid(axis="x", color="#D8DEE0", linewidth=0.4, linestyle=(0, (2, 3)))
-        ax.set_axisbelow(True)
-        for spine in ax.spines.values():
-            spine.set_visible(False)
-
-        label_x = (0.005 - left) / (right - left)
-        total_x = (0.995 - left) / (right - left)
-        ax.annotate(f"{classes[key]} routes  ($n$ = {len(routes)})", xy=(label_x, 1),
-                    xycoords="axes fraction", xytext=(0, 3), textcoords="offset points",
-                    va="bottom", fontsize=9, fontweight="bold", annotation_clip=False)
-        for row, (name, sequence, xs) in enumerate(routes):
-            draw_overview_row(ax, row, sequence, xs, band_pad=longest * 0.004)
-            ax.text(label_x, row, name, transform=ax.get_yaxis_transform(),
-                    va="center", fontsize=7.6)
-            ax.text(total_x, row, f"{xs[-1]:,.0f}", transform=ax.get_yaxis_transform(),
-                    ha="right", va="center", fontsize=7.6)
-
-    fig.savefig(folder / "benchmark_routes.pdf")
-    fig.savefig(folder / "benchmark_routes.png", dpi=200)
-    plt.close(fig)
-
-
-def paper_figures() -> None:
-    PAPER_FIGURES.mkdir(parents=True, exist_ok=True)
-    mpl.rcParams["pdf.fonttype"] = 42
-    for name in REPRESENTATIVE:
-        fig, ax = plt.subplots(figsize=figure_size())
-        plot_one_instance(ax, name, *titles_for_instance(name), show_legend=False)
-        fig.subplots_adjust(left=0.055, right=0.995, bottom=0.34, top=0.96)
-        save_figure(fig, PAPER_FIGURES / f"route_corridor_{name}.pdf")
-        plt.close(fig)
-    save_standalone_legend(PAPER_FIGURES)
-    save_paper_overview(PAPER_FIGURES)
-
-    preview, axes = plt.subplots(len(REPRESENTATIVE), 1, figsize=(9.4, 4.0))
-    preview.subplots_adjust(left=0.025, right=0.92, top=0.99, bottom=0.23, hspace=1.20)
-    for letter, name, ax in zip("abc", REPRESENTATIVE, axes):
-        plot_one_instance(ax, name, *titles_for_instance(name), show_legend=False)
-        ax.text(0.5, -0.52, f"({letter})  {name}", transform=ax.transAxes, ha="center",
-                va="top", fontsize=11)
-    marker_legend(preview, loc="lower center", fontsize=11)
-    save_figure(preview, OUT_DIR / "representative_routes.png")
-    plt.close(preview)
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--paper", action="store_true", help="regenerate the manuscript route figures")
-    args = parser.parse_args()
     setup_pub_style()
-    if args.paper:
-        paper_figures()
-        return
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     all_ids = discover_instance_ids()

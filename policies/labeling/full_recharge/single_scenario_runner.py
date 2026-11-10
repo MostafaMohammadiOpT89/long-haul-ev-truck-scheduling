@@ -31,7 +31,7 @@ def load_instance_matrices(instance_path: str):
 
 
 
-def run_algorithm_with_profiling(net: network.Network) -> Tuple[list, int, int, Counter]:
+def run_algorithm_with_profiling(net: network.Network, time_limit_seconds: float) -> Tuple[list, int, int, Counter, bool]:
     """Full-recharge labeling algorithm runner (mirrors enhanced_main.py)."""
     networkArcs = net.paraArcs
     U = []
@@ -40,7 +40,7 @@ def run_algorithm_with_profiling(net: network.Network) -> Tuple[list, int, int, 
     dominatedCounter = 0
     labelCounter = 0
     infeasibleReasons: Counter = Counter()
-    maxRuntime = 3000 * 60
+    maxRuntime = float(time_limit_seconds)
     startTime = time.time()
 
     startLabel = label.Label(net._getDepot(), batteryCapacity=net.batteryCap)
@@ -79,7 +79,9 @@ def run_algorithm_with_profiling(net: network.Network) -> Tuple[list, int, int, 
                 P.append(labels_only[i])
             heapq.heapify(U)
 
-    return P, labelCounter, dominatedCounter, infeasibleReasons
+    # Labels still open when the loop ends mean the time limit stopped the search early.
+    timed_out = bool(U)
+    return P, labelCounter, dominatedCounter, infeasibleReasons, timed_out
 
 
 def run_labeling_one(
@@ -89,10 +91,14 @@ def run_labeling_one(
     distance_per_cs: float,
     battery_cap: float,
     charging_power: float,
+    cs_service_time_h: float,
+    rest_charge_sync: bool,
+    solver_time_limit_min: float,
 ) -> Dict[str, Any]:
     citiesArcs = load_instance_matrices(instance_path)
 
-    network.setGlobalParams(consumption, distance_per_cs, battery_cap, charging_power)
+    network.setGlobalParams(consumption, distance_per_cs, battery_cap, charging_power,
+                            cs_service_time_h, rest_charge_sync)
     isFeasible.setGlobalParams(battery_cap)
 
     net = network.Network(instance_path, citiesArcs)
@@ -105,7 +111,10 @@ def run_labeling_one(
     bestTime = float("inf")
 
     with cProfile.Profile() as profile:
-        labelingAlgo, labelsGenerated, labelsDominated, infeasibleReasons = run_algorithm_with_profiling(net)
+        wall_start = time.time()
+        labelingAlgo, labelsGenerated, labelsDominated, infeasibleReasons, timed_out = run_algorithm_with_profiling(
+            net, solver_time_limit_min * 60.0)
+        solver_wall_seconds = time.time() - wall_start
 
         for l in labelingAlgo:
             if all(city in l.path for city in cityNodesList):
@@ -136,7 +145,14 @@ def run_labeling_one(
         totalTime=total_time,
         cityNodesCount=nCityNodes,
     )
-    return result.to_dict()
+    row = result.to_dict()
+    # Settings echoed back so every result row records exactly what it ran with.
+    row["cs_service_time_h"] = float(cs_service_time_h)
+    row["rest_charge_sync"] = bool(rest_charge_sync)
+    row["solver_time_limit_min"] = float(solver_time_limit_min)
+    row["timed_out"] = timed_out
+    row["solver_wall_seconds"] = solver_wall_seconds
+    return row
 
 
 def main() -> int:
@@ -151,6 +167,13 @@ def main() -> int:
     parser.add_argument("--distance_per_cs", type=float, required=True)
     parser.add_argument("--battery_cap", type=float, required=True)
     parser.add_argument("--charging_power", type=float, required=True)
+    # No defaults: the main runner must pass these, so nothing falls back to an old value.
+    parser.add_argument("--cs_service_time_h", type=float, required=True,
+                        help="Fixed hours per charging-station visit on top of charging time (paper: 0).")
+    parser.add_argument("--rest_charge_sync", choices=["true", "false"], required=True,
+                        help="true: charging during the 11 h daily rest is free; false: charge after the rest.")
+    parser.add_argument("--solver_time_limit_min", type=float, required=True,
+                        help="Labeling search time limit in minutes; result gets timed_out=True if reached.")
     args = parser.parse_args()
 
     instance_path = args.instance_path
@@ -167,6 +190,9 @@ def main() -> int:
         distance_per_cs=args.distance_per_cs,
         battery_cap=args.battery_cap,
         charging_power=args.charging_power,
+        cs_service_time_h=args.cs_service_time_h,
+        rest_charge_sync=args.rest_charge_sync == "true",
+        solver_time_limit_min=args.solver_time_limit_min,
     )
 
     print(json.dumps(result))

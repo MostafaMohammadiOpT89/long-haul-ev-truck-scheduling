@@ -1,13 +1,6 @@
 # Repository migration
 
-The initial inventory covered 2,426 files, excluding Git internals, caches, local IDE settings and logs. `migration_manifest.json` records every inventoried original path, destination, original SHA-256, byte count, and action. 876 exact duplicate copies were consolidated. Non-code assets were initially preserved byte-for-byte; active Python sources were then updated for imports and paths.
-
-Subsequent user-authorized analysis cleanup is recorded separately in
-`analysis_cleanup.json`. It lists explicitly retired generated assets and old
-analysis code, with their checksums and a local recovery archive. Raw results
-and datasets remain protected. The current editable manuscript has since been
-renamed to `manuscript/manuscript_main.pdf` and updated by the user; it is not an
-immutable migration snapshot.
+The initial inventory covered 2,426 files, excluding Git internals, caches, local IDE settings and logs. `migration_manifest.json` records every inventoried original path, destination, original SHA-256, byte count, and action. 876 exact duplicate copies were consolidated. Non-code assets are preserved byte-for-byte at their recorded destinations; active Python sources were then updated for imports and paths.
 
 ## Decisions
 
@@ -17,7 +10,7 @@ immutable migration snapshot.
 - Current local and cluster entry points use the same benchmark and experiment configurations. Subprocesses remain to isolate algorithm global state. The inherited computational runtime limits are preserved.
 - New results have one canonical JSONL store; flat CSV is a derived export. Completed scenarios are saved incrementally, and failure metadata is retained.
 - Analysis inputs are pinned explicitly. Imported result bytes, figures and tables remain historical snapshots. Paths embedded in their contents describe the original environment and are intentionally preserved; the migration manifest resolves original file locations.
-- Older debugging/batch runners and duplicate plotting tools under `legacy/code/` were retired in the later analysis cleanup. The migration and cleanup manifests preserve their origins; the active solver implementations remain under `policies/`.
+- Older `main.py`, debugging/batch runners, old test drivers and mapping tools are retained under `legacy/code/`. These may contain obsolete paths and are not supported runnable commands. The Git history and manifest preserve their origins. Archived text excerpts retain removed standalone orchestration without another full copy of each policy.
 - Existing result JSON/CSV representations were preserved. Semantically overlapping historical bundles were not deleted merely because one might contain a subset of another.
 - No commit, push, or remote repository update is part of this migration.
 

@@ -1,0 +1,4 @@
+route_class,n_instances,mean_delta_partial_minus_full_min,mean_d_sync_pct_points,mean_d_unsync_charging_events,mean_d_idle_charging_min,mean_full_route_h,mean_partial_route_h,mean_benefit_full_minus_partial_min
+Short,13,-11.5886,7.6923,-0.1538,-2.3578,34.3176,34.1244,11.5886
+Medium,15,-26.572,9.6984,-0.2667,-10.492,74.1118,73.6689,26.572
+Long,15,-49.2315,4.6483,-0.0667,-6.3515,132.4394,131.6188,49.2315

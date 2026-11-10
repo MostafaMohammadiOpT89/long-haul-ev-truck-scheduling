@@ -1,0 +1,99 @@
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Driver-inspired heuristic: stand-alone batch run.")
+    parser.add_argument("--trace", action="store_true", help="Print decision logs to stdout.")
+    parser.add_argument("--instances", default="", help="Comma-separated instance names (default: all).")
+    parser.add_argument("--policies", default=",".join(DRIVER_POLICIES))
+    parser.add_argument(
+        "--t_sync",
+        default="",
+        help="t_sync in hours; comma-separated list runs a sweep (default: T_SYNC_HOURS, i.e. distance_per_cs / speed when None).",
+    )
+    parser.add_argument("--out_suffix", default="", help="Optional suffix for the output file names (e.g. tsync_sweep).")
+    args = parser.parse_args()
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(script_dir)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    policies = [p.strip() for p in args.policies.split(",") if p.strip()]
+    only = [s.strip() for s in args.instances.split(",") if s.strip()] or list(SPECIFIC_INSTANCES_TO_RUN)
+
+    instances = discover_instances("instances")
+    if only:
+        instances = [(n, p) for n, p in instances if n in only]
+    if not instances:
+        print("No instances found.")
+        return 1
+
+    t_sync_values: List[Optional[float]] = (
+        [float(x) for x in args.t_sync.split(",") if x.strip()] if args.t_sync.strip() else [T_SYNC_HOURS]
+    )
+    results: List[Dict[str, Any]] = []
+    trace_lines: List[str] = []
+    print(f"Driver heuristic: {len(instances)} instances x {len(policies)} policies x {len(t_sync_values)} t_sync values")
+    for name, path in instances:
+        for cp in CPs:
+            for bc in batteryCaps:
+                for cons in consumptionRates:
+                    for dcs in distancesPerCS:
+                        for t_sync in t_sync_values:
+                            for pol in policies:
+                                r = run_one(name, path, cons, dcs, bc, cp, pol, t_sync)
+                                r["_runner_algorithm"] = "driver_heuristic"
+                                r["_runner_tag"] = ""
+                                results.append(r)
+                                print(
+                                    f"  {name:28s} {pol:8s} t_sync={r.get('t_sync_hours', float('nan')):.2f} "
+                                    f"time={r.get('total_time', float('nan')):8.3f}h "
+                                    f"charges={r.get('num_charges')} breaks={r.get('num_breaks')} rests={r.get('num_rests')} "
+                                    f"feasible={r.get('feasible')} valid={r.get('schedule_valid')}"
+                                )
+                                trace_lines.append(
+                                    f"=== {name} | policy={pol} | t_sync={r.get('t_sync_hours')} | cp={cp} bc={bc} cons={cons} dcs={dcs} ==="
+                                )
+                                trace_lines.extend(r.get("decision_log", []))
+                                trace_lines.append("")
+                                if args.trace:
+                                    print("\n".join(r.get("decision_log", [])))
+
+    out_dir = os.path.join("Results", "Driver_Heuristic_Results")
+    os.makedirs(out_dir, exist_ok=True)
+    suffix = f"_{args.out_suffix.strip()}" if args.out_suffix.strip() else ""
+    stem = os.path.join(out_dir, f"driver_heuristic_results{suffix}_{timestamp}")
+    with open(stem + ".json", "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "metadata": {
+                    "timestamp": timestamp,
+                    "algorithm": "driver_heuristic",
+                    "total_scenarios": len(results),
+                    "parameters": {
+                        "consumption_rates": consumptionRates,
+                        "distances_per_cs": distancesPerCS,
+                        "battery_capacities": batteryCaps,
+                        "charging_powers": CPs,
+                        "policies": policies,
+                        "t_sync_hours": t_sync_values,
+                    },
+                },
+                "results": results,
+            },
+            f,
+            indent=2,
+        )
+    rows = [{k: v for k, v in r.items() if k not in DriverHeuristicResult.CSV_EXCLUDE} for r in results]
+    fieldnames = sorted({k for r in rows for k in r})
+    with open(stem + ".csv", "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=fieldnames)
+        w.writeheader()
+        for r in rows:
+            w.writerow(r)
+    with open(os.path.join(out_dir, f"driver_heuristic_trace{suffix}_{timestamp}.txt"), "w", encoding="utf-8") as f:
+        f.write("\n".join(trace_lines))
+    n_feas = sum(1 for r in results if r.get("feasible"))
+    n_valid = sum(1 for r in results if r.get("schedule_valid"))
+    print(f"Saved {stem}.json / .csv (+ trace). Feasible {n_feas}/{len(results)}, valid schedules {n_valid}/{len(results)}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

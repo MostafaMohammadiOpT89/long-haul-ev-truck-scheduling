@@ -1,0 +1,11 @@
+extreme_tier,instance_clean,id,benefit_full_minus_partial_min,delta_route_partial_minus_full_min,full_route_h,partial_route_h,full_sync_pct,partial_sync_pct,d_sync_pct_points,full_unsync_chg,partial_unsync_chg,d_unsync_charging_events,idle_charging_min_full,idle_charging_min_partial,d_idle_charging_min,full_cs_stops,partial_cs_stops,full_breaks,partial_breaks
+most_partial_time_advantage,long_cl3_cu4_Unbalanced,L_cl3_cu4_U,89.3853,-89.3853,137.3174,135.8277,58.333,78.571,20.2381,5,3,-2,122.762,45.977,-76.7853,12,14,8,9
+most_partial_time_advantage,long_cl3_cu3_Balanced,L_cl3_cu3_B,83.4514,-83.4514,134.4714,133.0805,54.545,76.923,22.3776,5,3,-2,76.629,45.977,-30.6514,11,13,7,7
+most_partial_time_advantage,long_cl2_cu2_Balanced,L_cl2_cu2_B,73.9029,-73.9029,138.0265,136.7947,58.333,57.143,-1.1905,5,6,1,124.817,108.514,-16.3029,12,14,8,8
+most_partial_time_advantage,long_cl2_cu2_Unbalanced,L_cl2_cu2_U,63.3257,-63.3257,151.0793,150.0239,70.0,85.714,15.7143,3,2,-1,45.977,30.651,-15.3257,10,14,8,8
+most_partial_time_advantage,long_cl2_cu3_Balanced,L_cl2_cu3_B,62.4,-62.4,137.8742,136.8342,46.154,46.154,0.0,7,7,0,101.872,101.872,-0.0,13,13,7,7
+least_partial_time_advantage,short_cl3_cu4_Unbalanced,S_cl3_cu4_U,4.8,-4.8,27.2186,27.1386,100.0,100.0,0.0,0,0,0,0.0,0.0,0.0,1,2,2,2
+least_partial_time_advantage,short_cl2_cu4_Unbalanced,S_cl2_cu4_U,4.8,-4.8,27.936,27.856,100.0,100.0,0.0,0,0,0,0.0,0.0,0.0,1,3,2,2
+least_partial_time_advantage,short_cl2_cu3_Balanced,S_cl2_cu3_B,4.8,-4.8,27.2703,27.1903,100.0,100.0,0.0,0,0,0,0.0,0.0,0.0,1,2,2,2
+least_partial_time_advantage,short_cl3_cu5_Balanced,S_cl3_cu5_B,9.6,-9.6,44.4808,44.3208,100.0,100.0,0.0,0,0,0,0.0,0.0,0.0,2,3,2,2
+least_partial_time_advantage,short_cl3_cu4_Balanced,S_cl3_cu4_B,9.6,-9.6,31.181,31.021,50.0,66.667,16.6667,1,1,0,15.326,15.326,0.0,2,3,2,2

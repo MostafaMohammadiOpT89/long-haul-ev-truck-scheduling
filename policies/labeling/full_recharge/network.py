@@ -1,32 +1,51 @@
 import csv, math, re
 from itertools import combinations
 
-# Parameters
-driving_speed = 60 # km/h
-maxElapsed_R = 13
-maxElapsed_B = 6
-maxTimeDrive_B = 4.5
-maxTimeDrive_R = 9
-minTimeBreak = 0.75
-minTimeRest = 11
-timeDay = 24
-velocity = 60 # km/h
+# HoS rules and speed come from common/hos.py (shared by all policies).
+from common.hos import (
+    DRIVING_SPEED_KMH as driving_speed,
+    DRIVING_SPEED_KMH as velocity,
+    MAX_ELAPSED_REST_H as maxElapsed_R,
+    MAX_ELAPSED_BREAK_H as maxElapsed_B,
+    MAX_DRIVE_BREAK_H as maxTimeDrive_B,
+    MAX_DRIVE_REST_H as maxTimeDrive_R,
+    MIN_BREAK_H as minTimeBreak,
+    MIN_REST_H as minTimeRest,
+    DAY_H as timeDay,
+)
 
 
 CP = None
 distance_per_cs = None
 consumption = None
 batteryCapacity = None
+# Fixed hours added at every charging-station visit on top of the charging time.
+# Set by the runner (paper setting: 0.0). No default here on purpose.
+cs_service_time = None
+# True: charging during an 11 h daily rest at a CS is free (synchronized with the rest).
+# False: the rest is taken first and the full charging time is added after it.
+rest_charge_sync = None
 
-def setGlobalParams(consumptionRate, distPerCS, batteryCap, chargingPower):
+_EPS = 1e-9
+
+def setGlobalParams(consumptionRate, distPerCS, batteryCap, chargingPower, cs_service_time_hours, rest_charge_sync_enabled):
     global consumption
     global distance_per_cs
     global batteryCapacity
     global CP
+    global cs_service_time
+    global rest_charge_sync
     consumption = consumptionRate
     distance_per_cs = distPerCS
     batteryCapacity = batteryCap
     CP = chargingPower
+    cs_service_time = float(cs_service_time_hours)
+    rest_charge_sync = bool(rest_charge_sync_enabled)
+
+
+def _just_after_cs_visit(clock):
+	"""True if an HoS clock was 0 right before the CS visit (only the CS service time has run since)."""
+	return abs(clock - cs_service_time) < _EPS
 
 
 # Helper function to extract numbers and parts for sorting
@@ -137,7 +156,7 @@ class Network:
 							'locationId': cs_location_id,
 							'timeWindowStart': 0,
 							'timeWindowEnd': float('inf'),
-							'serviceTime': 0.08,
+							'serviceTime': cs_service_time,
 							'nodeType': 'CS',
 							'startNode': startNode,
 							'endNode': endNode,
@@ -583,12 +602,18 @@ class Network:
 		tempTime = label.time
 		added_time = 0.0
 
+		# The driver took a daily rest right before arriving at this CS.
+		just_rested = _just_after_cs_visit(label.elapsed_R)
+		# The driver took a break right before arriving at this CS (a rest also resets drive_B,
+		# so a just-rested label must not be treated as a break).
+		just_had_break = label.drive_B == 0 and not just_rested
+
 		# Case 1: Synchronized with rest (all charging within rest window)
-		if label.elapsed_R == 0 or label.elapsed_R == 0.08:
+		if just_rested and rest_charge_sync:
 			sync_tag = "rest_sync"
 			added_time = 0.0
 		# Case 2: At a break start (drive_B == 0)
-		elif label.drive_B == 0:
+		elif just_had_break:
 			full_time = (label.reqRT) / CP if CP else 0.0
 			# If required charging fits entirely inside the break window -> fully break-synchronized
 			if full_time <= minTimeBreak:
@@ -604,7 +629,8 @@ class Network:
 					sync_fraction_break = 1.0
 				sync_tag = f"break_partial_sync|{sync_fraction_break:.6f}"
 				added_time = max(0.0, full_time - minTimeBreak)
-		# Case 3: Not synchronized (no rest or break to align with)
+		# Case 3: Not synchronized (no rest or break to align with, or rest sync switched off:
+		# the rest is over, then the full charging time follows)
 		else:
 			sync_tag = "unsync"
 			added_time = (label.reqRT) / CP if CP else 0.0
@@ -612,10 +638,11 @@ class Network:
 		label.time += added_time
 
 		label.timeToNext = time_nm
-		#label.drive_B = 0 if label.time - tempTime >= 0.75 else label.drive_B
-		label.elapsed_R = 0 if label.elapsed_R == 0 or label.elapsed_R == 0.08 else label.elapsed_R + label.time - tempTime
-		#label.elapsed_B = 0 if label.elapsed_B == 0 or label.elapsed_B == 0.08 or label.time - tempTime >= 0.75 else label.elapsed_B + label.time - tempTime
-		label.elapsed_B = 0 if label.elapsed_B == 0.08 else label.elapsed_B + label.time - tempTime
+		# Rest-synchronized charging keeps the daily clock at 0; otherwise charging time is elapsed time.
+		label.elapsed_R = 0 if (just_rested and rest_charge_sync) else label.elapsed_R + label.time - tempTime
+		# Charging right after a break with a non-zero CS service time keeps the break clock at 0
+		# (same rule as Partial labeling); otherwise charging time is elapsed time.
+		label.elapsed_B = 0 if (cs_service_time > 0 and _just_after_cs_visit(label.elapsed_B)) else label.elapsed_B + label.time - tempTime
 		label.reqRT = 0
 		# Full recharge at CS: reset SOC to battery capacity
 		if hasattr(label, "remainingBattery"):

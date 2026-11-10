@@ -56,15 +56,17 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple
 
 # ---------------------------------------------------------------------------
-# HoS parameters (identical to network.py)
+# HoS parameters: shared with the labeling policies through common/hos.py
 # ---------------------------------------------------------------------------
-driving_speed = 60.0   # km/h
-maxElapsed_R = 13.0    # h elapsed since last daily rest
-maxElapsed_B = 6.0     # h elapsed since last break
-maxTimeDrive_B = 4.5   # h driving since last break
-maxTimeDrive_R = 9.0   # h driving since last daily rest
-minTimeBreak = 0.75    # h
-minTimeRest = 11.0     # h
+from common.hos import (
+    DRIVING_SPEED_KMH as driving_speed,
+    MAX_ELAPSED_REST_H as maxElapsed_R,
+    MAX_ELAPSED_BREAK_H as maxElapsed_B,
+    MAX_DRIVE_BREAK_H as maxTimeDrive_B,
+    MAX_DRIVE_REST_H as maxTimeDrive_R,
+    MIN_BREAK_H as minTimeBreak,
+    MIN_REST_H as minTimeRest,
+)
 
 EPS = 1e-9
 
@@ -210,7 +212,9 @@ def energy_to_next_opportunity(stops: List[dict], idx: int, consumption: float) 
 class _Schedule:
     """Mutable vehicle/driver state + event timeline + decision log."""
 
-    def __init__(self, battery_capacity: float, charging_power: float, consumption: float):
+    def __init__(self, battery_capacity: float, charging_power: float, consumption: float,
+                 rest_charge_sync: bool = True):
+        self.rest_charge_sync = bool(rest_charge_sync)
         self.cap = float(battery_capacity)
         self.cp = float(charging_power)
         self.cons = float(consumption)
@@ -306,6 +310,37 @@ class _Schedule:
             extra = max(0.0, charge_time - dur)
 
         t0 = self.t
+        if kind == "rest" and not self.rest_charge_sync:
+            # Rest sync switched off: the 11 h rest comes first, then the full charging time.
+            # Charging is elapsed time of the new day (it does not count as rest).
+            self._event("rest", t0, dur, location=location)
+            self.activity_list.append(f"rest: {dur}")
+            if energy > EPS:
+                self._event(
+                    "charge",
+                    t0 + dur,
+                    charge_time,
+                    power_kW=self.cp,
+                    location=location,
+                    energy_kWh=energy,
+                    arrival_soc_kWh=self.soc,
+                    departure_soc_kWh=self.soc + energy,
+                    synchronized_with=None,
+                    overlap_minutes=0.0,
+                    idle_minutes=charge_time * 60.0,
+                    reason=reason,
+                )
+                self.activity_list.append(f"charge[unsync]: {charge_time}")
+            self.t = t0 + dur + charge_time
+            self.soc += energy
+            self.drive_R = self.drive_B = 0.0
+            self.elapsed_R = charge_time
+            self.elapsed_B = charge_time
+            self.log.append(
+                f"    -> rest {dur:.2f}h, then charge {energy:.1f}kWh in {charge_time:.2f}h "
+                f"(rest sync off) | {self._fmt_state()}"
+            )
+            return
         self._event(kind, t0, dur, location=location)
         self.activity_list.append(f"{kind}: {dur}")
         if energy > EPS:
@@ -368,9 +403,11 @@ def driver_heuristic(
     distance_per_cs: float,
     policy: str = "full",
     t_sync: Optional[float] = None,
+    rest_charge_sync: bool = True,
 ) -> Dict[str, Any]:
     """
-    Build the schedule. Returns a dict with total_time (h), counts, activity_timeline, activity_list,
+    Build the schedule. rest_charge_sync=False forbids charging during a daily rest:
+    the rest is taken first and charging follows (break-synchronized charging is unchanged). Returns a dict with total_time (h), counts, activity_timeline, activity_list,
     decision_log, feasibility and computation_time (s). Distances in km, times in hours.
     """
     if policy not in POLICIES:
@@ -381,11 +418,12 @@ def driver_heuristic(
     t_sync = float(t_sync)
 
     stops = build_stops(route, distance_per_cs)
-    s = _Schedule(battery_capacity, charging_power, consumption_rate)
+    s = _Schedule(battery_capacity, charging_power, consumption_rate, rest_charge_sync)
     feasible = True
     reason_if_infeasible: Optional[str] = None
     s.log.append(
-        f"policy={policy} t_sync={t_sync:.3f}h cap={battery_capacity} cp={charging_power} "
+        f"policy={policy} t_sync={t_sync:.3f}h rest_charge_sync={rest_charge_sync} "
+        f"cap={battery_capacity} cp={charging_power} "
         f"cons={consumption_rate} dcs={distance_per_cs} stops={len(stops)}"
     )
 
@@ -462,6 +500,10 @@ def driver_heuristic(
             dur = minTimeRest if kind == "rest" else minTimeBreak
             if policy == "full":
                 target = s.cap
+            elif kind == "rest" and not rest_charge_sync:
+                # overlap-only with rest sync off: nothing overlaps the rest, so charge only
+                # what is needed to reach the next charging opportunity.
+                target = max(s.soc, need)
             else:  # overlap-only
                 target = min(s.cap, s.soc + s.cp * dur)
                 if target + EPS < need:
@@ -517,6 +559,7 @@ def driver_heuristic(
         "counters": dict(s.counters),
         "final_soc_kWh": s.soc,
         "t_sync_hours": t_sync,
+        "rest_charge_sync": bool(rest_charge_sync),
         "policy": policy,
         "n_stops": len(stops),
         "n_cs": sum(1 for st in stops if st["kind"] == "cs"),
@@ -624,6 +667,7 @@ class DriverHeuristicResult:
         self.consumption_rate = consumption_rate
         self.policy = out["policy"]
         self.t_sync_hours = out["t_sync_hours"]
+        self.rest_charge_sync = out["rest_charge_sync"]
         self.total_time = out["total_time"]
         self.num_charges = out["charges"]
         self.num_breaks = out["breaks"]
@@ -691,6 +735,7 @@ class DriverHeuristicResult:
             "consumption_rate": self.consumption_rate,
             "policy": self.policy,
             "t_sync_hours": self.t_sync_hours,
+            "rest_charge_sync": self.rest_charge_sync,
             "total_time": self.total_time,
             "num_charges": self.num_charges,
             "num_breaks": self.num_breaks,
@@ -745,7 +790,8 @@ def run_one(
     battery_cap: float,
     charging_power: float,
     policy: str,
-    t_sync: Optional[float] = None,
+    t_sync: Optional[float],
+    rest_charge_sync: bool,
 ) -> Dict[str, Any]:
     city_arcs = load_instance_matrices(instance_path)
     depot, nodes = read_test_instance(instance_path)
@@ -753,7 +799,8 @@ def run_one(
         return {"instance_id": instance_name, "policy": policy, "feasible": False,
                 "reason_if_infeasible": "Could not read test instance"}
     route = create_simple_route(depot, nodes, city_arcs)
-    out = driver_heuristic(route, consumption, battery_cap, charging_power, distance_per_cs, policy, t_sync)
+    out = driver_heuristic(route, consumption, battery_cap, charging_power, distance_per_cs, policy, t_sync,
+                           rest_charge_sync)
     return DriverHeuristicResult(instance_name, distance_per_cs, battery_cap, charging_power, consumption, out).to_dict()
 
 

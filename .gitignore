@@ -10,12 +10,8 @@ output/generated_instances/
 output/reconstructed*/
 
 !output/runs/summary.csv
-!output/runs/summary_all.csv
-!output/runs/one_at_a_time_coverage.csv
-!output/runs/missing_partial_runs.csv
 !output/runs/details.jsonl
 !output/runs/catalog.json
 
 output/executions/
-output/backups/
 !output/runs/README.md

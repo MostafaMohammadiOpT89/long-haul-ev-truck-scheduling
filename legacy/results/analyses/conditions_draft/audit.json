@@ -1,0 +1,159 @@
+{
+  "status": "exploratory inherited data; not a verified complete experiment",
+  "sources": {
+    "base_unified": {
+      "path": "output\\runs\\imported\\paper_base\\unified_results_20260408_135323.csv",
+      "sha256": "9bda238aae23c6612aac1a5d95e82e23513e599e9aae9536c3e6997fff72e992"
+    },
+    "sweep_unified": {
+      "path": "output\\runs\\imported\\parameter_sweep\\unified_results_20260407_174118.csv",
+      "sha256": "c742565abba5f5d1355e5630701a4d080dd75d9ae903d17fe796f124914e53b3"
+    },
+    "sweep_diesel": {
+      "path": "output\\runs\\imported\\parameter_sweep\\diesel_lb_results_20260210_140456.csv",
+      "sha256": "c24df9d9650c7dd4397cdadd10001cae2ed2e9d4048ee088937217823bce7cbf"
+    }
+  },
+  "analysis_sha256": "b8782d9fcc5000e85f314a7890e0471ceaf12a639d59b439bb4a1aa7d93d7620",
+  "base_settings": {
+    "battery_capacity_kWh": 750.0,
+    "charging_power_kW": 350.0,
+    "charging_station_interval_km": 60.0,
+    "energy_consumption_rate_kWh_per_km": 1.49
+  },
+  "benchmark_routes": 45,
+  "base_pairs": 43,
+  "base_missing_routes": [
+    "short_cl2_cu2_Balanced",
+    "short_cl2_cu2_Unbalanced"
+  ],
+  "base_summary": [
+    {
+      "route_class": "short",
+      "benchmark_routes": 15,
+      "n": 13,
+      "diesel_hours": 34.00032138132755,
+      "ev_hours": 34.12442854838562,
+      "mean_gap_pct": 0.4038901816931642,
+      "median_gap_pct": 0.0,
+      "p90_gap_pct": 0.8376457330413203,
+      "max_gap_pct": 1.9148197240529632,
+      "mean_gap_minutes": 7.446430023484238,
+      "max_gap_minutes": 35.50073316243797,
+      "within_1pct": 12,
+      "within_5pct": 13
+    },
+    {
+      "route_class": "med",
+      "benchmark_routes": 15,
+      "n": 15,
+      "diesel_hours": 73.13228285736159,
+      "ev_hours": 73.66894767615408,
+      "mean_gap_pct": 0.8211618878309628,
+      "median_gap_pct": 0.5549407148534847,
+      "p90_gap_pct": 0.9331306480305273,
+      "max_gap_pct": 5.675318528487348,
+      "mean_gap_minutes": 32.19988912754832,
+      "max_gap_minutes": 180.0,
+      "within_1pct": 14,
+      "within_5pct": 14
+    },
+    {
+      "route_class": "long",
+      "benchmark_routes": 15,
+      "n": 15,
+      "diesel_hours": 130.46921633843087,
+      "ev_hours": 131.61883709194063,
+      "mean_gap_pct": 0.8726907424848583,
+      "median_gap_pct": 0.6900742480528596,
+      "p90_gap_pct": 1.5206528011719085,
+      "max_gap_pct": 1.9060205738276836,
+      "mean_gap_minutes": 68.97724521058467,
+      "max_gap_minutes": 153.51415082336302,
+      "within_1pct": 12,
+      "within_5pct": 15
+    },
+    {
+      "route_class": "all",
+      "benchmark_routes": 45,
+      "n": 43,
+      "diesel_hours": 81.3029457184685,
+      "ev_hours": 81.92870564303333,
+      "mean_gap_pct": 0.7129851585290338,
+      "median_gap_pct": 0.5887747633678835,
+      "p90_gap_pct": 1.2014134373050533,
+      "max_gap_pct": 5.675318528487348,
+      "mean_gap_minutes": 37.545595473890465,
+      "max_gap_minutes": 180.0,
+      "within_1pct": 38,
+      "within_5pct": 42
+    }
+  ],
+  "partial_sweep_rows": 1273,
+  "partial_sweep_routes": 36,
+  "levels": {
+    "battery_capacity_kWh": [
+      750.0,
+      1000.0
+    ],
+    "charging_power_kW": [
+      350.0,
+      500.0,
+      1000.0
+    ],
+    "charging_station_interval_km": [
+      40.0,
+      60.0,
+      80.0,
+      100.0
+    ],
+    "energy_consumption_rate_kWh_per_km": [
+      1.12,
+      1.49,
+      2.08
+    ]
+  },
+  "comparison_grid_size": 3240,
+  "absent_records_unknown_status": 1967,
+  "sensitivity_cohort": [
+    "short_cl1_cu2",
+    "short_cl1_cu4",
+    "short_cl2_cu2_Balanced",
+    "short_cl2_cu2_Unbalanced",
+    "short_cl2_cu3_Balanced",
+    "short_cl2_cu4_Balanced",
+    "short_cl2_cu4_Unbalanced",
+    "short_cl2_cu5_Balanced",
+    "short_cl3_cu4_Balanced",
+    "short_cl3_cu4_Unbalanced",
+    "short_cl3_cu5_Balanced"
+  ],
+  "interaction_cohort": [
+    "short_cl1_cu2",
+    "short_cl1_cu4",
+    "short_cl2_cu2_Balanced",
+    "short_cl2_cu2_Unbalanced",
+    "short_cl2_cu3_Balanced",
+    "short_cl2_cu4_Balanced",
+    "short_cl2_cu4_Unbalanced",
+    "short_cl2_cu5_Balanced",
+    "short_cl3_cu4_Balanced",
+    "short_cl3_cu4_Unbalanced",
+    "short_cl3_cu5_Balanced"
+  ],
+  "older_diesel_reference_additions": [
+    "short_cl2_cu2_Balanced",
+    "short_cl2_cu2_Unbalanced"
+  ],
+  "diesel_overlap_consistency_pairs": 40,
+  "base_sweep_consistency_pairs": 14,
+  "max_base_reported_computation_seconds": 1730.9894185020005,
+  "limitations": [
+    "Complete-case sensitivities cover short routes only and may be selected by solve difficulty.",
+    "Missing rows do not establish infeasibility or timeout.",
+    "No optimality/termination status is stored in the selected files.",
+    "Station-spacing changes regenerate candidate locations; configurations need not be nested.",
+    "Extended spacing archive contains full charging only and is excluded.",
+    "The manuscript parameter table must be reconciled with saved base settings."
+  ]
+}

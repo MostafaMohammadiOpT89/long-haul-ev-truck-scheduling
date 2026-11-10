@@ -3,12 +3,6 @@
 Start with `output/runs/summary.csv`. Each row describes one instance,
 vehicle/scenario parameterization, and policy parameterization. The readable
 `model_run_id` joins to one line in `output/runs/details.jsonl`.
-The summary is restricted to the 43 paper instances, the base and nine
-one-at-a-time electric sensitivities, and diesel references. Other policies at
-these settings remain available. `summary_all.csv` preserves the complete
-unfiltered catalog, and `details.jsonl` retains all source observations.
-`one_at_a_time_coverage.csv` reports partial-charging coverage per setting;
-`missing_partial_runs.csv` lists the exact missing runs.
 
 The paper comparison uses 43 instances (`instances/PAPER_INSTANCE_SET_43.txt`).
 The stored generator pool has 45 folders; `short_cl2_cu2_Balanced` and
@@ -24,13 +18,9 @@ buffer in separate columns. It includes makespan, reported feasibility, runtime,
 stop counts, synchronization metrics, and the availability of a route schedule.
 Blank values mean unavailable or inapplicable, never zero.
 
-The confirmed paper base is **750 kWh, 350 kW, 60 km, 1.49 kWh/km**.
+The confirmed paper base is **500 kWh, 350 kW, 50 km, 1.49 kWh/km**.
 `matches_confirmed_paper_base` identifies matching electric configurations.
-One-at-a-time levels are battery 350/500/1000 kWh, power 1000 kW, spacing
-40/80/100 km, and consumption 1.12/2.08 kWh/km, with all other values fixed
-at base. The 750 kWh / 60 km results now match the revised manuscript base.
-Scope is defined in `experiments/paper_scope.py` and
-is reapplied on every rebuild.
+Older 750 kWh / 60 km results are retained with their actual values.
 
 ## Route plans and repeated executions
 
@@ -85,19 +75,14 @@ new batches under `output/executions/`; the importer discovers their
 `legacy/results/raw_runs/` and excluded from the research catalog.
 
 Current Section 5.1 outputs are in `analysis/conditions/figures/` and
-`analysis/conditions/tables/`. The single current generator reads the scoped
-summary, validates diesel pairing and records source hashes and matched
-cohorts in `analysis/conditions/audit.json`. All panels use descriptive
-names; all four sensitivity bar charts use a shared vertical scale.
-`analysis/conditions/conditions.zip` contains the Overleaf-ready exports.
-The operational figures also read selected base-case schedules from the details
-file. `operations_audit.json` records the paired observations, reconciled duration
-components, and charging reconstruction conventions. Numeric exports are
-`tables/penalty_parts.csv`, `tables/charging_events.csv`, and
-`tables/charge_split.csv`. The saved charge activity duration is additional
-elapsed time; physical charging time is reconstructed from charged energy and
-power, placing rest-synchronized charging at the end of the rest for display.
-This is one valid placement within the window, not an observed unique timestamp.
-Superseded analysis code and derived outputs
-were removed at the user's request; see `docs/analysis_cleanup.json` for the
-checksums and recovery archive. Raw experimental records are preserved.
+`analysis/conditions/tables/`. Charging-strategy and scheduling-rule outputs
+likewise live beside their code. Historical plots and earlier reproduction
+outputs are archived under `legacy/results/analyses/`. Original artifacts are retained for recovery and
+provenance. The two consolidated files are the main entry point for inspecting
+coverage. Active figure and table scripts now read `details.jsonl`, selecting
+their original source cohorts through `analysis/configs/paper_inputs.json`.
+Each selection explicitly names a source and, where needed, an algorithm.
+This preserves historical comparisons without including missing placeholders
+or accidentally mixing repeated executions. Analysis manifests record both
+the consolidated file hash and the cohort selection. The legacy utilities in
+`analysis/historical/` are retained as historical code, not active entry points.

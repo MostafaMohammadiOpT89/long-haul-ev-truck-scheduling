@@ -2,7 +2,7 @@
 # Distribute all job JSONs to Solstorm compute nodes and run them via SSH (FOMO-style).
 #
 # Usage (manual nodes):
-#   ./cluster/run_all.sh -r 4 -n 1,2,3,4
+#   ./cluster/run_all.sh -j <runid> -r 4 -n 1,2,3,4 [-w <jobs in parallel per node>] [-t <node batch time limit, e.g. 7d>]
 #
 # Usage (auto nodes via gstat load filter):
 #   ./cluster/run_all.sh
@@ -17,7 +17,8 @@
 
 set -euo pipefail
 
-TIMEOUT="24h"
+TIMEOUT="24h"          # wall-clock limit for one node's whole batch (-t)
+WORKERS=1              # jobs run in parallel on each node (-w)
 PROJECT_DIR="$(pwd)"
 
 NODE_ROWS="4"          # rows to pick from (auto mode)
@@ -30,12 +31,13 @@ RUNID=""
 ROW=""
 NODENUMS=""
 
-while getopts ":r:n:j:t:" arg; do
+while getopts ":r:n:j:t:w:" arg; do
   case ${arg} in
     r) ROW=${OPTARG} ;;
     n) NODENUMS=$(echo ${OPTARG} | awk -v RS='[,\n]' -F: 'NF == 1; NF == 2 { for (i = $1; i <= $2; ++i) print i }') ;;
     j) RUNID=${OPTARG} ;;
     t) TIMEOUT=${OPTARG} ;;
+    w) WORKERS=${OPTARG} ;;
     :)
       echo "$0: Must supply an argument to -$OPTARG." >&2
       exit 1
@@ -158,7 +160,7 @@ while [ ${job_counter} -lt ${num_jobs} ]; do
   done
 
   # Run remotely
-  ssh "${node}" "cd \"${PROJECT_DIR}\"; shopt -s huponexit; timeout \"${TIMEOUT}\" python3 -m experiments.cluster.run_job --runid \"${RUNID}\" ${args[*]}" \
+  ssh "${node}" "cd \"${PROJECT_DIR}\"; shopt -s huponexit; timeout \"${TIMEOUT}\" python3 -m experiments.cluster.run_job --runid \"${RUNID}\" --workers ${WORKERS} ${args[*]}" \
     > "output/executions/${RUNID}/logs/${node}.out" \
     2> "output/executions/${RUNID}/logs/${node}.err" &
 

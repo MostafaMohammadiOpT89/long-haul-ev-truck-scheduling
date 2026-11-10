@@ -18,8 +18,9 @@ Runner modes: `partial_labeling`, `full_labeling`, `driver_heuristic` (+ `diesel
 | `policies/heuristics/driver.py` | Heuristic (rules 1-4, both policies), result class with the same sync metrics as the other variants (`docs/metrics.md`), an independent schedule validator, and a stand-alone batch `main()` |
 | `policies/heuristics/driver_runner.py` | One-scenario child process printing one JSON (used by `experiments/run.py` and `experiments/cluster/run_job.py`) |
 | `tests/test_driver_heuristic.py` | Unit tests for CS placement, each rule, both policies, validator, and all instances at the base configuration |
-| `output/runs/details.jsonl` | Preserved heuristic schedules, observations and source identifiers |
-| `docs/analysis_cleanup.json` | Removal record and recovery location for superseded heuristic plotting scripts/results |
+| `analysis/scheduling_rules/` | Figures/tables comparing the heuristic with Full, Partial, and the diesel proxy |
+| `Post_Analysis/analysis_output_driverHeuristic/` | Output figures (`D01`..`D06`) and tables (`table_D00`..`table_D06`) |
+| `legacy/results/analyses/imported/Post_Analysis_Report_DriverHeuristic.md` | Archived summary report |
 
 The input structure is unchanged: the same `instances/<name>/<name>.txt` files, the same
 `_DistanceMatrix.csv` / `_TimeMatrix.csv` (master matrices as fallback), the same CS placement as
@@ -70,12 +71,12 @@ Use the common experiment interface from the repository root:
 python -m experiments.run --preset paper_base --algorithms driver_heuristic
 python -m experiments.run --preset driver_sync_sweep --algorithms driver_heuristic --no_diesel
 python -m tests.test_driver_heuristic
+python -m analysis.scheduling_rules.run
 ```
 
 Configurations live in `experiments/configs/`. Each run stores complete decision logs in
-`output/executions/<run_id>/results.jsonl`. Explicit source cohorts remain accessible
-through `analysis/configs/paper_inputs.json`. Earlier heuristic plotting scripts were
-retired during the requested cleanup; the heuristic itself and raw results are unchanged.
+`output/executions/<run_id>/results.jsonl`. Analysis reads explicit source cohorts from the consolidated details file through
+`analysis/configs/paper_inputs.json` and writes under `analysis/scheduling_rules/`.
 
 Result columns (CSV/JSON): `policy`, `t_sync_hours`, `total_time`, `num_charges`, `num_breaks`,
 `num_rests`, `num_synchronized_events`, `num_unsynchronized_*`, `total_idle_charging_time_minutes`,

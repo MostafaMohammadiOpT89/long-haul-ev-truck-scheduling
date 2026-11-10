@@ -1,0 +1,11 @@
+Comparison,Metric,Value
+Full vs Partial,N instances,41.0
+Full vs Partial,Partial better,33.0
+Full vs Partial,Full better,0.0
+Full vs Partial,Mean Partial (hrs),74.79
+Full vs Partial,Mean Full (hrs),75.55
+Full vs Partial,Avg improvement %,1.09
+Partial vs Diesel LB,N instances,41.0
+Partial vs Diesel LB,Mean Partial (hrs),74.79
+Partial vs Diesel LB,Mean Diesel LB (hrs),74.48
+Partial vs Diesel LB,Avg EV gap %,0.42
