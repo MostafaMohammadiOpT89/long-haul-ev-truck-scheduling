@@ -210,7 +210,7 @@ def test_all_instances_feasible_and_valid_at_base_configuration():
     assert instances, "no instances found"
     for name, path in instances:
         for pol in dh.POLICIES:
-            r = dh.run_one(name, path, 1.49, 60.0, 750.0, 350.0, pol, None, True)
+            r = dh.run_one(name, path, 1.49, 60.0, 750.0, 350.0, pol)
             assert r["feasible"], (name, pol, r.get("reason_if_infeasible"))
             assert r["schedule_valid"], (name, pol, r["validation_errors"])
             assert r["num_unsynchronized_charging_events"] == 0

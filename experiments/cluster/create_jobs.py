@@ -33,8 +33,20 @@ sys.path.insert(0, str(ROOT_DIR))
 import experiments.run as U
 
 
-# Single job definition shared with the local runners and the cluster worker.
-from experiments.jobs import Job  # noqa: E402
+@dataclass(frozen=True)
+class Job:
+    job_id: str
+    algorithm: str  # partial_labeling | full_labeling | driver_heuristic
+    tag: str  # "" or "diesel_lb"
+    instance_name: str
+    instance_path: str  # path relative to ROOT_DIR (portable on cluster)
+    consumption: float
+    distance_per_cs: float
+    battery_cap: float
+    charging_power: float
+    safety_buffer_frac: Optional[float] = None
+    policy: Optional[str] = None  # driver_heuristic: "full" | "overlap"
+    t_sync_hours: Optional[float] = None  # driver_heuristic (None -> default)
 
 
 def _discover_instances(instances_root: Path) -> List[Tuple[str, Path]]:

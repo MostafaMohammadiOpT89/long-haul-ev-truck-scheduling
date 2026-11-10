@@ -1,7 +1,0 @@
-{
-  "consumption_rates": [1.49],
-  "distances_per_cs": [60],
-  "battery_caps": [500],
-  "charging_powers": [350],
-  "safety_buffer_fracs": [0.1]
-}

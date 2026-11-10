@@ -5,7 +5,6 @@ Historical files are selected explicitly, avoiding their CSV/JSON mirror exports
 """
 from __future__ import annotations
 import argparse
-import csv
 import hashlib
 import json
 import math
@@ -13,6 +12,7 @@ import re
 from collections import defaultdict
 from pathlib import Path
 from common.paths import ROOT, OUTPUT
+from experiments.paper_scope import BASE, PARAMETERS, configurations, write_summary_views
 
 CONFIG = ROOT / 'experiments/configs/result_sources.json'
 DESTINATION = OUTPUT / 'runs'
@@ -178,10 +178,24 @@ def consolidate(destination=DESTINATION):
         ('driver_heuristic', 'full', 1., None),
         ('driver_heuristic', 'overlap', 1., None),
     ]:
+        if any(t['policy'] == policy and t['charging_policy'] == charging
+               and t['vehicle_type'] == 'electric' and t['t_sync_hours'] == sync
+               and tuple(t[k] for k in PARAMETERS) == BASE for t in templates.values()):
+            continue
         template = dict(input_version='planned_paper_base_unverified', policy=policy,
-                        charging_policy=charging, vehicle_type='electric', battery_kwh=500.,
-                        charging_power_kw=350., station_spacing_km=50., consumption_kwh_per_km=1.49,
+                        charging_policy=charging, vehicle_type='electric', **dict(zip(PARAMETERS, BASE)),
                         t_sync_hours=sync, safety_buffer_fraction=buffer, synchronization_enabled=None)
+        templates[digest(template)] = template
+    # Make unexecuted partial-charging OAT settings visible as blank placeholders.
+    # Reuse observed templates when present rather than creating duplicate planned
+    # versions of historical configurations (including the observed base).
+    for values in configurations():
+        if any(t['policy'] == 'partial_labeling' and t['vehicle_type'] == 'electric'
+               and tuple(t[k] for k in PARAMETERS) == values for t in templates.values()):
+            continue
+        template = dict(input_version='planned_paper_base_unverified', policy='partial_labeling',
+                        charging_policy='partial', vehicle_type='electric', **dict(zip(PARAMETERS, values)),
+                        t_sync_hours=None, safety_buffer_fraction=None, synchronization_enabled=None)
         templates[digest(template)] = template
     for template in templates.values():
         for instance_id in stored_ids:
@@ -203,7 +217,7 @@ def consolidate(destination=DESTINATION):
                    in_current_appendix=config['instance_id'] in paper_ids,
                    in_saved_base_case=config['instance_id'] in base_ids,
                    matches_confirmed_paper_base=(config['vehicle_type'] == 'electric' and
-                       [config[k] for k in ['battery_kwh', 'charging_power_kw', 'station_spacing_km', 'consumption_kwh_per_km']] == [500., 350., 50., 1.49]),
+                       tuple(config[k] for k in PARAMETERS) == BASE),
                    observation_count=len(observations), result_conflict=bool(conflict),
                    observed_min_makespan_hours=min(values) if values else None,
                    observed_max_makespan_hours=max(values) if values else None,
@@ -216,11 +230,7 @@ def consolidate(destination=DESTINATION):
     detail_rows.sort(key=lambda r: r['model_run_id'])
     assert len({r['model_run_id'] for r in summaries}) == len(summaries)
     destination.mkdir(parents=True, exist_ok=True)
-    temp = destination / 'summary.csv.tmp'
-    with temp.open('w', encoding='utf-8', newline='') as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(summaries[0]))
-        writer.writeheader(); writer.writerows(summaries)
-    temp.replace(destination / 'summary.csv')
+    scope_metadata = write_summary_views(summaries, destination, paper_ids)
     temp = destination / 'details.jsonl.tmp'
     with temp.open('w', encoding='utf-8') as stream:
         for row in detail_rows:
@@ -234,7 +244,9 @@ def consolidate(destination=DESTINATION):
                     confirmed_paper_base_count=sum(r['matches_confirmed_paper_base'] for r in summaries),
                     selection_rule='Latest recorded source timestamp, then source priority. Review conflicts before analysis.',
                     historical_input_version='Unverified; grouping by recorded settings does not prove identical input files or code.',
-                    sources=sources, outputs={n: hashlib.sha256((destination / n).read_bytes()).hexdigest() for n in ['summary.csv', 'details.jsonl']})
+                    **scope_metadata,
+                    sources=sources, outputs={n: hashlib.sha256((destination / n).read_bytes()).hexdigest() for n in
+                        ['summary.csv', 'summary_all.csv', 'details.jsonl', 'one_at_a_time_coverage.csv', 'missing_partial_runs.csv']})
     (destination / 'catalog.json').write_text(json.dumps(manifest, indent=2) + '\n', encoding='utf-8')
     print(f"Consolidated {manifest['observation_count']} observations into {len(summaries)} model runs; {manifest['configurations_with_conflicts']} conflicts flagged.")
     return manifest

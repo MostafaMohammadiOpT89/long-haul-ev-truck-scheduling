@@ -5,9 +5,9 @@ import json
 from pathlib import Path
 
 
-def export_results(run_dir, source="results.jsonl"):
+def export_results(run_dir):
     run_dir = Path(run_dir)
-    with (run_dir / source).open(encoding="utf-8") as stream:
+    with (run_dir / "results.jsonl").open(encoding="utf-8") as stream:
         rows = [json.loads(line) for line in stream if line.strip()]
     # Full timelines and decision logs remain in the canonical file.
     fields = sorted({key for row in rows for key, value in row.items()

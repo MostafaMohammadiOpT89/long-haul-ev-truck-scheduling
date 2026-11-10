@@ -1,10 +1,8 @@
-# HoS rules come from common/hos.py (shared by all policies).
-from common.hos import (
-    MAX_ELAPSED_REST_H as maxElapsed_R,
-    MAX_ELAPSED_BREAK_H as maxElapsed_B,
-    MAX_DRIVE_BREAK_H as maxTimeDrive_B,
-    MAX_DRIVE_REST_H as maxTimeDrive_R,
-)
+# Parameters
+maxElapsed_R = 13
+maxElapsed_B = 6
+maxTimeDrive_B = 4.5
+maxTimeDrive_R = 9
 
 batteryCapacity = None
 

@@ -1,44 +1,36 @@
 import csv, math, re
 from itertools import combinations
 
-# HoS rules and speed come from common/hos.py (shared by all policies).
-from common.hos import (
-    DRIVING_SPEED_KMH as driving_speed,
-    DRIVING_SPEED_KMH as velocity,
-    MAX_ELAPSED_REST_H as maxElapsed_R,
-    MAX_ELAPSED_BREAK_H as maxElapsed_B,
-    MAX_DRIVE_BREAK_H as maxTimeDrive_B,
-    MAX_DRIVE_REST_H as maxTimeDrive_R,
-    MIN_BREAK_H as minTimeBreak,
-    MIN_REST_H as minTimeRest,
-    DAY_H as timeDay,
-)
+# Parameters
+driving_speed = 60 # km/h
+maxElapsed_R = 13
+maxElapsed_B = 6
+maxTimeDrive_B = 4.5
+maxTimeDrive_R = 9
+minTimeBreak = 0.75
+minTimeRest = 11
+timeDay = 24
+velocity = 60 # km/h
 
 
 CP = None
 distance_per_cs = None
 consumption = None
 batteryCapacity = None
-# Fixed hours added at every charging-station visit on top of the charging time.
-# Set by the runner (paper setting: 0.0). No default here on purpose.
-cs_service_time = None
-# True: charging during an 11 h daily rest at a CS is free (synchronized with the rest).
-# False: the rest is taken first and the full charging time is added after it.
-rest_charge_sync = None
+# Hours of fixed "visit" time at a CS before the charging REF (0 = only charging time counts).
+cs_service_time = 0.0
 
-def setGlobalParams(consumptionRate, distPerCS, batteryCap, chargingPower, cs_service_time_hours, rest_charge_sync_enabled):
+def setGlobalParams(consumptionRate, distPerCS, batteryCap, chargingPower, cs_service_time_hours=0.0):
     global consumption
     global distance_per_cs
     global batteryCapacity
     global CP
     global cs_service_time
-    global rest_charge_sync
     consumption = consumptionRate
     distance_per_cs = distPerCS
     batteryCapacity = batteryCap
     CP = chargingPower
-    cs_service_time = float(cs_service_time_hours)
-    rest_charge_sync = bool(rest_charge_sync_enabled)
+    cs_service_time = cs_service_time_hours
 
 
 # Helper function to extract numbers and parts for sorting
@@ -702,12 +694,7 @@ class Network:
 				return True
 			return cs_service_time > 0 and abs(er - cs_service_time) < 1e-9
 
-		# The driver took a daily rest right before arriving at this CS.
-		just_rested = _rest_sync_elapsed_r(label.elapsed_R)
-		# A rest also resets drive_B, so a just-rested label must not be treated as a break.
-		just_had_break = label.drive_B == 0 and not just_rested
-
-		if just_rested and rest_charge_sync:
+		if _rest_sync_elapsed_r(label.elapsed_R):
 			sync_tag = "rest_sync"
 			# Fully recharge within synchronization window; no extra time accounted here
 			label.remainingBattery_min = label.batteryCapacity
@@ -720,7 +707,7 @@ class Network:
 			sync_window_type = "rest"
 			sync_window_hours = float(minTimeRest)
 		# Case 2: At a break start (drive_B == 0)
-		elif just_had_break:
+		elif label.drive_B == 0:
 			full_time_min = time_to_full_from(label.remainingBattery_min)
 			full_time_max = time_to_full_from(label.remainingBattery_max)
 #			if full_time_min >= minTimeBreak or full_time_max >= minTimeBreak:
@@ -770,8 +757,7 @@ class Network:
 				added_time_max = 0.0
 				sync_window_type = "break"
 				sync_window_hours = float(minTimeBreak)
-		# Case 3: Not synchronized and not at a break start, or rest sync switched off
-		# (the rest is over, then the full charging time follows)
+		# Case 3: Not synchronized and not at a break start
 		else:
 			sync_tag = "unsync"
 			# Check min branch; if negative, add time to reach zero
@@ -815,7 +801,7 @@ class Network:
 		# because time_min is not modified elsewhere in this routine before this block).
 		elapsed_delta_min = added_time_min
 		elapsed_delta_max = added_time_max  # reserved for a future max-branch HoS treatment
-		label.elapsed_R = 0 if (just_rested and rest_charge_sync) else label.elapsed_R + elapsed_delta_min
+		label.elapsed_R = 0 if _rest_sync_elapsed_r(label.elapsed_R) else label.elapsed_R + elapsed_delta_min
 		label.elapsed_B = (
 			0 if (cs_service_time > 0 and abs(label.elapsed_B - cs_service_time) < 1e-9)
 			else label.elapsed_B + elapsed_delta_min

@@ -32,9 +32,7 @@ def main() -> int:
     parser.add_argument("--distance_per_cs", type=float, required=True)
     parser.add_argument("--battery_cap", type=float, required=True)
     parser.add_argument("--charging_power", type=float, required=True)
-    parser.add_argument("--policy", choices=list(dh.POLICIES), required=True)
-    parser.add_argument("--rest_charge_sync", choices=["true", "false"], required=True,
-                        help="true: charging during the 11 h daily rest is free; false: charge after the rest.")
+    parser.add_argument("--policy", choices=list(dh.POLICIES), default="full")
     parser.add_argument("--t_sync", type=float, default=None, help="Hours; default distance_per_cs / speed.")
     args = parser.parse_args()
 
@@ -52,7 +50,6 @@ def main() -> int:
         charging_power=args.charging_power,
         policy=args.policy,
         t_sync=args.t_sync,
-        rest_charge_sync=args.rest_charge_sync == "true",
     )
     print(json.dumps(result))
     return 0

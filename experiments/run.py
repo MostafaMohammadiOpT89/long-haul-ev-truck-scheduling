@@ -486,15 +486,41 @@ def main() -> int:
     print(f"Preset: {cli_args.preset}")
     print(f"Algorithms: {', '.join(algorithms)}")
 
-    from experiments.jobs import Job, execute_job
     for idx, sc in enumerate(scenarios, 1):
-        cwd = PARTIAL_DIR if sc.algorithm != "full_labeling" else FULL_DIR
-        # Same command builder as main_runner.py and the cluster worker (experiments/jobs.py).
-        job = Job(job_id=f"{idx:06d}", algorithm=sc.algorithm, tag=sc.tag or "",
-                  instance_name=sc.instance_name, instance_path=str(sc.instance_path),
-                  consumption=sc.consumption, distance_per_cs=sc.distance_per_cs,
-                  battery_cap=sc.battery_cap, charging_power=sc.charging_power,
-                  policy=sc.policy, t_sync_hours=sc.t_sync_hours)
+        mode: Optional[str]
+        if sc.algorithm == "partial_labeling":
+            child = PARTIAL_SINGLE_SCENARIO
+            cwd = PARTIAL_DIR
+            mode = "labeling"
+        elif sc.algorithm == "full_labeling":
+            child = FULL_SINGLE_SCENARIO
+            cwd = FULL_DIR
+            mode = "labeling"
+        elif sc.algorithm == "driver_heuristic":
+            child = DRIVER_HEURISTIC_RUNNER
+            cwd = PARTIAL_DIR
+            mode = None  # driver_heuristic_runner.py has no --mode
+        else:
+            raise ValueError(f"Unknown algorithm: {sc.algorithm}")
+
+        child_args = (["--mode", mode] if mode else []) + [
+            "--instance_name",
+            sc.instance_name,
+            "--instance_path",
+            str(sc.instance_path),
+            "--consumption",
+            str(sc.consumption),
+            "--distance_per_cs",
+            str(sc.distance_per_cs),
+            "--battery_cap",
+            str(sc.battery_cap),
+            "--charging_power",
+            str(sc.charging_power),
+        ]
+        if sc.algorithm == "driver_heuristic":
+            child_args += ["--policy", sc.policy or "full"]
+            if sc.t_sync_hours is not None:
+                child_args += ["--t_sync", str(sc.t_sync_hours)]
 
         extra = ""
         if sc.algorithm == "driver_heuristic":
@@ -506,11 +532,12 @@ def main() -> int:
             f"{extra}"
         )
 
-        row = execute_job(job)
-        if row["job_status"] != "ok":
-            manifest.update(status="failed", completed_scenarios=len(all_rows), error=row["job_error"])
+        try:
+            row = _run_child(child, cwd=cwd, args=child_args)
+        except Exception as exc:
+            manifest.update(status="failed", completed_scenarios=len(all_rows), error=str(exc))
             save_manifest(results_dir, manifest)
-            raise RuntimeError(f"Job failed: {row['job_error']}")
+            raise
         # Add unified metadata columns
         row["_runner_timestamp"] = timestamp
         row["_runner_algorithm"] = sc.algorithm
